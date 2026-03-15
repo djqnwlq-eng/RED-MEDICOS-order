@@ -1,0 +1,13 @@
+{
+  "name": "antigravity-order-platform",
+  "version": "1.0.0",
+  "description": "안티그래비티 맞춤형 화장품 발주 플랫폼",
+  "scripts": {
+    "env": "node build-env.js",
+    "start": "node build-env.js && npx serve . -p 3000 --no-clipboard",
+    "dev": "node build-env.js && npx serve . -p 3000"
+  },
+  "keywords": ["cosmetics", "antigravity", "order"],
+  "author": "Antigravity",
+  "license": "ISC"
+}
