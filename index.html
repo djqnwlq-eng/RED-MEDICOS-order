@@ -111,7 +111,8 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
 .chip.ai-rec::before { content: "AI "; font-size: 9px; color: var(--t); font-weight: 800; }
 
 /* ─── SELECTION GRIDS ─── */
-.formula-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-bottom: .75rem; }
+.formula-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: .75rem; }
+@media (max-width: 420px) { .formula-grid { grid-template-columns: repeat(2, 1fr); } }
 .body-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: .75rem; }
 .container-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 8px; margin-bottom: .75rem; }
 @media (max-width: 420px) { .body-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -127,6 +128,23 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
 .sel-card .sc-name { font-size: 12px; font-weight: 700; color: var(--g3); margin-bottom: 2px; }
 .sel-card .sc-desc { font-size: 10px; color: var(--g6); line-height: 1.4; }
 .sel-card.active .sc-name, .sel-card.active .sc-desc { color: var(--td); }
+
+/* ─── FORMULA SUB OPTIONS ─── */
+.formula-sub-area {
+  margin-top: 12px; padding: 14px 16px;
+  background: var(--gf); border-radius: var(--r); border: 1px solid var(--ge);
+  animation: subSlide .2s ease;
+}
+@keyframes subSlide { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: translateY(0); } }
+.formula-sub-label { font-size: 11px; font-weight: 700; color: var(--g6); margin-bottom: 8px; }
+.formula-sub-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.sub-chip {
+  padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
+  border: 1.5px solid var(--ge); background: #fff; color: var(--g3);
+  cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.sub-chip:hover { border-color: var(--t); color: var(--t); }
+.sub-chip.active { border-color: var(--t); background: var(--t); color: #fff; }
 .sc-badge { font-size: 9px; color: #dc2626; margin-top: 2px; }
 
 /* ─── FUNCTION CHECKBOXES ─── */
@@ -223,6 +241,31 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
 .history-card .hc-title { font-size: 13px; font-weight: 700; color: var(--g1); margin-bottom: 4px; }
 .history-card .hc-detail { font-size: 12px; color: var(--g6); line-height: 1.6; }
 .history-empty { text-align: center; padding: 2rem 1rem; color: #c8cad0; font-size: 13px; }
+
+/* ─── ADMIN AUTH ─── */
+.admin-only { display: none !important; }
+.admin-mode .admin-only { display: inline-flex !important; }
+#adminLoginOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 100; display: none; align-items: center; justify-content: center;
+}
+#adminLoginOverlay.open { display: flex; }
+.admin-login-box {
+  background: #fff; border-radius: var(--rlg); padding: 2rem 1.75rem;
+  max-width: 360px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,.12);
+}
+.admin-login-box h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.admin-login-box p { font-size: 12px; color: var(--g6); margin-bottom: 1.25rem; }
+.admin-login-box input {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--ge); border-radius: var(--rsm);
+  font-size: 14px; font-family: inherit; margin-bottom: 10px;
+}
+.admin-login-box input:focus { outline: none; border-color: var(--t); }
+.admin-login-error { font-size: 11px; color: #dc2626; margin-bottom: 8px; display: none; }
+.admin-login-btns { display: flex; gap: 8px; }
+.admin-login-btns button { flex: 1; padding: 10px; border-radius: var(--rsm); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; border: none; }
+.admin-login-btns .al-cancel { background: var(--gf); color: var(--g6); border: 1px solid var(--ge); }
+.admin-login-btns .al-submit { background: var(--t); color: #fff; }
 </style>
 </head>
 <body>
@@ -260,16 +303,31 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
   <div class="topbar">
     <div class="topbar-brand">🧪 레드메디코스 <em>발주 플랫폼</em></div>
     <div class="topbar-actions">
-      <button class="btn-sm" onclick="openApiSetting()" id="apiKeyBtn">🔑 API 키 <span id="apiStatus" style="font-size:9px"></span></button>
-      <button class="btn-sm" onclick="openHistory()">📋 발주 이력</button>
-      <button class="btn-sm" onclick="openAdmin()">⚙ 성분 관리</button>
+      <button class="btn-sm admin-only" onclick="openApiSetting()" id="apiKeyBtn">🔑 API 키 <span id="apiStatus" style="font-size:9px"></span></button>
+      <button class="btn-sm admin-only" onclick="openHistory()">📋 발주 이력</button>
+      <button class="btn-sm admin-only" onclick="openAdmin()">⚙ 성분 관리</button>
       <button class="btn-sm" onclick="goToStep(1)">🏠 홈</button>
       <button class="btn-sm" onclick="resetApp()">새 발주</button>
+      <button class="btn-sm" onclick="toggleAdminLogin()" id="adminToggleBtn">🔒 관리자</button>
     </div>
   </div>
   <div class="wrap">
     <div class="progress" id="progressBar"></div>
     <div id="stepContent"></div>
+  </div>
+</div>
+
+<!-- ════ ADMIN LOGIN MODAL ════ -->
+<div id="adminLoginOverlay" onclick="if(event.target===event.currentTarget)closeAdminLogin()">
+  <div class="admin-login-box">
+    <h3>🔐 관리자 로그인</h3>
+    <p>관리자 기능을 사용하려면 비밀번호를 입력하세요</p>
+    <input type="password" id="adminPwInput" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')submitAdminLogin()">
+    <div class="admin-login-error" id="adminLoginError">비밀번호가 올바르지 않습니다</div>
+    <div class="admin-login-btns">
+      <button class="al-cancel" onclick="closeAdminLogin()">취소</button>
+      <button class="al-submit" onclick="submitAdminLogin()">로그인</button>
+    </div>
   </div>
 </div>
 
@@ -332,39 +390,71 @@ const CONFIG = {
   SUBMIT_EMAIL: 'research@antigravity.co.kr', // 제출 수신 이메일 (실제 연동 시 사용)
 
   // .env에서 자동 로드
-  GEMINI_API_KEY:     _ENV.GEMINI_API_KEY     || '',
+  GEMINI_API_KEY:     _ENV.GEMINI_API_KEY     || 'AIzaSyCtEBvEV7CXfNLqpBcACPHwc8F6BzVJN68',
   EMAILJS_PUBLIC_KEY: _ENV.EMAILJS_PUBLIC_KEY || '',
   EMAILJS_SERVICE_ID: _ENV.EMAILJS_SERVICE_ID || '',
   EMAILJS_TEMPLATE_ID:_ENV.EMAILJS_TEMPLATE_ID|| '',
   GOOGLE_SHEETS_URL:  _ENV.GOOGLE_SHEETS_URL  || '',
-  ADMIN_PASSWORD:     _ENV.ADMIN_PASSWORD     || '',
+  ADMIN_PASSWORD:     _ENV.ADMIN_PASSWORD     || 'red1234',
 };
 
 // ════════════════════════════════════════════════════════════
 //  📋  MASTER DATA
 // ════════════════════════════════════════════════════════════
-const FORMULAS = [
-  { id: 'mist-a',   name: '미스트 A',  icon: '💧', desc: '워터/쿨링형',   heavy: false },
-  { id: 'mist-b',   name: '미스트 B',  icon: '✨', desc: '에센스 미스트', heavy: false },
-  { id: 'cream-a',  name: '크림 A',    icon: '🫧', desc: '가벼운 로션형', heavy: false },
-  { id: 'cream-b',  name: '크림 B',    icon: '🧴', desc: '중간 크림형',   heavy: true  },
-  { id: 'cream-c',  name: '크림 C',    icon: '🫙', desc: '고보습/꾸덕',   heavy: true  },
-  { id: 'lotion-a', name: '로션 A',    icon: '🌿', desc: '수분 로션',     heavy: false },
-  { id: 'serum-a',  name: '세럼 A',    icon: '💫', desc: '기능성 세럼',   heavy: false },
-  { id: 'ampoule',  name: '앰플',      icon: '⚗️', desc: '고농축 앰플',   heavy: false },
+const FORMULA_CATEGORIES = [
+  { id: 'cream',    name: '크림',    icon: '🧴', subs: [
+    { id: 'cream-a', name: '가벼운',       heavy: false },
+    { id: 'cream-b', name: '중간',         heavy: true  },
+    { id: 'cream-c', name: '고보습/꾸덕',  heavy: true  },
+  ]},
+  { id: 'lotion',   name: '로션',    icon: '🌿', subs: [
+    { id: 'lotion-a', name: '수분 로션',   heavy: false },
+    { id: 'lotion-b', name: '영양 로션',   heavy: true  },
+  ]},
+  { id: 'serum',    name: '세럼',    icon: '💫', subs: [
+    { id: 'serum-a', name: '수분 세럼',    heavy: false },
+    { id: 'serum-b', name: '기능성 세럼',  heavy: false },
+  ]},
+  { id: 'mist',     name: '미스트',  icon: '💧', subs: [
+    { id: 'mist-a', name: '워터/쿨링',     heavy: false },
+    { id: 'mist-b', name: '에센스 미스트', heavy: false },
+  ]},
+  { id: 'ampoule',  name: '앰플',    icon: '⚗️', subs: [
+    { id: 'ampoule-a', name: '고농축 앰플', heavy: false },
+  ]},
+  { id: 'shampoo',  name: '샴푸',    icon: '🫧', subs: [
+    { id: 'shampoo-a', name: '일반',       heavy: false },
+    { id: 'shampoo-b', name: '두피케어',   heavy: false },
+    { id: 'shampoo-c', name: '탈모케어',   heavy: false },
+  ]},
+  { id: 'cleanser', name: '세정제',  icon: '🧼', subs: [
+    { id: 'cleanser-a', name: '폼타입',    heavy: false },
+    { id: 'cleanser-b', name: '젤타입',    heavy: false },
+    { id: 'cleanser-c', name: '오일타입',  heavy: true  },
+  ]},
+  { id: 'patch',    name: '패치',    icon: '🩹', subs: [
+    { id: 'patch-a', name: '하이드로겔',    heavy: false },
+    { id: 'patch-b', name: '마이크로니들',  heavy: false },
+  ]},
 ];
+
+// 하위 호환용 flat 배열
+const FORMULAS = FORMULA_CATEGORIES.flatMap(cat =>
+  cat.subs.map(s => ({ id: s.id, name: `${cat.name} - ${s.name}`, desc: s.name, icon: cat.icon, heavy: s.heavy, category: cat.id }))
+);
 
 // 용기 — block: 이 제형과 함께 사용 불가
 const CONTAINERS = [
-  { id: 'jar',     name: '자(Jar)',   icon: '🫙', block: ['mist-a','mist-b','lotion-a','serum-a','ampoule'] },
-  { id: 'pump',    name: '펌프',      icon: '🧴', block: ['cream-b','cream-c'] },
-  { id: 'tube',    name: '튜브',      icon: '🪥', block: ['mist-a','mist-b','ampoule'] },
-  { id: 'spray',   name: '스프레이', icon: '💨', block: ['cream-a','cream-b','cream-c','serum-a','ampoule'] },
-  { id: 'airless', name: '에어리스', icon: '🔵', block: ['mist-a','mist-b','cream-c'] },
+  { id: 'jar',     name: '자(Jar)',   icon: '🫙', block: ['mist-a','mist-b','lotion-a','lotion-b','serum-a','serum-b','ampoule-a','shampoo-a','shampoo-b','shampoo-c','cleanser-a','cleanser-b','cleanser-c','patch-a','patch-b'] },
+  { id: 'pump',    name: '펌프',      icon: '🧴', block: ['cream-c','patch-a','patch-b'] },
+  { id: 'tube',    name: '튜브',      icon: '🪥', block: ['mist-a','mist-b','ampoule-a','shampoo-a','shampoo-b','shampoo-c','patch-a','patch-b'] },
+  { id: 'spray',   name: '스프레이', icon: '💨', block: ['cream-a','cream-b','cream-c','serum-a','serum-b','ampoule-a','shampoo-a','shampoo-b','shampoo-c','cleanser-a','cleanser-b','cleanser-c','patch-a','patch-b'] },
+  { id: 'airless', name: '에어리스', icon: '🔵', block: ['mist-a','mist-b','cream-c','shampoo-a','shampoo-b','shampoo-c','cleanser-a','cleanser-b','cleanser-c','patch-a','patch-b'] },
+  { id: 'bottle',  name: '보틀',      icon: '🍶', block: ['cream-a','cream-b','cream-c','patch-a','patch-b'] },
 ];
 
 const VOLUMES     = [30, 50, 100, 150, 200, 300];
-const BODY_PARTS  = [['얼굴','😊'], ['바디','💪'], ['발','🦶'], ['그 외','✨']];
+const BODY_PARTS  = [['얼굴','😊'], ['목','🦢'], ['바디','💪'], ['손','🤲'], ['가슴','👗'], ['발','🦶'], ['머리','💆'], ['직접입력','✏️']];
 const FUNCTIONS   = ['피부주름개선', '미백기능'];
 
 // 성분 리스트 — ⚙ 성분 관리에서 런타임 추가/삭제 가능 (localStorage에 자동 저장)
@@ -420,6 +510,7 @@ function saveOrder(order) {
 // ════════════════════════════════════════════════════════════
 const STATE = {
   apiKey:       '',
+  isAdmin:      false,
   step:         1,
   description:  '',
   functions:    [],       // 기능성 화장품 선택
@@ -427,6 +518,7 @@ const STATE = {
   formula:      null,     // formula.id
   selExtracts:  {},       // { '편백수': 300, ... }
   aiRecs:       [],       // Gemini 추천 성분명 배열
+  trendRecs:    [],       // Gemini 트렌드 성분명 배열
   volume:       50,       // ml
   quantity:     500,
   container:    null,     // container.id
@@ -445,13 +537,28 @@ const N           = n  => n.toLocaleString('ko-KR');
 // ════════════════════════════════════════════════════════════
 //  🤖  GEMINI API
 // ════════════════════════════════════════════════════════════
+function buildExtractList() {
+  return extracts.map(e =>
+    `- ${e.name} (효능: ${e.tags.length ? e.tags.join(', ') : '정보 없음'})`
+  ).join('\n');
+}
+
+function buildContextInfo() {
+  const formula = getFormula();
+  const funcs = STATE.functions.length ? STATE.functions.join(', ') : '없음';
+  const body = STATE.bodyPart || '미선택';
+  const form = formula ? `${formula.name} - ${formula.desc}` : '미선택';
+  return `사용 부위: ${body}\n기능성 화장품: ${funcs}\n제형: ${form}`;
+}
+
 async function callGemini(description) {
   if (!STATE.apiKey) return [];
-  const names = extracts.map(e => e.name).join(', ');
   const prompt =
-    `화장품 개발 목적: "${description}"\n` +
-    `다음 성분 목록에서 이 목적에 가장 적합한 성분 5~7개를 선택하세요.\n` +
-    `성분 목록: ${names}\n` +
+    `당신은 화장품 성분 전문가입니다. 아래 조건에 가장 적합한 성분 5~7개를 추천하세요.\n\n` +
+    `[개발 목적]\n${description}\n\n` +
+    `[제품 조건]\n${buildContextInfo()}\n\n` +
+    `[사용 가능한 성분 목록]\n${buildExtractList()}\n\n` +
+    `위 조건을 모두 고려하여 가장 적합한 성분을 선택하세요.\n` +
     `JSON 형식으로만 응답 (마크다운, 설명 없이): {"recommendations":["성분명1","성분명2"]}`;
 
   try {
@@ -462,7 +569,7 @@ async function callGemini(description) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 256 }
+          generationConfig: { temperature: 0.3, maxOutputTokens: 2048 }
         })
       }
     );
@@ -473,6 +580,39 @@ async function callGemini(description) {
     return JSON.parse(text).recommendations || [];
   } catch (err) {
     console.error('[Gemini Error]', err);
+    return [];
+  }
+}
+
+async function callGeminiTrend() {
+  if (!STATE.apiKey) return [];
+  const prompt =
+    `당신은 화장품 성분 트렌드 전문가입니다.\n` +
+    `아래 제품 조건과 관련하여, 현재 화장품 업계에서 주목받는 트렌드 성분 4~6개를 선택하세요.\n\n` +
+    `[개발 목적]\n${STATE.description}\n\n` +
+    `[제품 조건]\n${buildContextInfo()}\n\n` +
+    `[사용 가능한 성분 목록]\n${buildExtractList()}\n\n` +
+    `JSON 형식으로만 응답 (마크다운, 설명 없이): {"trends":["성분명1","성분명2"]}`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.GEMINI_MODEL}:generateContent?key=${STATE.apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.5, maxOutputTokens: 2048 }
+        })
+      }
+    );
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    let text = data.candidates[0].content.parts[0].text;
+    text = text.replace(/```json|```/g, '').trim();
+    return JSON.parse(text).trends || [];
+  } catch (err) {
+    console.error('[Gemini Trend Error]', err);
     return [];
   }
 }
@@ -523,12 +663,22 @@ function buildStep1() {
     </label>`;
   }).join('');
 
-  const bodyCards = BODY_PARTS.map(([name, icon]) =>
-    `<div class="sel-card ${STATE.bodyPart === name ? 'active' : ''}" onclick="selectBodyPart('${name}', this)">
+  const presetNames = BODY_PARTS.filter(([n]) => n !== '직접입력').map(([n]) => n);
+  const isCustom = STATE.bodyPart && !presetNames.includes(STATE.bodyPart);
+  const bodyCards = BODY_PARTS.map(([name, icon]) => {
+    const active = name === '직접입력' ? isCustom : STATE.bodyPart === name;
+    return `<div class="sel-card ${active ? 'active' : ''}" onclick="selectBodyPart('${name}', this)">
       <div class="sc-icon">${icon}</div>
       <div class="sc-name">${name}</div>
-    </div>`
-  ).join('');
+    </div>`;
+  }).join('');
+
+  const customInput = isCustom
+    ? `<div id="customBodyWrapper" style="margin-top:10px">
+        <input type="text" id="customBodyInput" value="${STATE.bodyPart}" placeholder="사용 부위를 직접 입력하세요"
+          style="width:100%;padding:10px 12px;border:1px solid var(--ge);border-radius:var(--rsm);font-size:14px;font-family:inherit"
+          oninput="STATE.bodyPart=this.value.trim()">
+      </div>` : '';
 
   return `
     <div class="card">
@@ -541,30 +691,52 @@ function buildStep1() {
     <div class="card">
       <div class="card-title">사용할 부위를 선택해주세요</div>
       <div class="body-grid">${bodyCards}</div>
+      ${customInput}
     </div>
     <div class="btn-row">
       <button class="btn primary" onclick="nextStep1()">다음 단계 →</button>
     </div>`;
 }
 
-// ── STEP 2: 제형 선택 ──
+// ── STEP 2: 제형 선택 (카테고리 → 서브옵션) ──
+function getSelectedCategory() {
+  if (!STATE.formula) return null;
+  return FORMULA_CATEGORIES.find(cat => cat.subs.some(s => s.id === STATE.formula)) || null;
+}
+
 function buildStep2() {
-  const cards = FORMULAS.map(f =>
-    `<div class="sel-card ${STATE.formula === f.id ? 'active' : ''}" onclick="selectFormula('${f.id}', this)">
-      <div class="sc-icon">${f.icon}</div>
-      <div class="sc-name">${f.name}</div>
-      <div class="sc-desc">${f.desc}</div>
-    </div>`
-  ).join('');
+  const selCat = getSelectedCategory();
+
+  const catCards = FORMULA_CATEGORIES.map(cat => {
+    const active = selCat && selCat.id === cat.id;
+    return `<div class="sel-card ${active ? 'active' : ''}" onclick="selectFormulaCategory('${cat.id}')">
+      <div class="sc-icon">${cat.icon}</div>
+      <div class="sc-name">${cat.name}</div>
+    </div>`;
+  }).join('');
+
+  let subSection = '';
+  if (selCat) {
+    const chips = selCat.subs.map(s =>
+      `<button class="sub-chip ${STATE.formula === s.id ? 'active' : ''}" data-id="${s.id}" onclick="selectFormulaSub('${s.id}')">${s.name}</button>`
+    ).join('');
+    subSection = `
+      <div class="formula-sub-area">
+        <div class="formula-sub-label">${selCat.icon} ${selCat.name} 세부 타입을 선택하세요</div>
+        <div class="formula-sub-chips">${chips}</div>
+      </div>`;
+  }
+
   return `
     <div class="card">
       <div class="card-title">제형을 선택해주세요</div>
-      <div class="card-sub">원하는 제품의 제형과 텍스처 타입을 고르세요</div>
-      <div class="formula-grid">${cards}</div>
+      <div class="card-sub">제형을 선택하면 세부 타입을 고를 수 있습니다</div>
+      <div class="formula-grid" id="formulaGrid">${catCards}</div>
+      <div id="formulaSubArea">${subSection}</div>
     </div>
     <div class="btn-row">
       <button class="btn" onclick="goToStep(1)">← 이전</button>
-      <button class="btn primary" ${!STATE.formula ? 'disabled' : ''} onclick="goToStep(3)">다음 단계 →</button>
+      <button class="btn primary" id="btnNext2" ${!STATE.formula ? 'disabled' : ''} onclick="goToStep(3)">다음 단계 →</button>
     </div>`;
 }
 
@@ -573,6 +745,10 @@ function buildStep3(aiLoading = false) {
   const aiSection = aiLoading
     ? `<div class="ai-loading"><div class="spinner"></div> Gemini가 성분을 분석 중입니다...</div>`
     : `<div class="chips" id="aiChips">${buildAIChips()}</div>`;
+
+  const trendSection = aiLoading
+    ? `<div class="ai-loading"><div class="spinner"></div> 트렌드 성분을 분석 중입니다...</div>`
+    : `<div class="chips" id="trendChips">${buildTrendChips()}</div>`;
 
   const allChips = extracts.map(e =>
     `<div class="chip ${STATE.selExtracts[e.name] !== undefined ? 'sel' : ''}"
@@ -592,6 +768,11 @@ function buildStep3(aiLoading = false) {
         <span style="font-size:10px;font-weight:800;padding:2px 7px;background:var(--tl);color:var(--tmd);border-radius:10px">✦ AI 추천 성분</span>
       </div>
       <div id="aiSection">${aiSection}</div>
+
+      <div class="section-tag">
+        <span style="font-size:10px;font-weight:800;padding:2px 7px;background:var(--al);color:var(--ad);border-radius:10px">🔥 요즘 트렌드 성분</span>
+      </div>
+      <div id="trendSection">${trendSection}</div>
 
       <div class="section-tag">전체 성분 리스트</div>
       <div class="chips">${allChips}</div>
@@ -619,6 +800,20 @@ function buildAIChips() {
     return `<div class="chip ai-rec ${STATE.selExtracts[name] !== undefined ? 'sel' : ''}"
       onclick="toggleExtract('${name}', ${e.price})">
       ${name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>
+    </div>`;
+  }).join('');
+}
+
+function buildTrendChips() {
+  if (!STATE.trendRecs.length)
+    return `<span style="font-size:12px;color:#c8cad0">트렌드 성분을 불러올 수 없습니다</span>`;
+  return STATE.trendRecs.map(name => {
+    const e = extracts.find(x => x.name === name);
+    if (!e) return '';
+    return `<div class="chip trend-rec ${STATE.selExtracts[name] !== undefined ? 'sel' : ''}"
+      onclick="toggleExtract('${name}', ${e.price})"
+      style="border-color:var(--am)">
+      ${name}&nbsp;<span style="color:var(--am);font-size:10px">+${N(e.price)}원</span>
     </div>`;
   }).join('');
 }
@@ -749,16 +944,80 @@ function toggleFunction(fn, checked, el) {
 }
 
 function selectBodyPart(name, el) {
-  STATE.bodyPart = name;
   document.querySelectorAll('.body-grid .sel-card').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
+  if (name === '직접입력') {
+    STATE.bodyPart = '';
+    // 기존 customBodyInput 제거 후 새로 생성
+    let wrapper = document.getElementById('customBodyWrapper');
+    if (!wrapper) {
+      wrapper = document.createElement('div');
+      wrapper.id = 'customBodyWrapper';
+      wrapper.style.cssText = 'margin-top:10px';
+      wrapper.innerHTML = `<input type="text" id="customBodyInput" placeholder="사용 부위를 직접 입력하세요"
+        style="width:100%;padding:10px 12px;border:1px solid var(--ge);border-radius:var(--rsm);font-size:14px;font-family:inherit"
+        oninput="STATE.bodyPart=this.value.trim()">`;
+      el.closest('.card').querySelector('.body-grid').after(wrapper);
+    }
+    setTimeout(() => document.getElementById('customBodyInput')?.focus(), 50);
+  } else {
+    STATE.bodyPart = name;
+    const wrapper = document.getElementById('customBodyWrapper');
+    if (wrapper) wrapper.remove();
+  }
 }
 
+function selectFormulaCategory(catId) {
+  const cat = FORMULA_CATEGORIES.find(c => c.id === catId);
+  if (!cat) return;
+
+  // 카테고리만 바뀌면 서브 선택 초기화
+  const prevCat = getSelectedCategory();
+  if (!prevCat || prevCat.id !== catId) {
+    STATE.formula = null;
+    STATE.container = null;
+  }
+
+  // 카테고리 active 표시
+  document.querySelectorAll('#formulaGrid .sel-card').forEach(c => c.classList.remove('active'));
+  const cards = document.querySelectorAll('#formulaGrid .sel-card');
+  const idx = FORMULA_CATEGORIES.findIndex(c => c.id === catId);
+  if (cards[idx]) cards[idx].classList.add('active');
+
+  // 서브옵션 렌더링
+  const chips = cat.subs.map(s =>
+    `<button class="sub-chip ${STATE.formula === s.id ? 'active' : ''}" data-id="${s.id}" onclick="selectFormulaSub('${s.id}')">${s.name}</button>`
+  ).join('');
+  document.getElementById('formulaSubArea').innerHTML = `
+    <div class="formula-sub-area">
+      <div class="formula-sub-label">${cat.icon} ${cat.name} 세부 타입을 선택하세요</div>
+      <div class="formula-sub-chips">${chips}</div>
+    </div>`;
+
+  // 서브가 1개면 자동 선택
+  if (cat.subs.length === 1) {
+    selectFormulaSub(cat.subs[0].id);
+  } else {
+    const btn = document.getElementById('btnNext2');
+    if (btn) btn.setAttribute('disabled', '');
+  }
+}
+
+function selectFormulaSub(subId) {
+  STATE.formula = subId;
+  STATE.container = null;
+  document.querySelectorAll('.sub-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.id === subId);
+  });
+  const btn = document.getElementById('btnNext2');
+  if (btn) btn.removeAttribute('disabled');
+}
+
+// 하위 호환
 function selectFormula(id, el) {
   STATE.formula = id; STATE.container = null;
   document.querySelectorAll('.formula-grid .sel-card').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  // 다음 버튼 활성화
+  if (el) el.classList.add('active');
   const nextBtn = document.querySelector('.btn-row .btn.primary');
   if (nextBtn) nextBtn.removeAttribute('disabled');
 }
@@ -839,12 +1098,20 @@ async function goToStep(n) {
 
 async function loadAIRecommendations() {
   if (STATE.apiKey) {
-    STATE.aiRecs = await callGemini(STATE.description);
+    const [recs, trends] = await Promise.all([
+      callGemini(STATE.description),
+      callGeminiTrend()
+    ]);
+    STATE.aiRecs = recs;
+    STATE.trendRecs = trends;
   } else {
     STATE.aiRecs = fallbackRecommend(STATE.description);
+    STATE.trendRecs = [];
   }
-  const el = document.getElementById('aiSection');
-  if (el) el.innerHTML = `<div class="chips" id="aiChips">${buildAIChips()}</div>`;
+  const aiEl = document.getElementById('aiSection');
+  if (aiEl) aiEl.innerHTML = `<div class="chips" id="aiChips">${buildAIChips()}</div>`;
+  const trendEl = document.getElementById('trendSection');
+  if (trendEl) trendEl.innerHTML = `<div class="chips" id="trendChips">${buildTrendChips()}</div>`;
 }
 
 function submitOrder() {
@@ -887,7 +1154,7 @@ function submitOrder() {
 function resetApp() {
   Object.assign(STATE, {
     step: 1, description: '', functions: [], bodyPart: '',
-    formula: null, selExtracts: {}, aiRecs: [], volume: 50, quantity: 500, container: null
+    formula: null, selExtracts: {}, aiRecs: [], trendRecs: [], volume: 50, quantity: 500, container: null
   });
   goToStep(1);
 }
@@ -1023,16 +1290,40 @@ function closeHistory() {
 }
 
 // ════════════════════════════════════════════════════════════
-//  🔒  관리자 비밀번호 보호
+//  🔒  관리자 인증
 // ════════════════════════════════════════════════════════════
-function openAdmin() {
-  if (CONFIG.ADMIN_PASSWORD) {
-    const pw = prompt('관리자 비밀번호를 입력하세요');
-    if (pw !== CONFIG.ADMIN_PASSWORD) {
-      if (pw !== null) alert('비밀번호가 올바르지 않습니다');
-      return;
-    }
+function toggleAdminLogin() {
+  if (STATE.isAdmin) {
+    STATE.isAdmin = false;
+    document.getElementById('mainApp').classList.remove('admin-mode');
+    document.getElementById('adminToggleBtn').innerHTML = '🔒 관리자';
+  } else {
+    document.getElementById('adminLoginOverlay').classList.add('open');
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminLoginError').style.display = 'none';
+    setTimeout(() => document.getElementById('adminPwInput').focus(), 100);
   }
+}
+
+function submitAdminLogin() {
+  const pw = document.getElementById('adminPwInput').value;
+  if (!CONFIG.ADMIN_PASSWORD || pw === CONFIG.ADMIN_PASSWORD) {
+    STATE.isAdmin = true;
+    document.getElementById('mainApp').classList.add('admin-mode');
+    document.getElementById('adminToggleBtn').innerHTML = '🔓 로그아웃';
+    closeAdminLogin();
+  } else {
+    document.getElementById('adminLoginError').style.display = 'block';
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminPwInput').focus();
+  }
+}
+
+function closeAdminLogin() {
+  document.getElementById('adminLoginOverlay').classList.remove('open');
+}
+
+function openAdmin() {
   document.getElementById('adminOverlay').classList.add('open');
   renderAdminList();
 }
