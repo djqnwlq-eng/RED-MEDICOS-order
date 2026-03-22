@@ -136,7 +136,8 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
 .chip.disabled { opacity: .3; cursor: not-allowed; pointer-events: none; border-style: dashed; }
 .chip.ai-rec::before { content: "AI "; font-size: 9px; color: var(--t); font-weight: 800; }
 .cat-badge { font-size:9px; font-weight:700; padding:1px 5px; border-radius:6px; margin-right:4px; vertical-align:middle; letter-spacing:.02em; }
-.cat-badge.cat-향료 { background:#FEF3C7; color:#92400E; }
+.cat-badge.cat-에센셜오일 { background:#FEF3C7; color:#92400E; }
+.cat-badge.cat-특허증활용가능 { background:#F3E8FF; color:#6B21A8; }
 .cat-badge.cat-추출물 { background:#D1FAE5; color:#065F46; }
 .cat-badge.cat-첨가원료 { background:#DBEAFE; color:#1E40AF; }
 .chip .inci-tooltip {
@@ -496,7 +497,8 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
         <div>
           <label class="form-label">원료 구분</label>
           <select class="inp" id="newExtCategory">
-            <option value="향료">향료</option>
+            <option value="특허증활용가능">특허증 활용가능</option>
+            <option value="에센셜오일">에센셜 오일</option>
             <option value="추출물" selected>추출물</option>
             <option value="첨가원료">첨가원료</option>
           </select>
@@ -565,21 +567,20 @@ const FORMULA_CATEGORIES = [
     { id: 'mist-c', name: '크림형',        heavy: false },
   ]},
   { id: 'shampoo',  name: '샴푸',        icon: '🧴', subs: [
-    { id: 'shampoo-a', name: '폼',         heavy: false },
+    { id: 'shampoo-a', name: '버블타입',    heavy: false },
     { id: 'shampoo-b', name: '일반',       heavy: false },
   ]},
-  { id: 'cleanser', name: '세정제',      icon: 'svg-cleanser', subs: [
-    { id: 'cleanser-a', name: '젤',        heavy: false },
-    { id: 'cleanser-b', name: '폼',        heavy: false },
+  { id: 'cleanser', name: '워시',        icon: 'svg-cleanser', subs: [
+    { id: 'cleanser-a', name: '기본형',     heavy: false },
+    { id: 'cleanser-b', name: '버블타입',   heavy: false },
   ]},
   { id: 'foam',     name: '폼클렌징',    icon: 'svg-cleanser', subs: [
     { id: 'foam-a', name: '젤',            heavy: false },
-    { id: 'foam-b', name: '폼',            heavy: false },
+    { id: 'foam-b', name: '버블타입',      heavy: false },
     { id: 'foam-c', name: '젤투폼',        heavy: false },
   ]},
   { id: 'patch',    name: '국소 패치',   icon: 'svg-airless-pump', subs: [
-    { id: 'patch-a', name: '하이드로겔',    heavy: false },
-    { id: 'patch-b', name: '마이크로니들',  heavy: false },
+    { id: 'patch-a', name: '바르고 떼내는 타입', heavy: false },
   ]},
 ];
 
@@ -716,12 +717,12 @@ function containerIcon(icon) {
 // 용기 마스터
 const CONTAINERS = [
   { id: 'dropper', name: '스포이드',    icon: 'c-dropper', desc: '세럼·앰플 기본형' },
-  { id: 'pump',    name: '펌프',        icon: 'c-pump',    desc: '로션·세정제 기본형' },
+  { id: 'pump',    name: '펌프',        icon: 'c-pump',    desc: '로션·워시 기본형' },
   { id: 'jar',     name: '자(Jar)',     icon: 'c-jar',     desc: '크림 전용' },
   { id: 'spray',   name: '스프레이',    icon: 'c-spray',   desc: '미스트 전용' },
   { id: 'airless', name: '에어리스',    icon: 'c-airless', desc: '고기능 크림·세럼' },
-  { id: 'bubble',  name: '버블펌프',     icon: 'c-bubble',  desc: '폼타입 세정제 전용' },
-  { id: 'bottle',  name: '캡형 보틀',   icon: 'c-bottle',  desc: '토너·샴푸·세정제' },
+  { id: 'bubble',  name: '버블펌프',     icon: 'c-bubble',  desc: '버블타입 워시 전용' },
+  { id: 'bottle',  name: '캡형 보틀',   icon: 'c-bottle',  desc: '토너·샴푸·워시' },
 ];
 
 // 제형별 허용 용기 + 추천(rec) 표시
@@ -747,7 +748,6 @@ const CONTAINER_RULES = {
   'foam-b':  { allow: ['bubble','bottle'],                rec: 'bubble' },
   'foam-c':  { allow: ['pump','bottle'],                  rec: 'pump' },
   'patch-a': { allow: ['airless'],                        rec: 'airless' },
-  'patch-b': { allow: ['airless'],                        rec: 'airless' },
 };
 
 const VOLUMES     = [30, 50, 100, 150, 200, 300];
@@ -773,24 +773,24 @@ const BODY_SVGS = {
 function bodyIcon(icon) {
   return BODY_SVGS[icon] || icon;
 }
-const FUNCTIONS   = ['피부주름개선', '미백기능', '자외선차단', '탈모완화'];
+const FUNCTIONS   = ['주름기능성', '미백기능성', '자외선 차단 기능성', '탈모완화기능성'];
 
 // 성분 리스트 — ⚙ 성분 관리에서 런타임 추가/삭제 가능 (localStorage에 자동 저장)
 const DEFAULT_EXTRACTS = [
-  // ── 향료 (12 + 무향) ──
-  { id:0,  name:'무향',             category:'향료', price:0,    tags:[], inci:'' },
-  { id:1,  name:'티트리잎오일',     category:'향료', price:750,  tags:['항균','진정','여드름','트러블','지성','두피','피지조절','염증'], inci:'' },
-  { id:2,  name:'라벤더오일',       category:'향료', price:1000, tags:['진정','수면','릴렉스','민감성','홍조','보습','얼굴','바디'], inci:'' },
-  { id:3,  name:'로즈마리잎오일',   category:'향료', price:750,  tags:['항산화','혈행','두피','탈모','모공','지성','각질','탄력'], inci:'' },
-  { id:4,  name:'연필나무목부오일', category:'향료', price:550,  tags:['진정','우디','민감성','보습','릴렉스','바디','건성'], inci:'' },
-  { id:5,  name:'편백오일',         category:'향료', price:2750, tags:['항균','진정','피톤치드','트러블','아토피','민감성','두피','바디'], inci:'' },
-  { id:6,  name:'자몽껍질오일',     category:'향료', price:1100, tags:['피지','상쾌함','지성','톤업','셀룰라이트','바디','모공','시트러스'], inci:'' },
-  { id:7,  name:'로즈우드오일',     category:'향료', price:1050, tags:['보습','재생','플로럴','주름개선','건성','탄력','얼굴','민감성'], inci:'' },
-  { id:8,  name:'유칼립투스오일',   category:'향료', price:375,  tags:['항균','호흡','쿨링','두피','트러블','비듬','지성','상쾌함'], inci:'' },
-  { id:9,  name:'일랑일랑꽃오일',  category:'향료', price:1250, tags:['보습','릴렉스','플로럴','피지조절','복합성','탄력','바디','건성'], inci:'' },
-  { id:10, name:'베르가모트오일',   category:'향료', price:800,  tags:['진정','항균','시트러스','톤업','지성','트러블','모공','상쾌함'], inci:'' },
-  { id:11, name:'레몬오일',         category:'향료', price:700,  tags:['미백','상쾌함','시트러스','톤업','색소','각질','지성','모공'], inci:'' },
-  { id:12, name:'페퍼민트오일',     category:'향료', price:375,  tags:['쿨링','두피','상쾌함','가려움','비듬','지성','혈행','탈모'], inci:'' },
+  // ── 에센셜 오일 (12 + 무향) ──
+  { id:0,  name:'무향',             category:'에센셜오일', price:0,    tags:[], inci:'' },
+  { id:1,  name:'티트리잎오일',     category:'에센셜오일', price:750,  tags:['항균','진정','여드름','트러블','지성','두피','피지조절','염증'], inci:'' },
+  { id:2,  name:'라벤더오일',       category:'에센셜오일', price:1000, tags:['진정','수면','릴렉스','민감성','홍조','보습','얼굴','바디'], inci:'' },
+  { id:3,  name:'로즈마리잎오일',   category:'에센셜오일', price:750,  tags:['항산화','혈행','두피','탈모','모공','지성','각질','탄력'], inci:'' },
+  { id:4,  name:'연필나무목부오일', category:'에센셜오일', price:550,  tags:['진정','우디','민감성','보습','릴렉스','바디','건성'], inci:'' },
+  { id:5,  name:'편백오일',         category:'에센셜오일', price:2750, tags:['항균','진정','피톤치드','트러블','아토피','민감성','두피','바디'], inci:'' },
+  { id:6,  name:'자몽껍질오일',     category:'에센셜오일', price:1100, tags:['피지','상쾌함','지성','톤업','셀룰라이트','바디','모공','시트러스'], inci:'' },
+  { id:7,  name:'로즈우드오일',     category:'에센셜오일', price:1050, tags:['보습','재생','플로럴','주름개선','건성','탄력','얼굴','민감성'], inci:'' },
+  { id:8,  name:'유칼립투스오일',   category:'에센셜오일', price:375,  tags:['항균','호흡','쿨링','두피','트러블','비듬','지성','상쾌함'], inci:'' },
+  { id:9,  name:'일랑일랑꽃오일',  category:'에센셜오일', price:1250, tags:['보습','릴렉스','플로럴','피지조절','복합성','탄력','바디','건성'], inci:'' },
+  { id:10, name:'베르가모트오일',   category:'에센셜오일', price:800,  tags:['진정','항균','시트러스','톤업','지성','트러블','모공','상쾌함'], inci:'' },
+  { id:11, name:'레몬오일',         category:'에센셜오일', price:700,  tags:['미백','상쾌함','시트러스','톤업','색소','각질','지성','모공'], inci:'' },
+  { id:12, name:'페퍼민트오일',     category:'에센셜오일', price:375,  tags:['쿨링','두피','상쾌함','가려움','비듬','지성','혈행','탈모'], inci:'' },
   // ── 추출물 - 단일 (20) ──
   { id:13, name:'병풀추출물',           category:'추출물', price:70,  tags:['진정','재생','민감성','상처','홍조','트러블','장벽','얼굴'], inci:'' },
   { id:14, name:'약모밀추출물',         category:'추출물', price:75,  tags:['진정','항염','민감성','홍조','가려움','아토피','트러블','얼굴'], inci:'' },
@@ -813,8 +813,8 @@ const DEFAULT_EXTRACTS = [
   { id:31, name:'구절초추출물',         category:'추출물', price:160, tags:['미백','항산화','재생','주름개선','색소','톤업','탄력','얼굴'], inci:'' },
   { id:32, name:'마트리카리아꽃추출물', category:'추출물', price:170, tags:['진정','항염','민감성','홍조','가려움','아토피','트러블','보습'], inci:'' },
   // ── 추출물 - 복합 (14) ──
-  { id:33, name:'Anti Sebum P (HD)', category:'추출물', price:190, tags:['피지','모공','지성','여드름','블랙헤드','트러블','수렴','각질'], inci:'대왕송잎추출물, 당느릅나무뿌리추출물, 달맞이꽃추출물, 칡뿌리추출물' },
-  { id:34, name:'Natural Protector', category:'추출물', price:190, tags:['항균','진정','장벽','민감성','트러블','아토피','항염','보습'], inci:'락토바실러스/콩발효추출물, 흰버드나무껍질추출물, 육계나무껍질추출물, 오레가노잎추출물, 편백잎추출물, 황금추출물, 쇠비름추출물' },
+  { id:33, name:'Anti Sebum P (HD)', category:'특허증활용가능', price:190, tags:['피지','모공','지성','여드름','블랙헤드','트러블','수렴','각질'], inci:'대왕송잎추출물, 당느릅나무뿌리추출물, 달맞이꽃추출물, 칡뿌리추출물' },
+  { id:34, name:'Natural Protector', category:'특허증활용가능', price:190, tags:['항균','진정','장벽','민감성','트러블','아토피','항염','보습'], inci:'락토바실러스/콩발효추출물, 흰버드나무껍질추출물, 육계나무껍질추출물, 오레가노잎추출물, 편백잎추출물, 황금추출물, 쇠비름추출물' },
   { id:35, name:'Tannin Complex HR', category:'추출물', price:210, tags:['수렴','모공','탄력','항산화','지성','피지','블랙헤드','주름개선'], inci:'감나무잎추출물, 포도추출물, 커피콩추출물, 잇꽃꽃추출물, 호장근뿌리추출물, 녹차추출물, 밤껍질추출물, 초피나무열매추출물' },
   { id:36, name:'TWINATE-C9',        category:'추출물', price:125, tags:['진정','항산화','재생','민감성','홍조','트러블','항염','장벽'], inci:'포도씨추출물, 버지니아풍년화추출물, 올리브나무잎추출물, 병풀추출물, 유칼립투스잎추출물, 쇠비름추출물, 황금추출물, 마트리카리아꽃추출물, 황기추출물' },
   { id:37, name:'YY-BSASM',          category:'추출물', price:125, tags:['미백','항산화','진정','톤업','색소','항염','재생','민감성'], inci:'스페인감초뿌리추출물, 녹차추출물, 로즈마리잎추출물, 병풀추출물, 마트리카리아꽃추출물, 황금추출물, 호장근뿌리추출물' },
@@ -848,7 +848,9 @@ const DEFAULT_EXTRACTS = [
 ];
 
 // localStorage에서 성분 로드 (버전 변경 시 기본값으로 리셋)
-const EXTRACT_VERSION = 5;
+const EXTRACT_VERSION = 7;
+const CAT_DISPLAY = {'에센셜오일':'에센셜 오일', '특허증활용가능':'특허증 활용가능'};
+function catLabel(c) { return CAT_DISPLAY[c] || c; }
 let extracts;
 if (parseInt(localStorage.getItem('ag_extracts_ver') || '0') < EXTRACT_VERSION) {
   extracts = JSON.parse(JSON.stringify(DEFAULT_EXTRACTS));
@@ -940,7 +942,7 @@ async function callGemini(description) {
     `추천 기준:\n` +
     `1. 개발 목적에 화학적으로 직접 기여하는 핵심 성분 2~3개\n` +
     `2. 핵심 성분과 시너지를 내는 보조 성분 2~3개\n` +
-    `3. 추출물, 첨가원료, 향료를 골고루 포함\n\n` +
+    `3. 추출물, 첨가원료, 에센셜 오일을 골고루 포함\n\n` +
     `반드시 목록에 있는 성분명(name)을 그대로 사용하세요.\n` +
     `JSON 형식으로만 응답: {"recommendations":["성분명1","성분명2","...","성분명10"]}`;
 
@@ -1100,7 +1102,8 @@ function buildStep1() {
       <div class="fn-group">${fnBtns}</div>
       <div id="fnCostNotice" style="display:${STATE.functions.length ? 'block' : 'none'}">
         <div class="notice info" style="margin-top:0;font-size:12px">
-          💰 기능성 추가 비용: <strong>1개 40,000원 / 2개 이상 65,000원</strong><br>
+          💰 기능성 추가 비용: <strong>1개 40,000원 / 2개 65,000원</strong><br>
+          <span style="font-size:11px;color:var(--g6)">주름기능성과 미백기능성만 중복사용가능</span><br>
           <span style="font-size:11px;color:var(--g6)">현재 ${STATE.functions.length}개 선택 → <strong style="color:var(--t)">${STATE.functions.length === 0 ? '0' : STATE.functions.length === 1 ? '40,000' : '65,000'}원</strong> 추가</span>
         </div>
       </div>
@@ -1163,10 +1166,10 @@ function buildStep3(aiLoading = false) {
     ? `<div class="ai-loading"><div class="spinner"></div> Gemini가 성분을 분석 중입니다...</div>`
     : `<div class="chips" id="aiChips">${buildAIChips()}</div>`;
 
-  const catOrder = {'추출물':0, '첨가원료':1, '향료':2};
+  const catOrder = {'특허증활용가능':0, '추출물':1, '첨가원료':2, '에센셜오일':3};
   const sorted = [...extracts].sort((a,b) => (catOrder[a.category]||0) - (catOrder[b.category]||0));
   const allChips = sorted.map(e => {
-    const badge = `<span class="cat-badge cat-${e.category || '추출물'}">${e.category || '추출물'}</span>`;
+    const badge = `<span class="cat-badge cat-${e.category || '추출물'}">${catLabel(e.category || '추출물')}</span>`;
     const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
     const safeName = e.name.replace(/'/g, "\\'");
     return `<div class="chip ${STATE.selExtracts[e.name] !== undefined ? 'sel' : ''}" data-name="${e.name}"
@@ -1210,7 +1213,10 @@ function buildStep3(aiLoading = false) {
           <div class="pb-label">${isDel ? '원료 선택: 제조 전문가 위임' : '선택한 원료 ' + selKeys.length + '개'}</div>
           <div class="pb-sub" id="selectedList">${isDel ? '제조 연구팀이 최적 원료를 배합합니다' : (selKeys.length ? selKeys.join(', ') : '원료 미선택')}</div>
         </div>
-        <div class="pb-price" id="priceDisplay">${isDel ? '-' : N(getUnitCost()) + '원'}</div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가 (변동 가능)</div>
+          <div class="pb-price" id="priceDisplay">${isDel ? '-' : N(getUnitCost()) + '원'}</div>
+        </div>
       </div>
     <div class="btn-row">
       <button class="btn" onclick="goToStep(4)">← 이전</button>
@@ -1225,7 +1231,7 @@ function buildAIChips() {
     const e = extracts.find(x => x.name === name);
     if (!e) return '';
     const safeName = name.replace(/'/g, "\\'");
-    const badge = `<span class="cat-badge cat-${e.category || '추출물'}">${e.category || '추출물'}</span>`;
+    const badge = `<span class="cat-badge cat-${e.category || '추출물'}">${catLabel(e.category || '추출물')}</span>`;
     const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
     return `<div class="chip ai-chip ${STATE.selExtracts[name] !== undefined ? 'sel' : ''}" data-name="${name}"
       onclick="toggleExtract('${safeName}', ${e.price})">
@@ -1329,7 +1335,7 @@ function buildStep6() {
       </div>
 
       ${hasFn ? `<div class="notice blue" style="margin-top:.875rem">📋 기능성 화장품 (${STATE.functions.join(' + ')}): 원료 규격서 및 임상 시험 자료 별도 준비 필요</div>` : ''}
-      <div class="notice info" style="margin-top:.75rem">✓ 제출 즉시 연구팀 이메일로 전달되며, 샘플 개발에 착수합니다</div>
+      <div class="notice info" style="margin-top:.75rem">✓ 제출 즉시 연구팀 이메일로 전달되며, 제품 개발에 착수합니다</div>
     </div>
     <div class="btn-row">
       <button class="btn" onclick="goToStep(5)">← 이전</button>
@@ -1345,7 +1351,7 @@ function buildSuccess() {
       <div class="success-icon">✅</div>
       <h2 style="font-size:22px;font-weight:800;margin-bottom:8px">기획안이 전달되었습니다</h2>
       <p style="font-size:14px;color:var(--g6);line-height:1.7;margin-bottom:2rem">
-        담당 연구원이 확인 후 샘플 개발에 착수합니다.<br>
+        담당 연구원이 확인 후 제품 개발에 착수합니다.<br>
         보통 영업일 기준 1~2일 내 연락드립니다.
       </p>
       <button class="btn primary" onclick="resetApp()">+ 새 발주 시작</button>
@@ -1358,7 +1364,25 @@ function buildSuccess() {
 function getFnCost() { const n = STATE.functions.length; return n === 0 ? 0 : n === 1 ? 40000 : 65000; }
 
 function toggleFunction(fn, checked, el) {
-  if (checked) { if (!STATE.functions.includes(fn)) STATE.functions.push(fn); }
+  const COMBINABLE = ['주름기능성', '미백기능성'];
+  if (checked) {
+    // 이미 1개 선택된 경우: 중복 가능 조합인지 확인
+    if (STATE.functions.length >= 1) {
+      const existing = STATE.functions[0];
+      if (!(COMBINABLE.includes(fn) && COMBINABLE.includes(existing))) {
+        // 중복 불가 조합 → 체크 해제하고 리턴
+        el.checked = false;
+        alert('주름기능성과 미백기능성만 중복 선택이 가능합니다.');
+        return;
+      }
+      if (STATE.functions.length >= 2) {
+        el.checked = false;
+        alert('기능성은 최대 2개까지 선택 가능합니다.');
+        return;
+      }
+    }
+    if (!STATE.functions.includes(fn)) STATE.functions.push(fn);
+  }
   else STATE.functions = STATE.functions.filter(x => x !== fn);
   el.closest('label').classList.toggle('checked', checked);
   // 비용 안내 업데이트
@@ -1368,7 +1392,8 @@ function toggleFunction(fn, checked, el) {
     const cost = getFnCost();
     notice.style.display = n ? 'block' : 'none';
     notice.innerHTML = `<div class="notice info" style="margin-top:0;font-size:12px">
-      💰 기능성 추가 비용: <strong>1개 40,000원 / 2개 이상 65,000원</strong><br>
+      💰 기능성 추가 비용: <strong>1개 40,000원 / 2개 65,000원</strong><br>
+      <span style="font-size:11px;color:var(--g6)">주름기능성과 미백기능성만 중복사용가능</span><br>
       <span style="font-size:11px;color:var(--g6)">현재 ${n}개 선택 → <strong style="color:var(--t)">${N(cost)}원</strong> 추가</span>
     </div>`;
   }
@@ -1489,7 +1514,7 @@ function toggleExtract(name, price) {
 function updateVolume(v) {
   STATE.volume = parseInt(v);
   const moq = getMOQ(STATE.volume);
-  if (STATE.quantity < moq) STATE.quantity = moq;
+  STATE.quantity = moq;
   document.getElementById('stepContent').innerHTML = buildStep4();
 }
 
@@ -1548,7 +1573,7 @@ function updateGuidePanel(step) {
           <div class="gp-text">
             <ul>
               <li><strong>씻어내는 제품</strong>(바디워시, 샴푸, 폼클렌징 등)에는 주름개선·미백·자외선차단 기능성이 <strong>실효성이 없거나 적용 불가</strong>합니다.</li>
-              <li>기능성 원료 규격서 및 임상 시험 자료가 별도로 필요합니다.</li>
+              <li>기능성 선택시 패키지및 상세페이지에 활용 가능</li>
             </ul>
           </div>
         </div>
@@ -1558,7 +1583,7 @@ function updateGuidePanel(step) {
           <div class="gp-text">
             <ul>
               <li>기능성 1개: <strong>40,000원</strong></li>
-              <li>기능성 2개 이상: <strong>65,000원</strong></li>
+              <li>기능성 2개: <strong>65,000원</strong></li>
             </ul>
           </div>
         </div>
@@ -1606,9 +1631,18 @@ function updateGuidePanel(step) {
         <div class="gp-section">
           <div class="gp-section-title">카테고리 구분</div>
           <div class="gp-text">
-            <span class="cat-badge cat-추출물">추출물</span> 천연 식물 추출 원료<br>
+            <span class="cat-badge cat-특허증활용가능">특허증 활용가능</span> 특허 보유 원료<br>
+            <span class="cat-badge cat-추출물" style="margin-top:4px">추출물</span> 천연 식물 추출 원료<br>
             <span class="cat-badge cat-첨가원료" style="margin-top:4px">첨가원료</span> 기능성 합성/정제 원료<br>
-            <span class="cat-badge cat-향료" style="margin-top:4px">향료</span> 에센셜 오일/향
+            <span class="cat-badge cat-에센셜오일" style="margin-top:4px">에센셜 오일</span> 에센셜 오일/향
+          </div>
+        </div>
+        <div class="gp-divider"></div>
+        <div class="gp-section">
+          <div class="gp-section-title">에센셜 오일 & 무향 안내</div>
+          <div class="gp-text">
+            <strong>에센셜 오일</strong>: 식물에서 추출한 천연 향 원료로, 원료 고유의 향이 있습니다.<br><br>
+            <strong>무향</strong>: 별도의 향료를 넣지 않은 상태를 말합니다. 제품에서 나는 냄새는 원료들이 섞이며 발생하는 고유의 취(냄새)입니다.
           </div>
         </div>`,
     6: `<div class="gp-section">
@@ -1688,7 +1722,16 @@ function resetApp() {
     step: 1, description: '', functions: [], bodyPart: '',
     formula: null, delegateExtracts: false, selExtracts: {}, aiRecs: [], volume: 100, quantity: 300, container: null
   });
-  goToStep(1);
+  // 재발주: 저장된 인적사항 불러오기
+  const saved = JSON.parse(localStorage.getItem('ag_userInfo') || 'null');
+  if (saved) {
+    document.getElementById('userNameInput').value    = saved.name || '';
+    document.getElementById('userBrandInput').value   = saved.brand || '';
+    document.getElementById('userPhoneInput').value   = saved.phone || '';
+    document.getElementById('userAddressInput').value = saved.address || '';
+  }
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('userInfoScreen').style.display = 'flex';
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1701,7 +1744,7 @@ function renderAdminList() {
   document.getElementById('extractCount').textContent = extracts.length;
   document.getElementById('adminList').innerHTML = extracts.map(e =>
     `<div class="admin-item">
-      <span style="flex:2;font-weight:600"><span class="cat-badge cat-${e.category || '추출물'}">${e.category || '추출물'}</span>${e.name}</span>
+      <span style="flex:2;font-weight:600"><span class="cat-badge cat-${e.category || '추출물'}">${catLabel(e.category || '추출물')}</span>${e.name}</span>
       <span style="flex:1;color:var(--g6)">${N(e.price)}원</span>
       <span style="flex:3;font-size:11px;color:#c8cad0">${e.tags.join(', ')}</span>
       <button class="btn-delete" onclick="deleteExtract(${e.id})">삭제</button>
@@ -1919,14 +1962,11 @@ function startWithoutKey() {
     return;
   }
   document.getElementById('apiScreen').style.display = 'none';
-  // 저장된 개인정보 불러오기
-  const saved = JSON.parse(localStorage.getItem('ag_userInfo') || 'null');
-  if (saved) {
-    document.getElementById('userNameInput').value    = saved.name || '';
-    document.getElementById('userBrandInput').value   = saved.brand || '';
-    document.getElementById('userPhoneInput').value   = saved.phone || '';
-    document.getElementById('userAddressInput').value = saved.address || '';
-  }
+  // 신규 발주: 빈 폼으로 시작
+  document.getElementById('userNameInput').value    = '';
+  document.getElementById('userBrandInput').value   = '';
+  document.getElementById('userPhoneInput').value   = '';
+  document.getElementById('userAddressInput').value = '';
   document.getElementById('userInfoScreen').style.display = 'flex';
 }
 
@@ -1993,13 +2033,11 @@ function launch() {
     return;
   }
   document.getElementById('apiScreen').style.display = 'none';
-  const saved2 = JSON.parse(localStorage.getItem('ag_userInfo') || 'null');
-  if (saved2) {
-    document.getElementById('userNameInput').value    = saved2.name || '';
-    document.getElementById('userBrandInput').value   = saved2.brand || '';
-    document.getElementById('userPhoneInput').value   = saved2.phone || '';
-    document.getElementById('userAddressInput').value = saved2.address || '';
-  }
+  // 신규 발주: 빈 폼으로 시작
+  document.getElementById('userNameInput').value    = '';
+  document.getElementById('userBrandInput').value   = '';
+  document.getElementById('userPhoneInput').value   = '';
+  document.getElementById('userAddressInput').value = '';
   document.getElementById('userInfoScreen').style.display = 'flex';
 }
 
