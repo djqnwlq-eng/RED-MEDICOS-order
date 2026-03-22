@@ -8,7 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
 *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --t: #1D9E75; --tl: #E1F5EE; --tm: #9FE1CB; --td: #085041; --tmd: #0F6E56;
+  --t: #C8102E; --tl: #FDE8EC; --tm: #F4A0AD; --td: #7A0A1E; --tmd: #A30D26;
   --al: #FAEEDA; --ad: #633806; --am: #EF9F27;
   --bl: #E6F1FB; --bd: #0C447C;
   --ge: #e8eaed; --gf: #f7f8fa; --g6: #6b7280; --g3: #374151; --g1: #111827;
@@ -19,7 +19,7 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--gf); color: va
 /* ─── API KEY SCREEN ─── */
 #apiScreen {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  padding: 1.5rem; background: linear-gradient(135deg, #f0fdf9 0%, #f7f8fa 60%);
+  padding: 1.5rem; background: linear-gradient(135deg, #fdf2f4 0%, #f7f8fa 60%);
 }
 .api-box {
   background: #fff; border-radius: var(--rlg); padding: 2.5rem 2rem;
@@ -41,6 +41,15 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--gf); color: va
 .or-divider { height: 1px; background: var(--ge); margin: 12px 0; position: relative; }
 .or-divider span { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #fff; padding: 0 8px; font-size: 11px; color: #c8cad0; }
 
+/* ─── USER INFO SCREEN ─── */
+#userInfoScreen {
+  display: none; min-height: 100vh; align-items: center; justify-content: center;
+  padding: 1.5rem; background: linear-gradient(135deg, #fdf2f4 0%, #f7f8fa 60%);
+}
+#userInfoScreen .api-box { text-align: left; }
+.info-field { margin-bottom: 14px; }
+.info-field:last-of-type { margin-bottom: 0; }
+
 /* ─── MAIN LAYOUT ─── */
 #mainApp { display: none; }
 .topbar {
@@ -48,12 +57,28 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--gf); color: va
   height: 52px; display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 20;
 }
+.topbar-left { display: flex; align-items: center; gap: 8px; }
 .topbar-brand { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--g1); }
 .topbar-brand em { font-style: normal; font-size: 11px; font-weight: 400; color: var(--g6); padding: 2px 8px; border: 0.5px solid var(--ge); border-radius: 20px; }
 .topbar-actions { display: flex; gap: 6px; }
 .btn-sm { padding: 6px 12px; border-radius: var(--rsm); font-size: 12px; font-weight: 500; font-family: inherit; cursor: pointer; border: 0.5px solid var(--ge); background: #fff; color: var(--g6); transition: all .15s; }
 .btn-sm:hover { border-color: var(--t); color: var(--t); }
-.wrap { max-width: 660px; margin: 0 auto; padding: 1.5rem 1rem 5rem; }
+.wrap-outer { display: flex; max-width: 1080px; margin: 0 auto; padding: 1.5rem 1rem 5rem; gap: 24px; }
+.wrap { flex: 1; max-width: 660px; min-width: 0; }
+.guide-panel {
+  width: 280px; flex-shrink: 0; position: sticky; top: 80px; align-self: flex-start;
+  background: #fff; border: 1px solid var(--ge); border-radius: var(--r);
+  padding: 18px 16px; max-height: calc(100vh - 100px); overflow-y: auto;
+}
+.gp-title { font-size: 13px; font-weight: 800; color: var(--g1); margin-bottom: 12px; }
+.gp-section { margin-bottom: 14px; }
+.gp-section-title { font-size: 11px; font-weight: 700; color: var(--t); margin-bottom: 6px; }
+.gp-text { font-size: 12px; color: var(--g3); line-height: 1.6; }
+.gp-text strong { color: var(--t); }
+.gp-text ul { margin: 4px 0 0; padding-left: 16px; }
+.gp-text li { margin-bottom: 3px; }
+.gp-divider { height: 1px; background: var(--ge); margin: 12px 0; }
+@media (max-width: 900px) { .guide-panel { display: none; } }
 
 /* ─── PROGRESS BAR ─── */
 .progress {
@@ -104,15 +129,44 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
   padding: 6px 13px; border-radius: 20px; border: 1px solid var(--ge);
   font-size: 12px; cursor: pointer; color: var(--g6); background: #fff;
   transition: all .15s; user-select: none; line-height: 1.4;
+  position: relative;
 }
 .chip:hover { border-color: var(--t); color: var(--tmd); background: var(--tl); }
 .chip.sel { background: var(--tl); border-color: var(--t); color: var(--td); font-weight: 600; }
 .chip.disabled { opacity: .3; cursor: not-allowed; pointer-events: none; border-style: dashed; }
 .chip.ai-rec::before { content: "AI "; font-size: 9px; color: var(--t); font-weight: 800; }
+.cat-badge { font-size:9px; font-weight:700; padding:1px 5px; border-radius:6px; margin-right:4px; vertical-align:middle; letter-spacing:.02em; }
+.cat-badge.cat-향료 { background:#FEF3C7; color:#92400E; }
+.cat-badge.cat-추출물 { background:#D1FAE5; color:#065F46; }
+.cat-badge.cat-첨가원료 { background:#DBEAFE; color:#1E40AF; }
+.chip .inci-tooltip {
+  display:none; position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%);
+  background:#1F2937; color:#fff; font-size:11px; padding:8px 12px; border-radius:8px;
+  white-space:normal; width:280px; line-height:1.5; z-index:100;
+  box-shadow:0 4px 12px rgba(0,0,0,.15); pointer-events:none;
+}
+.chip .inci-tooltip::after {
+  content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+  border:6px solid transparent; border-top-color:#1F2937;
+}
+.chip:hover .inci-tooltip { display:block; }
+.delegate-card {
+  border:2px solid var(--ge); border-radius:var(--r); padding:16px 18px;
+  cursor:pointer; transition:all .2s; background:#fff; margin-bottom:16px;
+  display:flex; align-items:center; gap:14px;
+}
+.delegate-card:hover { border-color:var(--tm); background:var(--tl); }
+.delegate-card.active { border-color:var(--t); background:var(--tl); }
+.delegate-card .dc-icon { font-size:28px; flex-shrink:0; }
+.delegate-card .dc-text { flex:1; }
+.delegate-card .dc-title { font-size:14px; font-weight:700; color:var(--g1); margin-bottom:2px; }
+.delegate-card .dc-sub { font-size:11px; color:var(--g6); line-height:1.4; }
+.delegate-card .dc-check { width:22px; height:22px; border-radius:50%; border:2px solid var(--ge); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+.delegate-card.active .dc-check { background:var(--t); border-color:var(--t); color:#fff; }
 
 /* ─── SELECTION GRIDS ─── */
-.formula-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: .75rem; }
-@media (max-width: 420px) { .formula-grid { grid-template-columns: repeat(2, 1fr); } }
+.formula-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: .75rem; }
+@media (max-width: 520px) { .formula-grid { grid-template-columns: repeat(3, 1fr); } }
 .body-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: .75rem; }
 .container-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 8px; margin-bottom: .75rem; }
 @media (max-width: 420px) { .body-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -125,9 +179,22 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
 .sel-card.active { border: 2px solid var(--t); background: var(--tl); }
 .sel-card.disabled { opacity: .3; cursor: not-allowed; pointer-events: none; border-style: dashed; }
 .sel-card .sc-icon { font-size: 22px; margin-bottom: 6px; }
+.sel-card.body-text-only { padding: 10px 10px; }
+.sel-card.body-text-only .sc-name { font-size: 13px; margin-bottom: 0; }
 .sel-card .sc-name { font-size: 12px; font-weight: 700; color: var(--g3); margin-bottom: 2px; }
 .sel-card .sc-desc { font-size: 10px; color: var(--g6); line-height: 1.4; }
 .sel-card.active .sc-name, .sel-card.active .sc-desc { color: var(--td); }
+.sel-card .sc-rec { font-size:9px; font-weight:800; color:#fff; background:var(--t); padding:1px 7px; border-radius:8px; margin-top:4px; display:inline-block; }
+.selected-bar {
+  display:none; position:sticky; bottom:0; left:0; right:0; z-index:50;
+  background:#fff; border-top:2px solid var(--t); padding:12px 16px;
+  border-radius:var(--r) var(--r) 0 0; box-shadow:0 -4px 16px rgba(0,0,0,.08);
+  margin: 0 -16px -16px;
+}
+.selected-bar.show { display:block; }
+.sb-header { font-size:12px; font-weight:700; color:var(--g1); margin-bottom:8px; }
+.sb-chips { margin-bottom:0; }
+.sb-chip { font-size:11px; padding:4px 10px; }
 
 
 /* ─── FORMULA SUB OPTIONS ─── */
@@ -149,6 +216,18 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
 .sc-badge { font-size: 9px; color: #dc2626; margin-top: 2px; }
 
 /* ─── FUNCTION CHECKBOXES ─── */
+.fn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+@media (max-width: 600px) { .fn-row { grid-template-columns: 1fr; } }
+.fn-left { }
+.fn-guide {
+  background: #f9fafb; border: 1px solid var(--ge); border-radius: var(--rsm);
+  padding: 14px 16px; font-size: 12px; color: var(--g3); line-height: 1.6;
+}
+.fn-guide-title { font-size: 11px; font-weight: 800; color: var(--g6); margin-bottom: 6px; letter-spacing: .04em; }
+.fn-guide-list { margin: 0; padding-left: 16px; }
+.fn-guide-list li { margin-bottom: 4px; }
+.fn-guide-list li:last-child { margin-bottom: 0; }
+.fn-guide-list strong { color: var(--t); }
 .fn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: .875rem; }
 .fn-label {
   display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--g3);
@@ -236,12 +315,21 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
 #historyOverlay.open { display: flex; }
 .history-card {
   background: var(--gf); border-radius: var(--r); padding: 1rem;
-  margin-bottom: .75rem; border: 0.5px solid var(--ge);
+  margin-bottom: .75rem; border: 0.5px solid var(--ge); position: relative;
 }
-.history-card .hc-date { font-size: 11px; color: #c8cad0; margin-bottom: 6px; }
+.history-card.confirmed { opacity: .6; }
+.history-card .hc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.history-card .hc-date { font-size: 11px; color: #c8cad0; }
+.history-card .hc-status { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; cursor: pointer; }
+.history-card .hc-status.unconfirmed { background: #FEE2E2; color: #DC2626; }
+.history-card .hc-status.confirmed { background: #D1FAE5; color: #065F46; }
+.history-card .hc-user { font-size: 12px; font-weight: 600; color: var(--g3); margin-bottom: 4px; }
 .history-card .hc-title { font-size: 13px; font-weight: 700; color: var(--g1); margin-bottom: 4px; }
 .history-card .hc-detail { font-size: 12px; color: var(--g6); line-height: 1.6; }
 .history-empty { text-align: center; padding: 2rem 1rem; color: #c8cad0; font-size: 13px; }
+.hc-filter { display: flex; gap: 6px; margin-bottom: 12px; }
+.hc-filter-btn { font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 16px; border: 1px solid var(--ge); background: #fff; cursor: pointer; color: var(--g6); }
+.hc-filter-btn.active { background: var(--t); color: #fff; border-color: var(--t); }
 
 /* ─── ADMIN AUTH ─── */
 .admin-only { display: none !important; }
@@ -274,10 +362,9 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
 <!-- ════ START SCREEN ════ -->
 <div id="apiScreen">
   <div class="api-box" style="text-align:center; padding:3rem 2rem;">
-    <div class="api-brand" style="font-size:13px; letter-spacing:.18em; margin-bottom:1.25rem;">REDMEDICOS</div>
-    <div style="font-size:48px; margin-bottom:.75rem;">🧪</div>
-    <h1 style="font-size:26px; line-height:1.35; margin-bottom:.5rem;">맞춤형 화장품<br>발주 플랫폼</h1>
-    <p style="margin-bottom:1.75rem;">AI 기반 성분 추천 · 6단계 워크플로우 · 원가 자동 계산</p>
+    <div id="logoArea" style="margin-bottom:1.25rem;"><img id="brandLogo" src="logo.png" alt="RED MEDICOS" style="height:48px;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div style="display:none;font-size:13px;letter-spacing:.18em;font-weight:700;color:var(--t);">RED MEDICOS</div></div>
+    <h1 style="font-size:26px; line-height:1.35; margin-bottom:.5rem; color:var(--g1);">맞춤형 화장품<br>발주 플랫폼</h1>
+    <p style="margin-bottom:1.75rem; color:var(--g6);">AI 기반 성분 추천 · 6단계 워크플로우</p>
 
     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
       <div style="display:flex; align-items:center; gap:10px; background:var(--gf); border-radius:var(--rsm); padding:12px 14px; text-align:left;">
@@ -299,22 +386,59 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
   </div>
 </div>
 
+<!-- ════ USER INFO SCREEN ════ -->
+<div id="userInfoScreen">
+  <div class="api-box">
+    <div style="margin-bottom:1rem;"><img src="logo.png" alt="RED MEDICOS" style="height:36px;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div style="display:none;font-size:13px;letter-spacing:.18em;font-weight:700;color:var(--t);">RED MEDICOS</div></div>
+    <h1 style="font-size:22px; margin-bottom:6px;">인적사항 입력</h1>
+    <p style="margin-bottom:1.5rem;">발주 및 샘플 배송을 위해 아래 정보를 입력해주세요.</p>
+
+    <div class="info-field">
+      <label class="field-label">성함</label>
+      <input type="text" class="inp" id="userNameInput" placeholder="홍길동">
+    </div>
+    <div class="info-field">
+      <label class="field-label">브랜드명</label>
+      <input type="text" class="inp" id="userBrandInput" placeholder="예: 레드메디코스">
+    </div>
+    <div class="info-field">
+      <label class="field-label">전화번호</label>
+      <input type="tel" class="inp" id="userPhoneInput" placeholder="010-0000-0000">
+    </div>
+    <div class="info-field">
+      <label class="field-label">샘플받을 주소</label>
+      <input type="text" class="inp" id="userAddressInput" placeholder="서울시 강남구 ...">
+    </div>
+
+    <div id="userInfoError" style="font-size:11px; color:#dc2626; margin-top:8px; display:none;">모든 항목을 입력해주세요.</div>
+    <button class="btn-full btn-primary" style="padding:13px; font-size:15px; margin-top:16px;" onclick="submitUserInfo()">다음으로</button>
+  </div>
+</div>
+
 <!-- ════ MAIN APP ════ -->
 <div id="mainApp">
   <div class="topbar">
-    <div class="topbar-brand">🧪 레드메디코스 <em>발주 플랫폼</em></div>
-    <div class="topbar-actions">
-      <button class="btn-sm admin-only" onclick="openApiSetting()" id="apiKeyBtn">🔑 API 키 <span id="apiStatus" style="font-size:9px"></span></button>
-      <button class="btn-sm admin-only" onclick="openHistory()">📋 발주 이력</button>
-      <button class="btn-sm admin-only" onclick="openAdmin()">⚙ 성분 관리</button>
+    <div class="topbar-left">
+      <div class="topbar-brand" onclick="goHome()" style="cursor:pointer"><img src="logo.png" alt="RED MEDICOS" style="height:24px;" onerror="this.outerHTML='레드메디코스'"> <em>발주 플랫폼</em></div>
       <button class="btn-sm" onclick="goToStep(1)">🏠 홈</button>
       <button class="btn-sm" onclick="resetApp()">새 발주</button>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn-sm admin-only" onclick="openApiSetting()" id="apiKeyBtn">🔑 API 키 <span id="apiStatus" style="font-size:9px"></span></button>
+      <button class="btn-sm admin-only" onclick="openHistory()" id="historyBtn">📋 발주 이력 <span id="historyBadge" style="display:none;background:var(--t);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:2px;"></span></button>
+      <button class="btn-sm admin-only" onclick="openAdmin()">⚙ 성분 관리</button>
       <button class="btn-sm" onclick="toggleAdminLogin()" id="adminToggleBtn">🔒 관리자</button>
     </div>
   </div>
-  <div class="wrap">
-    <div class="progress" id="progressBar"></div>
-    <div id="stepContent"></div>
+  <div class="wrap-outer">
+    <div class="wrap">
+      <div class="progress" id="progressBar"></div>
+      <div id="stepContent"></div>
+    </div>
+    <aside class="guide-panel" id="guidePanel">
+      <div class="gp-title">📋 가이드</div>
+      <div id="guidePanelContent"></div>
+    </aside>
   </div>
 </div>
 
@@ -338,6 +462,11 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
     <div class="admin-header">
       <h3>📋 발주 이력</h3>
       <button class="btn-sm" onclick="closeHistory()">✕ 닫기</button>
+    </div>
+    <div class="hc-filter">
+      <button class="hc-filter-btn active" onclick="filterHistory('all', this)">전체</button>
+      <button class="hc-filter-btn" onclick="filterHistory('unconfirmed', this)">미확인</button>
+      <button class="hc-filter-btn" onclick="filterHistory('confirmed', this)">확인</button>
     </div>
     <div id="historyList"></div>
   </div>
@@ -363,9 +492,19 @@ select:focus, input[type="number"]:focus { outline: none; border-color: var(--t)
           <input type="number" class="inp" id="newExtPrice" placeholder="300">
         </div>
       </div>
-      <div style="margin-bottom:8px">
-        <label class="form-label">효능 태그 (쉼표 구분)</label>
-        <input type="text" class="inp" id="newExtTags" placeholder="진정, 보습, 가려움">
+      <div class="form-2" style="margin-bottom:8px">
+        <div>
+          <label class="form-label">원료 구분</label>
+          <select class="inp" id="newExtCategory">
+            <option value="향료">향료</option>
+            <option value="추출물" selected>추출물</option>
+            <option value="첨가원료">첨가원료</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">효능 태그 (쉼표 구분)</label>
+          <input type="text" class="inp" id="newExtTags" placeholder="진정, 보습, 가려움">
+        </div>
       </div>
       <button class="btn-sm" style="color:var(--t);border-color:var(--t);font-weight:700" onclick="addExtract()">+ 추가하기</button>
     </div>
@@ -403,37 +542,42 @@ const CONFIG = {
 //  📋  MASTER DATA
 // ════════════════════════════════════════════════════════════
 const FORMULA_CATEGORIES = [
-  { id: 'cream',    name: '크림',    icon: 'svg-jar', subs: [
+  { id: 'cream',    name: '크림',        icon: 'svg-jar', subs: [
     { id: 'cream-a', name: '가벼운',       heavy: false },
     { id: 'cream-b', name: '중간',         heavy: true  },
     { id: 'cream-c', name: '고보습/꾸덕',  heavy: true  },
   ]},
-  { id: 'lotion',   name: '로션',    icon: '🧴', subs: [
+  { id: 'toner',    name: '토너',        icon: 'c-bottle', subs: [
+    { id: 'toner-a', name: '산뜻한 토너',  heavy: false },
+    { id: 'toner-b', name: '보습 토너',    heavy: false },
+  ]},
+  { id: 'lotion',   name: '로션',        icon: '🧴', subs: [
     { id: 'lotion-a', name: '수분 로션',   heavy: false },
     { id: 'lotion-b', name: '영양 로션',   heavy: true  },
   ]},
-  { id: 'serum',    name: '세럼',    icon: 'svg-dropper', subs: [
-    { id: 'serum-a', name: '수분 세럼',    heavy: false },
-    { id: 'serum-b', name: '기능성 세럼',  heavy: false },
+  { id: 'serum',    name: '세럼/앰플',   icon: 'svg-serum', subs: [
+    { id: 'serum-a', name: '점도 낮음 (묽은)',  heavy: false },
+    { id: 'serum-b', name: '점도 높음 (걸쭉)',  heavy: false },
   ]},
-  { id: 'mist',     name: '미스트',  icon: 'svg-spray', subs: [
-    { id: 'mist-a', name: '워터/쿨링',     heavy: false },
-    { id: 'mist-b', name: '에센스 미스트', heavy: false },
+  { id: 'mist',     name: '미스트',      icon: 'svg-spray', subs: [
+    { id: 'mist-a', name: '산뜻한',        heavy: false },
+    { id: 'mist-b', name: '투페이스',      heavy: false },
+    { id: 'mist-c', name: '크림형',        heavy: false },
   ]},
-  { id: 'ampoule',  name: '앰플',    icon: 'svg-dropper', subs: [
-    { id: 'ampoule-a', name: '고농축 앰플', heavy: false },
+  { id: 'shampoo',  name: '샴푸',        icon: '🧴', subs: [
+    { id: 'shampoo-a', name: '폼',         heavy: false },
+    { id: 'shampoo-b', name: '일반',       heavy: false },
   ]},
-  { id: 'shampoo',  name: '샴푸',    icon: '🧴', subs: [
-    { id: 'shampoo-a', name: '일반',       heavy: false },
-    { id: 'shampoo-b', name: '두피케어',   heavy: false },
-    { id: 'shampoo-c', name: '탈모케어',   heavy: false },
+  { id: 'cleanser', name: '세정제',      icon: 'svg-cleanser', subs: [
+    { id: 'cleanser-a', name: '젤',        heavy: false },
+    { id: 'cleanser-b', name: '폼',        heavy: false },
   ]},
-  { id: 'cleanser', name: '세정제',  icon: 'svg-cleanser', subs: [
-    { id: 'cleanser-a', name: '폼타입',    heavy: false },
-    { id: 'cleanser-b', name: '젤타입',    heavy: false },
-    { id: 'cleanser-c', name: '오일타입',  heavy: true  },
+  { id: 'foam',     name: '폼클렌징',    icon: 'svg-cleanser', subs: [
+    { id: 'foam-a', name: '젤',            heavy: false },
+    { id: 'foam-b', name: '폼',            heavy: false },
+    { id: 'foam-c', name: '젤투폼',        heavy: false },
   ]},
-  { id: 'patch',    name: '패치',    icon: '🩹', subs: [
+  { id: 'patch',    name: '국소 패치',   icon: 'svg-airless-pump', subs: [
     { id: 'patch-a', name: '하이드로겔',    heavy: false },
     { id: 'patch-b', name: '마이크로니들',  heavy: false },
   ]},
@@ -455,6 +599,14 @@ const FORMULA_SVGS = {
     <line x1="9.5" y1="20.5" x2="14.5" y2="20.5" stroke-width="1.5"/>
     <line x1="9.5" y1="22.5" x2="14.5" y2="22.5" stroke-width="1.5"/>
     <rect x="26" y="8" width="12" height="22" rx="2" fill="none" transform="rotate(25 32 19)"/>
+  </svg>`,
+  'svg-serum': `<svg viewBox="0 0 40 44" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:28px">
+    <rect x="14" y="18" width="12" height="20" rx="3"/>
+    <path d="M17 18v-4h6v4"/>
+    <path d="M20 14v-3"/>
+    <ellipse cx="20" cy="8" rx="3" ry="2"/>
+    <path d="M20 10v1"/>
+    <line x1="17" y1="24" x2="17" y2="32" stroke-width="1.2" opacity=".3"/>
   </svg>`,
   'svg-dropper': `<svg viewBox="0 0 40 40" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px">
     <path d="M17 4h6v4h-6z" fill="#374151" rx="1"/>
@@ -478,6 +630,26 @@ const FORMULA_SVGS = {
     <rect x="16" y="20" width="6" height="5" rx="1" fill="none" stroke-width="1.8"/>
     <line x1="17.5" y1="22" x2="20.5" y2="22" stroke-width="1.5"/>
     <line x1="17.5" y1="24" x2="20.5" y2="24" stroke-width="1.5"/>
+  </svg>`,
+  'c-bottle': `<svg viewBox="0 0 40 52" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:28px">
+    <path d="M14 22c0-3 3-6 3-8v-2h6v2c0 2 3 5 3 8v20a3 3 0 01-3 3h-6a3 3 0 01-3-3z"/>
+    <rect x="17" y="10" width="6" height="2" rx="1"/>
+    <line x1="17" y1="28" x2="17" y2="38" stroke-width="1.2" opacity=".3"/>
+  </svg>`,
+  'svg-serum': `<svg viewBox="0 0 40 44" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:28px">
+    <rect x="14" y="18" width="12" height="20" rx="3"/>
+    <path d="M17 18v-4h6v4"/>
+    <path d="M20 14v-3"/>
+    <ellipse cx="20" cy="8" rx="3" ry="2"/>
+    <path d="M20 10v1"/>
+    <line x1="17" y1="24" x2="17" y2="32" stroke-width="1.2" opacity=".3"/>
+  </svg>`,
+  'svg-airless-pump': `<svg viewBox="0 0 40 52" fill="none" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:32px">
+    <rect x="13" y="20" width="14" height="24" rx="3" fill="#f0f4f8" stroke="#9CA3AF" stroke-width="1.5"/>
+    <rect x="15" y="14" width="10" height="6" rx="1.5" fill="#e5e7eb" stroke="#9CA3AF" stroke-width="1.5"/>
+    <rect x="17" y="10" width="6" height="4" rx="1" fill="#e5e7eb" stroke="#9CA3AF" stroke-width="1.5"/>
+    <path d="M17 10l-3-4h4" fill="#e5e7eb" stroke="#9CA3AF" stroke-width="1.2"/>
+    <line x1="16" y1="28" x2="16" y2="38" stroke="#d1d5db" stroke-width="1" opacity=".5"/>
   </svg>`
 };
 
@@ -485,15 +657,98 @@ function formulaIcon(icon) {
   return FORMULA_SVGS[icon] || icon;
 }
 
-// 용기 — block: 이 제형과 함께 사용 불가
+// 용기 SVG 아이콘
+const CONTAINER_SVGS = {
+  'c-dropper': `<svg viewBox="0 0 40 52" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:38px">
+    <rect x="14" y="20" width="12" height="24" rx="3"/>
+    <path d="M17 20v-4h6v4"/>
+    <path d="M20 16v-3"/>
+    <ellipse cx="20" cy="10" rx="3" ry="2"/>
+    <path d="M20 12v1"/>
+    <line x1="17" y1="28" x2="17" y2="36" stroke-width="1.2" opacity=".3"/>
+  </svg>`,
+  'c-pump': `<svg viewBox="0 0 40 52" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:38px">
+    <rect x="11" y="22" width="18" height="22" rx="3"/>
+    <rect x="16" y="16" width="8" height="6" rx="1"/>
+    <line x1="20" y1="10" x2="20" y2="16"/>
+    <path d="M20 10h-6v-2h6"/>
+    <line x1="17" y1="30" x2="17" y2="38" stroke-width="1.2" opacity=".3"/>
+  </svg>`,
+  'c-jar': `<svg viewBox="0 0 40 44" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:34px">
+    <rect x="8" y="16" width="24" height="18" rx="4"/>
+    <rect x="10" y="10" width="20" height="6" rx="2"/>
+    <line x1="14" y1="24" x2="14" y2="28" stroke-width="1.2" opacity=".3"/>
+    <line x1="14" y1="13" x2="26" y2="13" stroke-width="1.2" opacity=".3"/>
+  </svg>`,
+  'c-spray': `<svg viewBox="0 0 40 52" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:38px">
+    <rect x="13" y="20" width="14" height="24" rx="3"/>
+    <rect x="16" y="14" width="8" height="6" rx="1"/>
+    <path d="M24 17h3"/>
+    <path d="M29 13l1.5-1.5M29 17h2.5M29 21l1.5 1.5" stroke-width="1.5"/>
+    <line x1="17" y1="28" x2="17" y2="36" stroke-width="1.2" opacity=".3"/>
+  </svg>`,
+  'c-airless': `<svg viewBox="0 0 40 52" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:38px">
+    <rect x="13" y="18" width="14" height="26" rx="7"/>
+    <rect x="16" y="12" width="8" height="6" rx="1"/>
+    <circle cx="20" cy="10" r="2.5"/>
+    <line x1="17" y1="26" x2="17" y2="36" stroke-width="1.2" opacity=".3"/>
+  </svg>`,
+  'c-bubble': `<svg viewBox="0 0 40 52" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:38px">
+    <rect x="11" y="22" width="18" height="22" rx="3"/>
+    <rect x="16" y="16" width="8" height="6" rx="1"/>
+    <line x1="20" y1="10" x2="20" y2="16"/>
+    <circle cx="20" cy="8" r="2.5"/>
+    <circle cx="25" cy="6" r="1.5" opacity=".4"/>
+    <circle cx="27" cy="10" r="1" opacity=".3"/>
+    <line x1="17" y1="30" x2="17" y2="38" stroke-width="1.2" opacity=".3"/>
+  </svg>`,
+  'c-bottle': `<svg viewBox="0 0 40 52" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:38px">
+    <path d="M14 22c0-3 3-6 3-8v-2h6v2c0 2 3 5 3 8v20a3 3 0 01-3 3h-6a3 3 0 01-3-3z"/>
+    <rect x="17" y="10" width="6" height="2" rx="1"/>
+    <line x1="17" y1="28" x2="17" y2="38" stroke-width="1.2" opacity=".3"/>
+  </svg>`,
+};
+
+function containerIcon(icon) {
+  return CONTAINER_SVGS[icon] || icon;
+}
+
+// 용기 마스터
 const CONTAINERS = [
-  { id: 'jar',     name: '자(Jar)',   icon: '🫙', block: ['mist-a','mist-b','lotion-a','lotion-b','serum-a','serum-b','ampoule-a','shampoo-a','shampoo-b','shampoo-c','cleanser-a','cleanser-b','cleanser-c','patch-a','patch-b'] },
-  { id: 'pump',    name: '펌프',      icon: '🧴', block: ['cream-c','patch-a','patch-b'] },
-  { id: 'tube',    name: '튜브',      icon: '🪥', block: ['mist-a','mist-b','ampoule-a','shampoo-a','shampoo-b','shampoo-c','patch-a','patch-b'] },
-  { id: 'spray',   name: '스프레이', icon: '💨', block: ['cream-a','cream-b','cream-c','serum-a','serum-b','ampoule-a','shampoo-a','shampoo-b','shampoo-c','cleanser-a','cleanser-b','cleanser-c','patch-a','patch-b'] },
-  { id: 'airless', name: '에어리스', icon: '🔵', block: ['mist-a','mist-b','cream-c','shampoo-a','shampoo-b','shampoo-c','cleanser-a','cleanser-b','cleanser-c','patch-a','patch-b'] },
-  { id: 'bottle',  name: '보틀',      icon: '🍶', block: ['cream-a','cream-b','cream-c','patch-a','patch-b'] },
+  { id: 'dropper', name: '스포이드',    icon: 'c-dropper', desc: '세럼·앰플 기본형' },
+  { id: 'pump',    name: '펌프',        icon: 'c-pump',    desc: '로션·세정제 기본형' },
+  { id: 'jar',     name: '자(Jar)',     icon: 'c-jar',     desc: '크림 전용' },
+  { id: 'spray',   name: '스프레이',    icon: 'c-spray',   desc: '미스트 전용' },
+  { id: 'airless', name: '에어리스',    icon: 'c-airless', desc: '고기능 크림·세럼' },
+  { id: 'bubble',  name: '버블펌프',     icon: 'c-bubble',  desc: '폼타입 세정제 전용' },
+  { id: 'bottle',  name: '캡형 보틀',   icon: 'c-bottle',  desc: '토너·샴푸·세정제' },
 ];
+
+// 제형별 허용 용기 + 추천(rec) 표시
+// allow: 노출할 용기 ID 목록, rec: 추천 용기 ID
+const CONTAINER_RULES = {
+  'cream-a': { allow: ['jar','pump','airless'],           rec: 'jar' },
+  'cream-b': { allow: ['jar','pump','airless'],           rec: 'jar' },
+  'cream-c': { allow: ['jar'],                            rec: 'jar' },
+  'toner-a': { allow: ['bottle','pump','spray'],          rec: 'bottle' },
+  'toner-b': { allow: ['bottle','pump','spray'],          rec: 'bottle' },
+  'lotion-a':{ allow: ['pump','airless','bottle'],        rec: 'pump' },
+  'lotion-b':{ allow: ['pump','airless','bottle'],        rec: 'pump' },
+  'serum-a': { allow: ['dropper','pump','airless','bottle'], rec: 'dropper' },
+  'serum-b': { allow: ['dropper','pump','airless','bottle'], rec: 'dropper' },
+  'mist-a':  { allow: ['spray','bottle'],                 rec: 'spray' },
+  'mist-b':  { allow: ['spray','bottle'],                 rec: 'spray' },
+  'mist-c':  { allow: ['spray','bottle'],                 rec: 'spray' },
+  'shampoo-a':{ allow: ['pump','bottle'],                 rec: 'pump' },
+  'shampoo-b':{ allow: ['pump','bottle'],                 rec: 'pump' },
+  'cleanser-a':{ allow: ['pump','bottle'],                rec: 'pump' },
+  'cleanser-b':{ allow: ['bubble','bottle'],               rec: 'bubble' },
+  'foam-a':  { allow: ['pump','bottle'],                  rec: 'pump' },
+  'foam-b':  { allow: ['bubble','bottle'],                rec: 'bubble' },
+  'foam-c':  { allow: ['pump','bottle'],                  rec: 'pump' },
+  'patch-a': { allow: ['airless'],                        rec: 'airless' },
+  'patch-b': { allow: ['airless'],                        rec: 'airless' },
+};
 
 const VOLUMES     = [30, 50, 100, 150, 200, 300];
 const BODY_PARTS  = [['얼굴','svg-face'], ['목','🧖‍♀️'], ['바디','💪'], ['손','🤲'], ['가슴','👙'], ['발','🦶'], ['머리','💆'], ['직접입력','✏️']];
@@ -518,38 +773,90 @@ const BODY_SVGS = {
 function bodyIcon(icon) {
   return BODY_SVGS[icon] || icon;
 }
-const FUNCTIONS   = ['피부주름개선', '미백기능'];
+const FUNCTIONS   = ['피부주름개선', '미백기능', '자외선차단', '탈모완화'];
 
 // 성분 리스트 — ⚙ 성분 관리에서 런타임 추가/삭제 가능 (localStorage에 자동 저장)
 const DEFAULT_EXTRACTS = [
-  { id:1,  name:'편백수',          price:300, tags:['가려움','진정','항균','수렴']         },
-  { id:2,  name:'히알루론산',      price:500, tags:['보습','수분','촉촉함']                },
-  { id:3,  name:'PDRN',            price:800, tags:['재생','주름개선','탄력']              },
-  { id:4,  name:'병풀추출물',      price:250, tags:['진정','재생','민감성','상처']         },
-  { id:5,  name:'녹차추출물',      price:200, tags:['항산화','미백','진정','피지']         },
-  { id:6,  name:'나이아신아마이드',price:450, tags:['미백','모공','피지','색소']           },
-  { id:7,  name:'세라마이드',      price:600, tags:['보습','장벽','건조함','탄력']         },
-  { id:8,  name:'레티놀',          price:700, tags:['주름개선','재생','탄력','안티에이징'] },
-  { id:9,  name:'아데노신',        price:550, tags:['주름개선','탄력','안티에이징']        },
-  { id:10, name:'어성초추출물',    price:400, tags:['가려움','항균','진정','염증']         },
-  { id:11, name:'티트리잎추출물',  price:350, tags:['가려움','항균','여드름','염증']       },
-  { id:12, name:'판테놀',          price:300, tags:['진정','보습','상처','두피']           },
-  { id:13, name:'알부틴',          price:500, tags:['미백','색소침착','기미']              },
-  { id:14, name:'비타민C유도체',   price:600, tags:['미백','항산화','주름개선','브라이트닝']},
-  { id:15, name:'펩타이드복합체',  price:750, tags:['주름개선','탄력','재생','안티에이징'] },
-  { id:16, name:'콜라겐',          price:650, tags:['탄력','주름개선','보습','탱탱함']     },
-  { id:17, name:'알로에베라',      price:180, tags:['진정','보습','쿨링','민감성']         },
-  { id:18, name:'감초추출물',      price:350, tags:['미백','진정','항산화','염증']         },
-  { id:19, name:'줄기세포추출물',  price:900, tags:['재생','주름개선','탄력','고급']       },
-  { id:20, name:'덱스판테놀',      price:320, tags:['보습','진정','장벽','두피']           },
-  { id:21, name:'스쿠알란',        price:380, tags:['보습','유분','민감성','장벽']         },
-  { id:22, name:'호호바오일',      price:420, tags:['보습','유분','민감성','안정화']       },
-  { id:23, name:'마데카소사이드',  price:480, tags:['재생','진정','주름개선','상처']       },
-  { id:24, name:'에지상트리아민',  price:350, tags:['탈모','두피','모발','발모']           },
+  // ── 향료 (12 + 무향) ──
+  { id:0,  name:'무향',             category:'향료', price:0,    tags:[], inci:'' },
+  { id:1,  name:'티트리잎오일',     category:'향료', price:750,  tags:['항균','진정','여드름','트러블','지성','두피','피지조절','염증'], inci:'' },
+  { id:2,  name:'라벤더오일',       category:'향료', price:1000, tags:['진정','수면','릴렉스','민감성','홍조','보습','얼굴','바디'], inci:'' },
+  { id:3,  name:'로즈마리잎오일',   category:'향료', price:750,  tags:['항산화','혈행','두피','탈모','모공','지성','각질','탄력'], inci:'' },
+  { id:4,  name:'연필나무목부오일', category:'향료', price:550,  tags:['진정','우디','민감성','보습','릴렉스','바디','건성'], inci:'' },
+  { id:5,  name:'편백오일',         category:'향료', price:2750, tags:['항균','진정','피톤치드','트러블','아토피','민감성','두피','바디'], inci:'' },
+  { id:6,  name:'자몽껍질오일',     category:'향료', price:1100, tags:['피지','상쾌함','지성','톤업','셀룰라이트','바디','모공','시트러스'], inci:'' },
+  { id:7,  name:'로즈우드오일',     category:'향료', price:1050, tags:['보습','재생','플로럴','주름개선','건성','탄력','얼굴','민감성'], inci:'' },
+  { id:8,  name:'유칼립투스오일',   category:'향료', price:375,  tags:['항균','호흡','쿨링','두피','트러블','비듬','지성','상쾌함'], inci:'' },
+  { id:9,  name:'일랑일랑꽃오일',  category:'향료', price:1250, tags:['보습','릴렉스','플로럴','피지조절','복합성','탄력','바디','건성'], inci:'' },
+  { id:10, name:'베르가모트오일',   category:'향료', price:800,  tags:['진정','항균','시트러스','톤업','지성','트러블','모공','상쾌함'], inci:'' },
+  { id:11, name:'레몬오일',         category:'향료', price:700,  tags:['미백','상쾌함','시트러스','톤업','색소','각질','지성','모공'], inci:'' },
+  { id:12, name:'페퍼민트오일',     category:'향료', price:375,  tags:['쿨링','두피','상쾌함','가려움','비듬','지성','혈행','탈모'], inci:'' },
+  // ── 추출물 - 단일 (20) ──
+  { id:13, name:'병풀추출물',           category:'추출물', price:70,  tags:['진정','재생','민감성','상처','홍조','트러블','장벽','얼굴'], inci:'' },
+  { id:14, name:'약모밀추출물',         category:'추출물', price:75,  tags:['진정','항염','민감성','홍조','가려움','아토피','트러블','얼굴'], inci:'' },
+  { id:15, name:'알로에베라잎즙',       category:'추출물', price:35,  tags:['진정','보습','쿨링','건성','상처','얼굴','바디','민감성'], inci:'' },
+  { id:16, name:'율무씨수',             category:'추출물', price:20,  tags:['보습','미백','톤업','색소','수분','건성','얼굴','영양'], inci:'' },
+  { id:17, name:'만주자작나무수',       category:'추출물', price:21,  tags:['보습','진정','수분','건성','민감성','얼굴','장벽','톤업'], inci:'' },
+  { id:18, name:'마로니에추출물',       category:'추출물', price:85,  tags:['혈행','부기','탄력','눈가','셀룰라이트','다크서클','바디','주름개선'], inci:'' },
+  { id:19, name:'쇠비름추출물',         category:'추출물', price:175, tags:['진정','항염','민감성','아토피','홍조','가려움','트러블','장벽'], inci:'' },
+  { id:20, name:'녹차추출물',           category:'추출물', price:100, tags:['항산화','미백','피지','지성','모공','트러블','톤업','얼굴'], inci:'' },
+  { id:21, name:'쌀겨추출물',           category:'추출물', price:100, tags:['미백','보습','영양','톤업','색소','건성','각질','얼굴'], inci:'' },
+  { id:22, name:'프로방스장미꽃수',     category:'추출물', price:100, tags:['보습','진정','톤업','건성','민감성','얼굴','수분','홍조'], inci:'' },
+  { id:23, name:'구주소나무잎추출물',   category:'추출물', price:100, tags:['항균','수렴','진정','모공','지성','트러블','두피','비듬'], inci:'' },
+  { id:24, name:'울금뿌리추출물',       category:'추출물', price:160, tags:['항산화','미백','항염','색소','톤업','트러블','재생','얼굴'], inci:'' },
+  { id:25, name:'로즈마리추출물',       category:'추출물', price:125, tags:['항산화','혈행','모공','두피','지성','탈모','수렴','탄력'], inci:'' },
+  { id:26, name:'연꽃추출물',           category:'추출물', price:175, tags:['미백','보습','진정','톤업','색소','민감성','얼굴','항산화'], inci:'' },
+  { id:27, name:'티트리추출물',         category:'추출물', price:150, tags:['항균','여드름','염증','트러블','지성','피지','모공','두피'], inci:'' },
+  { id:28, name:'유칼립투스잎추출물',   category:'추출물', price:150, tags:['항균','진정','쿨링','트러블','두피','비듬','지성','가려움'], inci:'' },
+  { id:29, name:'흰버드나무껍질추출물', category:'추출물', price:100, tags:['각질','모공','피지','지성','트러블','여드름','수렴','블랙헤드'], inci:'' },
+  { id:30, name:'소엽잎추출물',         category:'추출물', price:140, tags:['항균','항염','진정','트러블','민감성','가려움','아토피','얼굴'], inci:'' },
+  { id:31, name:'구절초추출물',         category:'추출물', price:160, tags:['미백','항산화','재생','주름개선','색소','톤업','탄력','얼굴'], inci:'' },
+  { id:32, name:'마트리카리아꽃추출물', category:'추출물', price:170, tags:['진정','항염','민감성','홍조','가려움','아토피','트러블','보습'], inci:'' },
+  // ── 추출물 - 복합 (14) ──
+  { id:33, name:'Anti Sebum P (HD)', category:'추출물', price:190, tags:['피지','모공','지성','여드름','블랙헤드','트러블','수렴','각질'], inci:'대왕송잎추출물, 당느릅나무뿌리추출물, 달맞이꽃추출물, 칡뿌리추출물' },
+  { id:34, name:'Natural Protector', category:'추출물', price:190, tags:['항균','진정','장벽','민감성','트러블','아토피','항염','보습'], inci:'락토바실러스/콩발효추출물, 흰버드나무껍질추출물, 육계나무껍질추출물, 오레가노잎추출물, 편백잎추출물, 황금추출물, 쇠비름추출물' },
+  { id:35, name:'Tannin Complex HR', category:'추출물', price:210, tags:['수렴','모공','탄력','항산화','지성','피지','블랙헤드','주름개선'], inci:'감나무잎추출물, 포도추출물, 커피콩추출물, 잇꽃꽃추출물, 호장근뿌리추출물, 녹차추출물, 밤껍질추출물, 초피나무열매추출물' },
+  { id:36, name:'TWINATE-C9',        category:'추출물', price:125, tags:['진정','항산화','재생','민감성','홍조','트러블','항염','장벽'], inci:'포도씨추출물, 버지니아풍년화추출물, 올리브나무잎추출물, 병풀추출물, 유칼립투스잎추출물, 쇠비름추출물, 황금추출물, 마트리카리아꽃추출물, 황기추출물' },
+  { id:37, name:'YY-BSASM',          category:'추출물', price:125, tags:['미백','항산화','진정','톤업','색소','항염','재생','민감성'], inci:'스페인감초뿌리추출물, 녹차추출물, 로즈마리잎추출물, 병풀추출물, 마트리카리아꽃추출물, 황금추출물, 호장근뿌리추출물' },
+  { id:38, name:'Herb Green NO.8',   category:'추출물', price:240, tags:['항균','진정','항염','트러블','여드름','지성','두피','가려움'], inci:'인동덩굴꽃추출물, 작약뿌리추출물, 고삼뿌리추출물, 황금추출물, 복사나무잎추출물, 붉나무충영추출물, 녹차추출물, 은행나무잎추출물' },
+  { id:39, name:'WHITE FLOWER EXTRACT (HD)', category:'추출물', price:225, tags:['미백','보습','톤업','색소','항산화','재생','건성','얼굴'], inci:'연꽃추출물, 커먼자스민꽃/잎추출물, 장미추출물, 마돈나백합비늘줄기추출물, 프리지어추출물, 나팔수선화추출물, 블루플래그아이리스추출물, 에델바이스꽃/잎추출물' },
+  { id:40, name:'병풀추출물 외 7종', category:'추출물', price:125, tags:['진정','재생','해독','항염','장벽','민감성','보습','트러블'], inci:'병풀추출물, 프로폴리스추출물, 지모뿌리추출물, 우엉씨추출물, 연꽃씨추출물, 당개나리열매추출물, 도라지뿌리추출물, 허니서클꽃추출물' },
+  { id:41, name:'IndiMultiEx WH-9 Complex', category:'추출물', price:200, tags:['미백','톤업','재생','색소','항산화','보습','주름개선','얼굴'], inci:'연꽃추출물, 뽕나무껍질추출물, 스노우로투스추출물, 마돈나백합꽃추출물, 약모밀추출물, 알바프리지어추출물, 데이지꽃추출물, 에델바이스꽃추출물, 인삼뿌리추출물' },
+  { id:42, name:'발효추출물 5종 복합', category:'추출물', price:225, tags:['발효','보습','재생','장벽','톤업','영양','건성','항산화'], inci:'락토바실러스/콩발효추출물, 락토바실러스/쌀발효물, 락토바실러스/인삼뿌리발효여과물, 효모/율무씨발효여과물, 효모/감자추출물발효여과물' },
+  { id:43, name:'IndiMultiEx Soap Complex', category:'추출물', price:200, tags:['세정','천연계면활성','저자극','바디','얼굴','민감성','두피','거품'], inci:'퀼라자껍질추출물, 비누풀잎추출물, 무환자열매추출물' },
+  { id:44, name:'IndiMultiEx Pure Skin Leaf', category:'추출물', price:200, tags:['진정','항산화','보습','민감성','건성','장벽','홍조','얼굴'], inci:'루이보스잎추출물, 귀리잎추출물, 알로에베라잎추출물, 올리브나무잎추출물, 녹차추출물' },
+  { id:45, name:'Blue Complex HR',   category:'추출물', price:220, tags:['진정','보습','민감성','홍조','아토피','가려움','항염','릴렉스'], inci:'라벤더꽃추출물, 클레리추출물, 히야신스전초추출물, 마트리카리아꽃추출물, 보리지추출물, 수레국화꽃추출물' },
+  { id:46, name:'Detox-MH',          category:'추출물', price:120, tags:['해독','진정','재생','항염','장벽','민감성','보습','트러블'], inci:'병풀추출물, 프로폴리스추출물, 지모뿌리추출물, 우엉씨추출물, 연꽃씨추출물, 당개나리열매추출물, 도라지뿌리추출물, 허니서클꽃추출물' },
+  // ── 첨가원료 (17) ──
+  { id:47, name:'8중 히아루론산 Complex', category:'첨가원료', price:175, tags:['보습','수분','장벽','건성','주름개선','얼굴','탄력','민감성'], inci:'하이드롤라이즈드글라이코사미노글리칸, 소듐하이알루로네이트, 소듐하이알루로네이트크로스폴리머, 하이드롤라이즈드하이알루로닉애씨드, 하이드록시프로필트라이모늄하이알루로네이트, 하이알루로닉애씨드, 소듐아세틸레이티드하이알루로네이트' },
+  { id:48, name:'Super Centella',     category:'첨가원료', price:189, tags:['재생','진정','상처','민감성','홍조','장벽','트러블','주름개선'], inci:'아시아티코사이드, 마데카소사이드, 마데카식애씨드, 아시아틱애씨드' },
+  { id:49, name:'Ceraplex 5',         category:'첨가원료', price:210, tags:['보습','장벽','세라마이드','건성','아토피','민감성','얼굴','각질'], inci:'세라마이드엔에스, 세라마이드엔피, 세라마이드에이에스, 세라마이드에이피, 세라마이드이오피' },
+  { id:50, name:'카페인',             category:'첨가원료', price:275, tags:['부기','혈행','눈가','다크서클','셀룰라이트','두피','탈모','바디'], inci:'' },
+  { id:51, name:'하이드롤라이즈드콜라겐', category:'첨가원료', price:150, tags:['탄력','보습','주름개선','건성','얼굴','눈가','재생','영양'], inci:'' },
+  { id:52, name:'4HA Complex',        category:'첨가원료', price:200, tags:['각질','모공','피지','지성','블랙헤드','여드름','트러블','수렴'], inci:'하이드로제네이티드레시틴, 폴리글리세릴-10스테아레이트, 폴리글리세릴-4카프레이트, 살리실릭애씨드, 글루코노락톤, 카프릴로일살리실릭애씨드, 글라이콜릭애씨드' },
+  { id:53, name:'5GF-Complex H',      category:'첨가원료', price:2000, tags:['재생','주름개선','성장인자','탄력','상처','얼굴','눈가','탈모'], inci:'에스에이치-올리고펩타이드-1, 에스에이치-올리고펩타이드-2, 에스에이치-폴리펩타이드-1, 에스에이치-폴리펩타이드-22, 에스에이치-폴리펩타이드-3' },
+  { id:54, name:'Paltrio Pep 500',    category:'첨가원료', price:1100, tags:['주름개선','탄력','펩타이드','재생','얼굴','눈가','보습','콜라겐'], inci:'팔미토일펜타펩타이드-4, 팔미토일트라이펩타이드-1, 팔미토일테트라펩타이드-7' },
+  { id:55, name:'갈락토미세스발효여과물', category:'첨가원료', price:22,  tags:['발효','톤업','보습','미백','모공','피지조절','영양','얼굴'], inci:'' },
+  { id:56, name:'비피다발효용해물',   category:'첨가원료', price:22,  tags:['발효','보습','장벽','재생','민감성','항산화','영양','얼굴'], inci:'' },
+  { id:57, name:'엑토인',             category:'첨가원료', price:3250, tags:['보습','장벽','민감성','건성','아토피','홍조','자외선','얼굴'], inci:'' },
+  { id:58, name:'Amino Acid Complex', category:'첨가원료', price:125, tags:['보습','영양','장벽','건성','민감성','재생','얼굴','바디'], inci:'페닐알라닌, 류신, 메티오닌, 라이신, 아이소류신, 발린, 히스티딘, 트레오닌, 트립토판' },
+  { id:59, name:'소듐디엔에이',       category:'첨가원료', price:4050, tags:['재생','주름개선','PDRN','상처','탄력','얼굴','눈가','탈모'], inci:'' },
+  { id:60, name:'아스코빅애씨드',     category:'첨가원료', price:230, tags:['미백','항산화','비타민C','색소','톤업','콜라겐','자외선','얼굴'], inci:'' },
+  { id:61, name:'에틸아스코빅애씨드', category:'첨가원료', price:1900, tags:['미백','항산화','비타민C','색소','톤업','콜라겐','자외선','얼굴'], inci:'' },
+  { id:62, name:'나이아신아마이드',   category:'첨가원료', price:70,  tags:['미백','모공','피지','색소','톤업','장벽','지성','주름개선'], inci:'' },
+  { id:63, name:'아데노신',           category:'첨가원료', price:500, tags:['주름개선','탄력','재생','얼굴','눈가','보습','콜라겐','건성'], inci:'' },
 ];
 
-// localStorage에서 성분 로드 (없으면 기본값 사용)
-let extracts = JSON.parse(localStorage.getItem('ag_extracts') || 'null') || JSON.parse(JSON.stringify(DEFAULT_EXTRACTS));
+// localStorage에서 성분 로드 (버전 변경 시 기본값으로 리셋)
+const EXTRACT_VERSION = 5;
+let extracts;
+if (parseInt(localStorage.getItem('ag_extracts_ver') || '0') < EXTRACT_VERSION) {
+  extracts = JSON.parse(JSON.stringify(DEFAULT_EXTRACTS));
+  localStorage.setItem('ag_extracts', JSON.stringify(extracts));
+  localStorage.setItem('ag_extracts_ver', EXTRACT_VERSION);
+} else {
+  extracts = JSON.parse(localStorage.getItem('ag_extracts') || 'null') || JSON.parse(JSON.stringify(DEFAULT_EXTRACTS));
+}
 
 function saveExtracts() {
   localStorage.setItem('ag_extracts', JSON.stringify(extracts));
@@ -574,23 +881,28 @@ function saveOrder(order) {
 const STATE = {
   apiKey:       '',
   isAdmin:      false,
+  userName:     '',
+  userBrand:    '',
+  userPhone:    '',
+  userAddress:  '',
   step:         1,
   description:  '',
   functions:    [],       // 기능성 화장품 선택
   bodyPart:     '',
   formula:      null,     // formula.id
+  delegateExtracts: false, // 원료 선택을 공장에 위임
   selExtracts:  {},       // { '편백수': 300, ... }
   aiRecs:       [],       // Gemini 추천 성분명 배열
-  trendRecs:    [],       // Gemini 트렌드 성분명 배열
-  volume:       50,       // ml
-  quantity:     500,
+  volume:       100,      // ml
+  quantity:     300,
   container:    null,     // container.id
 };
 
 // ════════════════════════════════════════════════════════════
 //  🔧  HELPERS
 // ════════════════════════════════════════════════════════════
-const getMOQ      = v  => Math.ceil((CONFIG.TARGET_KG * 1000) / v);
+const MOQ_MAP = { 30: 1000, 50: 500 };
+const getMOQ  = v => MOQ_MAP[v] || 300;
 const getExtTotal = () => Object.values(STATE.selExtracts).reduce((a, b) => a + b, 0);
 const getUnitCost = () => CONFIG.BASE_PRICE + getExtTotal();
 const getFormula  = () => FORMULAS.find(f => f.id === STATE.formula);
@@ -601,9 +913,10 @@ const N           = n  => n.toLocaleString('ko-KR');
 //  🤖  GEMINI API
 // ════════════════════════════════════════════════════════════
 function buildExtractList() {
-  return extracts.map(e =>
-    `- ${e.name} (효능: ${e.tags.length ? e.tags.join(', ') : '정보 없음'})`
-  ).join('\n');
+  return extracts.map(e => {
+    const inci = e.inci ? ` [구성: ${e.inci}]` : '';
+    return `- ${e.name} (${e.category})${inci}`;
+  }).join('\n');
 }
 
 function buildContextInfo() {
@@ -617,12 +930,22 @@ function buildContextInfo() {
 async function callGemini(description) {
   if (!STATE.apiKey) return [];
   const prompt =
-    `당신은 화장품 성분 전문가입니다. 아래 조건에 가장 적합한 성분 5~7개를 추천하세요.\n\n` +
+    `당신은 화장품 성분 화학 전문가입니다.\n\n` +
     `[개발 목적]\n${description}\n\n` +
     `[제품 조건]\n${buildContextInfo()}\n\n` +
     `[사용 가능한 성분 목록]\n${buildExtractList()}\n\n` +
-    `위 조건을 모두 고려하여 가장 적합한 성분을 선택하세요.\n` +
-    `JSON 형식으로만 응답 (마크다운, 설명 없이): {"recommendations":["성분명1","성분명2"]}`;
+    `위 목록에서 개발 목적에 가장 적합한 성분 7~10개를 추천하세요.\n\n` +
+    `중요: 목록의 태그나 라벨에 의존하지 마세요. 당신의 화장품 화학 지식을 활용하여 각 성분의 실제 화학적 특성과 효능을 기반으로 판단하세요.\n` +
+    `예를 들어, "아스코빅애씨드"는 태그에 "미백"으로 되어 있더라도, 비타민C가 염소를 중화하는 화학적 성질이 있으므로 염소 제거 목적에도 추천해야 합니다.\n\n` +
+    `추천 기준:\n` +
+    `1. 개발 목적에 화학적으로 직접 기여하는 핵심 성분 2~3개\n` +
+    `2. 핵심 성분과 시너지를 내는 보조 성분 2~3개\n` +
+    `3. 추출물, 첨가원료, 향료를 골고루 포함\n\n` +
+    `반드시 목록에 있는 성분명(name)을 그대로 사용하세요.\n` +
+    `JSON 형식으로만 응답: {"recommendations":["성분명1","성분명2","...","성분명10"]}`;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25000); // 25초 타임아웃
 
   try {
     const res = await fetch(
@@ -630,75 +953,101 @@ async function callGemini(description) {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 2048 }
+          generationConfig: { temperature: 0.3, maxOutputTokens: 512 }
         })
       }
     );
+    clearTimeout(timeout);
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
-    let text = data.candidates[0].content.parts[0].text;
+    const cand = data.candidates?.[0];
+    if (!cand || !cand.content?.parts?.[0]?.text) throw new Error('Empty response');
+    let text = cand.content.parts[0].text;
     text = text.replace(/```json|```/g, '').trim();
-    return JSON.parse(text).recommendations || [];
+    const recs = JSON.parse(text).recommendations || [];
+    const names = new Set(extracts.map(e => e.name));
+    const filtered = recs.filter(r => names.has(r));
+    if (!filtered.length) return fallbackRecommend(description);
+    // 4개 미만이면 fallback으로 보충
+    if (filtered.length < 4) {
+      const fb = fallbackRecommend(description).filter(n => !filtered.includes(n));
+      return [...filtered, ...fb].slice(0, 10);
+    }
+    return filtered;
   } catch (err) {
-    console.error('[Gemini Error]', err);
-    return [];
+    clearTimeout(timeout);
+    console.warn('[Gemini AI 추천 실패 → 태그 기반 추천으로 전환]', err.message || err);
+    return fallbackRecommend(description);
   }
 }
 
-async function callGeminiTrend() {
-  if (!STATE.apiKey) return [];
-  const prompt =
-    `당신은 화장품 성분 트렌드 전문가입니다.\n` +
-    `아래 제품 조건과 관련하여, 현재 화장품 업계에서 주목받는 트렌드 성분 4~6개를 선택하세요.\n\n` +
-    `[개발 목적]\n${STATE.description}\n\n` +
-    `[제품 조건]\n${buildContextInfo()}\n\n` +
-    `[사용 가능한 성분 목록]\n${buildExtractList()}\n\n` +
-    `JSON 형식으로만 응답 (마크다운, 설명 없이): {"trends":["성분명1","성분명2"]}`;
 
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.GEMINI_MODEL}:generateContent?key=${STATE.apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.5, maxOutputTokens: 2048 }
-        })
-      }
-    );
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    let text = data.candidates[0].content.parts[0].text;
-    text = text.replace(/```json|```/g, '').trim();
-    return JSON.parse(text).trends || [];
-  } catch (err) {
-    console.error('[Gemini Trend Error]', err);
-    return [];
-  }
-}
-
-// API 키 없을 때 태그 기반 폴백 추천
+// 태그 + 키워드 기반 추천
 function fallbackRecommend(description) {
   const kw = description.toLowerCase();
-  const scored = extracts.map(e => {
-    const score = e.tags.filter(t => kw.includes(t)).length;
-    return { name: e.name, score };
+  const kwMap = {
+    '가려움':'진정', '가려운':'진정', '따가':'진정', '자극':'민감성', '민감':'민감성', '건조':'보습',
+    '촉촉':'보습', '수분':'보습', '주름':'주름개선', '탄력':'탄력', '노화':'주름개선',
+    '트러블':'여드름', '여드름':'여드름', '피지':'피지', '지성':'피지', '모공':'모공',
+    '미백':'미백', '톤업':'미백', '밝은':'미백', '칙칙':'미백', '잡티':'미백', '기미':'미백',
+    '재생':'재생', '상처':'재생', '붉은':'진정', '홍조':'진정', '염증':'항염', '아토피':'민감성',
+    '두피':'두피', '탈모':'두피', '모발':'두피', '각질':'각질', '보습':'보습', '진정':'진정',
+    '항산화':'항산화', '안티에이징':'주름개선', '쿨링':'쿨링', '시원':'쿨링',
+    '장벽':'장벽', '세라마이드':'장벽', '펩타이드':'펩타이드', '콜라겐':'탄력',
+    '크림':'보습', '세럼':'재생', '토너':'보습', '에센스':'보습', '로션':'보습',
+    '팩':'보습', '마스크':'보습', '클렌저':'세정', '바디':'보습', '샴푸':'두피',
+    '수영':'해독', '수영장':'해독', '염소':'해독', '제거':'세정', '세정':'세정',
+    '비듬':'비듬', '탈색':'해독', '손상':'재생', '영양':'영양', '윤기':'영양',
+    '아기':'민감성', '어린이':'민감성', '유아':'민감성', '임산부':'민감성',
+    '자외선':'자외선', '선크림':'자외선', '썬':'자외선', '일광':'자외선',
+    '다크서클':'다크서클', '눈밑':'다크서클', '붓기':'부기', '부종':'부기',
+    '등드름':'여드름', '바디워시':'세정', '폼클렌징':'세정', '워시':'세정',
+  };
+  const extraTags = new Set();
+  for (const [word, tag] of Object.entries(kwMap)) {
+    if (kw.includes(word)) extraTags.add(tag);
+  }
+
+  const scored = extracts.filter(e => e.name !== '무향').map(e => {
+    let score = e.tags.filter(t => kw.includes(t)).length;
+    score += e.tags.filter(t => extraTags.has(t)).length;
+    if (kw.includes(e.name.replace(/추출물|오일|Complex/g,''))) score += 3;
+    return { name: e.name, score, cat: e.category };
   });
-  return scored
-    .filter(x => x.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 6)
-    .map(x => x.name);
+
+  let result = scored.filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+
+  // 카테고리 다양성 확보: 추출물, 첨가원료 각각 최소 1개 포함
+  if (result.length >= 2) {
+    const hasCat = cat => result.slice(0, 10).some(x => x.cat === cat);
+    if (!hasCat('첨가원료')) {
+      const add = scored.filter(x => x.cat === '첨가원료' && x.score > 0)[0];
+      if (add) result.splice(4, 0, add);
+    }
+    if (!hasCat('추출물')) {
+      const add = scored.filter(x => x.cat === '추출물' && x.score > 0)[0];
+      if (add) result.splice(0, 0, add);
+    }
+  }
+
+  // 매칭 결과가 없으면 인기 성분 기본 추천
+  if (result.length === 0) {
+    result = extracts
+      .filter(e => ['병풀추출물','녹차추출물','8중 히아루론산 Complex','나이아신아마이드','알로에베라잎즙','Super Centella'].includes(e.name))
+      .map(e => ({ name: e.name, score: 1 }));
+  }
+
+  return result.slice(0, 10).map(x => x.name);
 }
 
 // ════════════════════════════════════════════════════════════
 //  📊  PROGRESS RENDER
 // ════════════════════════════════════════════════════════════
 function renderProgress() {
-  const labels = ['목표 설정', '제형 선택', '추출물', '용량/수량', '용기', '최종 제출'];
+  const labels = ['목표 설정', '제품 유형', '용기', '용량/수량', '원료', '최종 제출'];
   let html = '';
   labels.forEach((label, i) => {
     const n = i + 1, done = n < STATE.step, active = n === STATE.step;
@@ -728,10 +1077,9 @@ function buildStep1() {
 
   const presetNames = BODY_PARTS.filter(([n]) => n !== '직접입력').map(([n]) => n);
   const isCustom = STATE.bodyPart && !presetNames.includes(STATE.bodyPart);
-  const bodyCards = BODY_PARTS.map(([name, icon]) => {
+  const bodyCards = BODY_PARTS.map(([name]) => {
     const active = name === '직접입력' ? isCustom : STATE.bodyPart === name;
-    return `<div class="sel-card ${active ? 'active' : ''}" onclick="selectBodyPart('${name}', this)">
-      <div class="sc-icon">${bodyIcon(icon)}</div>
+    return `<div class="sel-card body-text-only ${active ? 'active' : ''}" onclick="selectBodyPart('${name}', this)">
       <div class="sc-name">${name}</div>
     </div>`;
   }).join('');
@@ -747,9 +1095,15 @@ function buildStep1() {
     <div class="card">
       <div class="card-title">어떤 화장품을 만들고 싶으신가요?</div>
       <div class="card-sub">원하는 효능, 느낌, 고객군을 자유롭게 적어주세요.<br>AI가 내용을 분석해 맞춤 성분을 추천해드립니다.</div>
-      <textarea id="descInput" placeholder="예: 피부 가려움을 해결하는 진정 크림을 만들고 싶어요. 건성 피부에 맞는 고보습 제품으로 어린이도 쓸 수 있으면 좋겠어요.">${STATE.description}</textarea>
+      <textarea id="descInput" placeholder="예시 1&#41; 고기능성 영양크림&#10;예시 2&#41; 탄력 회복을 위한 고기능 영양크림을 만들고 싶어요.">${STATE.description}</textarea>
       <div class="section-tag">기능성 화장품 (해당 시 체크)</div>
       <div class="fn-group">${fnBtns}</div>
+      <div id="fnCostNotice" style="display:${STATE.functions.length ? 'block' : 'none'}">
+        <div class="notice info" style="margin-top:0;font-size:12px">
+          💰 기능성 추가 비용: <strong>1개 40,000원 / 2개 이상 65,000원</strong><br>
+          <span style="font-size:11px;color:var(--g6)">현재 ${STATE.functions.length}개 선택 → <strong style="color:var(--t)">${STATE.functions.length === 0 ? '0' : STATE.functions.length === 1 ? '40,000' : '65,000'}원</strong> 추가</span>
+        </div>
+      </div>
     </div>
     <div class="card">
       <div class="card-title">사용할 부위를 선택해주세요</div>
@@ -792,8 +1146,8 @@ function buildStep2() {
 
   return `
     <div class="card">
-      <div class="card-title">제형을 선택해주세요</div>
-      <div class="card-sub">제형을 선택하면 세부 타입을 고를 수 있습니다</div>
+      <div class="card-title">만들고 싶은 제품 유형을 선택해주세요</div>
+      <div class="card-sub">제품 유형을 선택하면 구체적인 제형(텍스처)을 고를 수 있습니다</div>
       <div class="formula-grid" id="formulaGrid">${catCards}</div>
       <div id="formulaSubArea">${subSection}</div>
     </div>
@@ -809,48 +1163,58 @@ function buildStep3(aiLoading = false) {
     ? `<div class="ai-loading"><div class="spinner"></div> Gemini가 성분을 분석 중입니다...</div>`
     : `<div class="chips" id="aiChips">${buildAIChips()}</div>`;
 
-  const trendSection = aiLoading
-    ? `<div class="ai-loading"><div class="spinner"></div> 트렌드 성분을 분석 중입니다...</div>`
-    : `<div class="chips" id="trendChips">${buildTrendChips()}</div>`;
-
-  const allChips = extracts.map(e =>
-    `<div class="chip ${STATE.selExtracts[e.name] !== undefined ? 'sel' : ''}"
-      onclick="toggleExtract('${e.name}', ${e.price})">
-      ${e.name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>
-    </div>`
-  ).join('');
+  const catOrder = {'추출물':0, '첨가원료':1, '향료':2};
+  const sorted = [...extracts].sort((a,b) => (catOrder[a.category]||0) - (catOrder[b.category]||0));
+  const allChips = sorted.map(e => {
+    const badge = `<span class="cat-badge cat-${e.category || '추출물'}">${e.category || '추출물'}</span>`;
+    const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
+    const safeName = e.name.replace(/'/g, "\\'");
+    return `<div class="chip ${STATE.selExtracts[e.name] !== undefined ? 'sel' : ''}" data-name="${e.name}"
+      onclick="toggleExtract('${safeName}', ${e.price})">
+      ${badge}${e.name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${tooltip}
+    </div>`;
+  }).join('');
 
   const selKeys = Object.keys(STATE.selExtracts);
 
+  const isDel = STATE.delegateExtracts;
+  const disabledStyle = isDel ? 'opacity:.35;pointer-events:none;' : '';
+
   return `
     <div class="card">
-      <div class="card-title">추출물 선택</div>
-      <div class="card-sub">성분을 선택할수록 예상 원가가 실시간으로 반영됩니다</div>
+      <div class="card-title">원료 선택</div>
+      <div class="card-sub">직접 성분을 골라보거나, 제조 전문가에게 맡길 수 있습니다</div>
 
-      <div class="section-tag">
-        <span style="font-size:10px;font-weight:800;padding:2px 7px;background:var(--tl);color:var(--tmd);border-radius:10px">✦ AI 추천 성분</span>
+      <div class="delegate-card ${isDel ? 'active' : ''}" onclick="toggleDelegate()">
+        <div class="dc-icon">👨‍🔬</div>
+        <div class="dc-text">
+          <div class="dc-title">원료 선택을 제조 전문가에게 맡길게요</div>
+          <div class="dc-sub">입력하신 개발 목표와 제형을 바탕으로<br>제조 연구팀이 최적의 원료를 직접 배합해드립니다</div>
+        </div>
+        <div class="dc-check">${isDel ? '✓' : ''}</div>
       </div>
-      <div id="aiSection">${aiSection}</div>
 
-      <div class="section-tag">
-        <span style="font-size:10px;font-weight:800;padding:2px 7px;background:var(--al);color:var(--ad);border-radius:10px">🔥 요즘 트렌드 성분</span>
+      <div id="extractSelectArea" style="${disabledStyle}">
+        <div class="section-tag">
+          <span style="font-size:10px;font-weight:800;padding:2px 7px;background:var(--tl);color:var(--tmd);border-radius:10px">✦ AI 추천 성분</span>
+        </div>
+        <div id="aiSection">${aiSection}</div>
+
+        <div class="section-tag">전체 성분 리스트</div>
+        <div class="chips">${allChips}</div>
       </div>
-      <div id="trendSection">${trendSection}</div>
 
-      <div class="section-tag">전체 성분 리스트</div>
-      <div class="chips">${allChips}</div>
-
+    </div>
       <div class="price-bar">
         <div>
-          <div class="pb-label">예상 제조 원가 (기본 ${N(CONFIG.BASE_PRICE)}원 + 추출물)</div>
-          <div class="pb-sub" id="selectedList">${selKeys.length ? selKeys.join(', ') : '추출물 미선택'}</div>
+          <div class="pb-label">${isDel ? '원료 선택: 제조 전문가 위임' : '선택한 원료 ' + selKeys.length + '개'}</div>
+          <div class="pb-sub" id="selectedList">${isDel ? '제조 연구팀이 최적 원료를 배합합니다' : (selKeys.length ? selKeys.join(', ') : '원료 미선택')}</div>
         </div>
-        <div class="pb-price" id="priceDisplay">${N(getUnitCost())}원</div>
+        <div class="pb-price" id="priceDisplay">${isDel ? '-' : N(getUnitCost()) + '원'}</div>
       </div>
-    </div>
     <div class="btn-row">
-      <button class="btn" onclick="goToStep(2)">← 이전</button>
-      <button class="btn primary" onclick="goToStep(4)">다음 단계 →</button>
+      <button class="btn" onclick="goToStep(4)">← 이전</button>
+      <button class="btn primary" onclick="goToStep(6)">다음 단계 →</button>
     </div>`;
 }
 
@@ -860,63 +1224,44 @@ function buildAIChips() {
   return STATE.aiRecs.map(name => {
     const e = extracts.find(x => x.name === name);
     if (!e) return '';
-    return `<div class="chip ai-rec ${STATE.selExtracts[name] !== undefined ? 'sel' : ''}"
-      onclick="toggleExtract('${name}', ${e.price})">
-      ${name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>
+    const safeName = name.replace(/'/g, "\\'");
+    const badge = `<span class="cat-badge cat-${e.category || '추출물'}">${e.category || '추출물'}</span>`;
+    const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
+    return `<div class="chip ai-chip ${STATE.selExtracts[name] !== undefined ? 'sel' : ''}" data-name="${name}"
+      onclick="toggleExtract('${safeName}', ${e.price})">
+      <span style="font-size:9px;font-weight:800;color:var(--t);margin-right:2px">AI</span>${badge}${name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${tooltip}
     </div>`;
   }).join('');
 }
 
-function buildTrendChips() {
-  if (!STATE.trendRecs.length)
-    return `<span style="font-size:12px;color:#c8cad0">트렌드 성분을 불러올 수 없습니다</span>`;
-  return STATE.trendRecs.map(name => {
-    const e = extracts.find(x => x.name === name);
-    if (!e) return '';
-    return `<div class="chip trend-rec ${STATE.selExtracts[name] !== undefined ? 'sel' : ''}"
-      onclick="toggleExtract('${name}', ${e.price})"
-      style="border-color:var(--am)">
-      ${name}&nbsp;<span style="color:var(--am);font-size:10px">+${N(e.price)}원</span>
-    </div>`;
-  }).join('');
-}
 
 // ── STEP 4: 용량 및 수량 ──
 function buildStep4() {
   const moq = getMOQ(STATE.volume);
   const ok = STATE.quantity >= moq;
+  const isMoqVol = STATE.volume === 30 || STATE.volume === 50;
   const volOptions = VOLUMES.map(v =>
-    `<option value="${v}" ${STATE.volume === v ? 'selected' : ''}>${v}ml &nbsp;(최소 ${N(getMOQ(v))}개)</option>`
+    `<option value="${v}" ${STATE.volume === v ? 'selected' : ''}>${v}ml</option>`
   ).join('');
 
   return `
     <div class="card">
       <div class="card-title">용량 및 생산 수량</div>
-      <div class="card-sub">
-        최소 제조 기준: <strong style="color:var(--t)">총 ${CONFIG.TARGET_KG}kg</strong>
-        &nbsp;→ ${STATE.volume}ml 기준 최소 <strong style="color:var(--t)">${N(moq)}개</strong>
-      </div>
+      <div class="card-sub">용량을 선택하고 생산 수량을 입력해주세요</div>
       <div class="form-2">
         <div>
           <label class="form-label">용량 선택</label>
           <select onchange="updateVolume(this.value)">${volOptions}</select>
         </div>
         <div>
-          <label class="form-label">수량 (최소 ${N(moq)}개 이상)</label>
-          <input type="number" id="qtyInput" value="${STATE.quantity}" min="${moq}" step="50"
+          <label class="form-label">수량 (최소 ${N(moq)}개)</label>
+          <input type="number" id="qtyInput" value="${STATE.quantity}" min="${moq}" step="100"
             onchange="updateQuantity(this.value)">
         </div>
       </div>
-      <div class="notice info">✓ ${STATE.volume}ml × ${N(moq)}개 = ${CONFIG.TARGET_KG}kg 최소 제조량 충족</div>
+      ${isMoqVol ? `<div class="notice info">✓ ${STATE.volume}ml 선택 시 최소 제조량 ${N(moq)}개 충족</div>` : ''}
       <div class="notice warn ${ok ? '' : 'show'}" id="moqWarning">
-        ⚠ 최소 ${N(moq)}개 이상 주문해야 합니다 (${CONFIG.TARGET_KG}kg 기준)
-      </div>
-      <div class="price-bar" style="margin-top:.75rem">
-        <div>
-          <div class="pb-label">단가 ${N(getUnitCost())}원 × ${N(STATE.quantity)}개</div>
-          <div class="pb-sub">예상 총 원가</div>
-        </div>
-        <div class="pb-price" id="totalRevenue">${N(getUnitCost() * STATE.quantity)}원</div>
+        ⚠ 최소 ${N(moq)}개 이상 주문해야 합니다
       </div>
     </div>
     <div class="btn-row">
@@ -928,13 +1273,18 @@ function buildStep4() {
 // ── STEP 5: 용기 선택 ──
 function buildStep5() {
   const fid = STATE.formula;
-  const cards = CONTAINERS.map(c => {
-    const blocked = c.block.includes(fid);
-    return `<div class="sel-card ${STATE.container === c.id ? 'active' : ''} ${blocked ? 'disabled' : ''}"
-      onclick="${blocked ? '' : `selectContainer('${c.id}')`}">
-      <div class="sc-icon">${c.icon}</div>
+  const rule = CONTAINER_RULES[fid] || { allow: CONTAINERS.map(c => c.id), rec: '' };
+  const allowed = CONTAINERS.filter(c => rule.allow.includes(c.id));
+  // 이전 선택이 허용 목록에 없으면 초기화
+  if (STATE.container && !rule.allow.includes(STATE.container)) STATE.container = null;
+  const cards = allowed.map(c => {
+    const isRec = c.id === rule.rec;
+    return `<div class="sel-card ${STATE.container === c.id ? 'active' : ''}"
+      onclick="selectContainer('${c.id}')">
+      <div class="sc-icon">${containerIcon(c.icon)}</div>
       <div class="sc-name">${c.name}</div>
-      ${blocked ? '<div class="sc-badge">사용 불가</div>' : ''}
+      <div class="sc-desc">${c.desc}</div>
+      ${isRec ? '<div class="sc-rec">추천</div>' : ''}
     </div>`;
   }).join('');
   const formula = getFormula();
@@ -943,11 +1293,10 @@ function buildStep5() {
       <div class="card-title">용기 타입 선택</div>
       <div class="card-sub">선택하신 <strong style="color:var(--t)">${formula?.name}</strong> 제형에 따라 일부 용기가 자동 제한됩니다</div>
       <div class="container-grid">${cards}</div>
-      <div class="notice info">⬜ 용기 색상: 불투명 또는 반투명만 가능 (투명 용기 제외 — 내용물 변질 방지)</div>
     </div>
     <div class="btn-row">
-      <button class="btn" onclick="goToStep(4)">← 이전</button>
-      <button class="btn primary" ${STATE.container ? '' : 'disabled'} onclick="goToStep(6)">다음 단계 →</button>
+      <button class="btn" onclick="goToStep(2)">← 이전</button>
+      <button class="btn primary" ${STATE.container ? '' : 'disabled'} onclick="goToStep(4)">다음 단계 →</button>
     </div>`;
 }
 
@@ -962,11 +1311,16 @@ function buildStep6() {
       <div class="card-title">최종 기획안 확인</div>
       <div class="card-sub">내용을 확인 후 제출하시면 연구팀에 자동 발송됩니다</div>
 
+      <div class="summary-row"><span class="sum-key">성함</span><span class="sum-val">${STATE.userName}</span></div>
+      <div class="summary-row"><span class="sum-key">브랜드명</span><span class="sum-val">${STATE.userBrand}</span></div>
+      <div class="summary-row"><span class="sum-key">전화번호</span><span class="sum-val">${STATE.userPhone}</span></div>
+      <div class="summary-row"><span class="sum-key">샘플 주소</span><span class="sum-val" style="font-size:12px">${STATE.userAddress}</span></div>
+      <div style="height:1px;background:var(--ge);margin:8px 0"></div>
       <div class="summary-row"><span class="sum-key">개발 목표</span><span class="sum-val" style="font-size:12px">${STATE.description || '-'}</span></div>
       <div class="summary-row"><span class="sum-key">기능성</span><span class="sum-val">${hasFn ? STATE.functions.join(' + ') : '해당 없음'}</span></div>
       <div class="summary-row"><span class="sum-key">사용 부위</span><span class="sum-val">${STATE.bodyPart || '-'}</span></div>
       <div class="summary-row"><span class="sum-key">제형</span><span class="sum-val">${formula?.name} (${formula?.desc})</span></div>
-      <div class="summary-row"><span class="sum-key">추출물</span><span class="sum-val" style="font-size:12px">${selKeys.length ? selKeys.join(', ') : '없음'}</span></div>
+      <div class="summary-row"><span class="sum-key">원료</span><span class="sum-val" style="font-size:12px">${STATE.delegateExtracts ? '🔬 제조 전문가 위임' : (selKeys.length ? selKeys.join(', ') : '없음')}</span></div>
       <div class="summary-row"><span class="sum-key">용량 / 수량</span><span class="sum-val">${STATE.volume}ml / ${N(STATE.quantity)}개</span></div>
       <div class="summary-row"><span class="sum-key">용기</span><span class="sum-val">${container?.name || '-'}</span></div>
       <div class="summary-row" style="border-top:1px solid var(--ge);margin-top:4px;padding-top:12px">
@@ -979,7 +1333,8 @@ function buildStep6() {
     </div>
     <div class="btn-row">
       <button class="btn" onclick="goToStep(5)">← 이전</button>
-      <button class="btn primary" onclick="submitOrder()">📩 연구팀에 제출하기</button>
+      <button class="btn primary" onclick="submitOrder()">
+📩 연구팀에 제출하기</button>
     </div>`;
 }
 
@@ -1000,10 +1355,23 @@ function buildSuccess() {
 // ════════════════════════════════════════════════════════════
 //  🔘  EVENT HANDLERS
 // ════════════════════════════════════════════════════════════
+function getFnCost() { const n = STATE.functions.length; return n === 0 ? 0 : n === 1 ? 40000 : 65000; }
+
 function toggleFunction(fn, checked, el) {
   if (checked) { if (!STATE.functions.includes(fn)) STATE.functions.push(fn); }
   else STATE.functions = STATE.functions.filter(x => x !== fn);
   el.closest('label').classList.toggle('checked', checked);
+  // 비용 안내 업데이트
+  const notice = document.getElementById('fnCostNotice');
+  if (notice) {
+    const n = STATE.functions.length;
+    const cost = getFnCost();
+    notice.style.display = n ? 'block' : 'none';
+    notice.innerHTML = `<div class="notice info" style="margin-top:0;font-size:12px">
+      💰 기능성 추가 비용: <strong>1개 40,000원 / 2개 이상 65,000원</strong><br>
+      <span style="font-size:11px;color:var(--g6)">현재 ${n}개 선택 → <strong style="color:var(--t)">${N(cost)}원</strong> 추가</span>
+    </div>`;
+  }
 }
 
 function selectBodyPart(name, el) {
@@ -1093,21 +1461,29 @@ function selectContainer(id) {
   if (nextBtn) nextBtn.removeAttribute('disabled');
 }
 
+function toggleDelegate() {
+  STATE.delegateExtracts = !STATE.delegateExtracts;
+  if (STATE.delegateExtracts) STATE.selExtracts = {};
+  document.getElementById('stepContent').innerHTML = buildStep3();
+}
+
 function toggleExtract(name, price) {
   if (STATE.selExtracts[name] !== undefined) delete STATE.selExtracts[name];
   else STATE.selExtracts[name] = price;
 
-  // 모든 동일 성분 칩 상태 동기화
-  document.querySelectorAll('.chip').forEach(chip => {
-    if (chip.textContent.trim().startsWith(name))
-      chip.classList.toggle('sel', STATE.selExtracts[name] !== undefined);
+  const isSel = STATE.selExtracts[name] !== undefined;
+  // 모든 동일 성분 칩 상태 동기화 (data-name 속성 기반)
+  document.querySelectorAll(`.chip[data-name="${name}"]`).forEach(chip => {
+    chip.classList.toggle('sel', isSel);
   });
-  // 가격 업데이트
+  // 하단 바 업데이트
   const keys = Object.keys(STATE.selExtracts);
   const pd = document.getElementById('priceDisplay');
   if (pd) pd.textContent = N(getUnitCost()) + '원';
   const sl = document.getElementById('selectedList');
-  if (sl) sl.textContent = keys.length ? keys.join(', ') : '추출물 미선택';
+  if (sl) sl.textContent = keys.length ? keys.join(', ') : '원료 미선택';
+  const pl = document.querySelector('.pb-label');
+  if (pl && !STATE.delegateExtracts) pl.textContent = '선택한 원료 ' + keys.length + '개';
 }
 
 function updateVolume(v) {
@@ -1125,8 +1501,6 @@ function updateQuantity(v) {
   if (warn) warn.classList.toggle('show', !ok);
   const btn = document.getElementById('btnNext4');
   if (btn) btn.disabled = !ok;
-  const rev = document.getElementById('totalRevenue');
-  if (rev) rev.textContent = N(getUnitCost() * STATE.quantity) + '원';
 }
 
 // ── STEP 1 → 2 검증 ──
@@ -1148,33 +1522,119 @@ async function goToStep(n) {
   let html = '';
   if      (n === 1) html = buildStep1();
   else if (n === 2) html = buildStep2();
-  else if (n === 3) html = buildStep3(!!STATE.apiKey);   // API키 있으면 로딩 스피너
-  else if (n === 4) html = buildStep4();
-  else if (n === 5) html = buildStep5();
+  else if (n === 3) html = buildStep5();   // 용기 선택
+  else if (n === 4) html = buildStep4();   // 용량/수량
+  else if (n === 5) html = buildStep3(!!STATE.apiKey);  // 원료 선택
   else if (n === 6) html = buildStep6();
 
   document.getElementById('stepContent').innerHTML = html;
 
-  // Step 3 진입 시 AI 추천 로드
-  if (n === 3) loadAIRecommendations();
+  // 진행바 위치로 부드럽게 스크롤
+  document.getElementById('progressBar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // 가이드 패널 업데이트
+  updateGuidePanel(n);
+
+  // Step 5(원료) 진입 시 AI 추천 로드
+  if (n === 5) loadAIRecommendations();
+}
+
+function updateGuidePanel(step) {
+  const el = document.getElementById('guidePanelContent');
+  if (!el) return;
+  const guides = {
+    1: `<div class="gp-section">
+          <div class="gp-section-title">기능성 화장품 안내</div>
+          <div class="gp-text">
+            <ul>
+              <li><strong>씻어내는 제품</strong>(바디워시, 샴푸, 폼클렌징 등)에는 주름개선·미백·자외선차단 기능성이 <strong>실효성이 없거나 적용 불가</strong>합니다.</li>
+              <li>기능성 원료 규격서 및 임상 시험 자료가 별도로 필요합니다.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="gp-divider"></div>
+        <div class="gp-section">
+          <div class="gp-section-title">추가 비용 안내</div>
+          <div class="gp-text">
+            <ul>
+              <li>기능성 1개: <strong>40,000원</strong></li>
+              <li>기능성 2개 이상: <strong>65,000원</strong></li>
+            </ul>
+          </div>
+        </div>
+        <div class="gp-divider"></div>
+        <div class="gp-section">
+          <div class="gp-section-title">작성 팁</div>
+          <div class="gp-text">원하는 효능, 타겟 고객, 피부 고민을 구체적으로 적을수록 AI가 더 정확한 원료를 추천합니다.</div>
+        </div>`,
+    2: `<div class="gp-section">
+          <div class="gp-section-title">제품 유형 선택</div>
+          <div class="gp-text">제품 유형을 선택하면 세부 제형(텍스처)을 고를 수 있습니다. 선택한 유형에 따라 용기 옵션이 자동으로 필터링됩니다.</div>
+        </div>`,
+    3: `<div class="gp-section">
+          <div class="gp-section-title">용기 선택 안내</div>
+          <div class="gp-text">
+            <ul>
+              <li>선택한 제품 유형에 적합한 용기만 표시됩니다.</li>
+              <li><strong>추천</strong> 뱃지가 붙은 용기가 해당 제형에 가장 적합합니다.</li>
+              <li>용기는 <strong>불투명과 반투명</strong>을 권장합니다. (투명 용기는 비권장 — 잦은 C/S와 내용물 변질 방지)</li>
+            </ul>
+          </div>
+        </div>`,
+    4: `<div class="gp-section">
+          <div class="gp-section-title">용량/수량 안내</div>
+          <div class="gp-text">
+            <ul>
+              <li>기본 수량: <strong>300개</strong></li>
+              <li>30ml 선택 시: 최소 <strong>1,000개</strong></li>
+              <li>50ml 선택 시: 최소 <strong>500개</strong></li>
+              <li>수량은 100개 단위로 조절 가능합니다.</li>
+            </ul>
+          </div>
+        </div>`,
+    5: `<div class="gp-section">
+          <div class="gp-section-title">원료 선택 안내</div>
+          <div class="gp-text">
+            <ul>
+              <li>직접 원료를 선택하거나, <strong>제조 전문가에게 위임</strong>할 수 있습니다.</li>
+              <li>AI가 개발 목표를 분석해 최적 원료를 추천합니다.</li>
+              <li>복합 추출물은 마우스를 올리면 상세 성분을 확인할 수 있습니다.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="gp-divider"></div>
+        <div class="gp-section">
+          <div class="gp-section-title">카테고리 구분</div>
+          <div class="gp-text">
+            <span class="cat-badge cat-추출물">추출물</span> 천연 식물 추출 원료<br>
+            <span class="cat-badge cat-첨가원료" style="margin-top:4px">첨가원료</span> 기능성 합성/정제 원료<br>
+            <span class="cat-badge cat-향료" style="margin-top:4px">향료</span> 에센셜 오일/향
+          </div>
+        </div>`,
+    6: `<div class="gp-section">
+          <div class="gp-section-title">최종 확인</div>
+          <div class="gp-text">모든 내용을 확인 후 제출하시면 연구팀에 자동 발송됩니다. 제출 후에도 새 발주를 통해 추가 주문이 가능합니다.</div>
+        </div>`,
+  };
+  el.innerHTML = guides[step] || '';
 }
 
 async function loadAIRecommendations() {
-  if (STATE.apiKey) {
-    const [recs, trends] = await Promise.all([
-      callGemini(STATE.description),
-      callGeminiTrend()
-    ]);
-    STATE.aiRecs = recs;
-    STATE.trendRecs = trends;
-  } else {
-    STATE.aiRecs = fallbackRecommend(STATE.description);
-    STATE.trendRecs = [];
+  try {
+    STATE.aiRecs = STATE.apiKey
+      ? await callGemini(STATE.description)
+      : fallbackRecommend(STATE.description);
+  } catch(e) {
+    console.warn('[AI Recommend Error]', e);
+    STATE.aiRecs = [];
+  }
+  // 결과가 부족하면 fallback으로 보충
+  if (STATE.aiRecs.length < 4) {
+    const fb = fallbackRecommend(STATE.description).filter(n => !STATE.aiRecs.includes(n));
+    STATE.aiRecs = [...STATE.aiRecs, ...fb].slice(0, 10);
   }
   const aiEl = document.getElementById('aiSection');
   if (aiEl) aiEl.innerHTML = `<div class="chips" id="aiChips">${buildAIChips()}</div>`;
-  const trendEl = document.getElementById('trendSection');
-  if (trendEl) trendEl.innerHTML = `<div class="chips" id="trendChips">${buildTrendChips()}</div>`;
 }
 
 function submitOrder() {
@@ -1183,11 +1643,15 @@ function submitOrder() {
   const order = {
     id:          Date.now(),
     date:        new Date().toLocaleString('ko-KR'),
+    userName:    STATE.userName,
+    userBrand:   STATE.userBrand,
+    userPhone:   STATE.userPhone,
+    userAddress: STATE.userAddress,
     description: STATE.description,
     functions:   [...STATE.functions],
     bodyPart:    STATE.bodyPart,
     formula:     formula ? `${formula.name} (${formula.desc})` : '-',
-    extracts:    selKeys,
+    extracts:    STATE.delegateExtracts ? ['제조 전문가 위임'] : selKeys,
     extractCost: getExtTotal(),
     unitCost:    getUnitCost(),
     volume:      STATE.volume,
@@ -1214,10 +1678,15 @@ function submitOrder() {
   document.getElementById('stepContent').innerHTML = buildSuccess();
 }
 
+function goHome() {
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('apiScreen').style.display = 'flex';
+}
+
 function resetApp() {
   Object.assign(STATE, {
     step: 1, description: '', functions: [], bodyPart: '',
-    formula: null, selExtracts: {}, aiRecs: [], trendRecs: [], volume: 50, quantity: 500, container: null
+    formula: null, delegateExtracts: false, selExtracts: {}, aiRecs: [], volume: 100, quantity: 300, container: null
   });
   goToStep(1);
 }
@@ -1232,7 +1701,7 @@ function renderAdminList() {
   document.getElementById('extractCount').textContent = extracts.length;
   document.getElementById('adminList').innerHTML = extracts.map(e =>
     `<div class="admin-item">
-      <span style="flex:2;font-weight:600">${e.name}</span>
+      <span style="flex:2;font-weight:600"><span class="cat-badge cat-${e.category || '추출물'}">${e.category || '추출물'}</span>${e.name}</span>
       <span style="flex:1;color:var(--g6)">${N(e.price)}원</span>
       <span style="flex:3;font-size:11px;color:#c8cad0">${e.tags.join(', ')}</span>
       <button class="btn-delete" onclick="deleteExtract(${e.id})">삭제</button>
@@ -1241,16 +1710,17 @@ function renderAdminList() {
 }
 
 function addExtract() {
-  const name  = document.getElementById('newExtName').value.trim();
-  const price = parseInt(document.getElementById('newExtPrice').value) || 0;
-  const tags  = document.getElementById('newExtTags').value
+  const name     = document.getElementById('newExtName').value.trim();
+  const price    = parseInt(document.getElementById('newExtPrice').value) || 0;
+  const category = document.getElementById('newExtCategory').value;
+  const tags     = document.getElementById('newExtTags').value
     .split(',').map(t => t.trim()).filter(Boolean);
 
   if (!name || !price) { alert('성분명과 단가를 입력해주세요'); return; }
   if (extracts.find(e => e.name === name)) { alert('이미 존재하는 성분입니다'); return; }
 
   const id = Math.max(0, ...extracts.map(e => e.id)) + 1;
-  extracts.push({ id, name, price, tags });
+  extracts.push({ id, name, category, price, tags, inci:'' });
   saveExtracts();
 
   document.getElementById('newExtName').value  = '';
@@ -1326,30 +1796,73 @@ function sendToGoogleSheets(order) {
 // ════════════════════════════════════════════════════════════
 //  📋  발주 이력 패널
 // ════════════════════════════════════════════════════════════
+let historyFilter = 'all';
+
 function openHistory() {
+  renderHistory();
+  document.getElementById('historyOverlay').classList.add('open');
+}
+
+function renderHistory() {
   const orders = getOrderHistory();
+  const filtered = historyFilter === 'all' ? orders
+    : orders.filter(o => historyFilter === 'confirmed' ? o.confirmed : !o.confirmed);
+
   let html = '';
-  if (orders.length === 0) {
-    html = '<div class="history-empty">아직 발주 이력이 없습니다</div>';
+  if (filtered.length === 0) {
+    html = `<div class="history-empty">${historyFilter === 'all' ? '아직 발주 이력이 없습니다' : (historyFilter === 'confirmed' ? '확인된 발주가 없습니다' : '미확인 발주가 없습니다')}</div>`;
   } else {
-    html = orders.map(o => `
-      <div class="history-card">
-        <div class="hc-date">${o.date}</div>
-        <div class="hc-title">${o.description || '-'}</div>
-        <div class="hc-detail">
-          ${o.formula} · ${o.volume}ml × ${N(o.quantity)}개 · ${o.container}<br>
-          추출물: ${o.extracts.length ? o.extracts.join(', ') : '없음'}<br>
-          <strong style="color:var(--t)">총 원가: ${N(o.totalCost)}원</strong>
-        </div>
-      </div>
-    `).join('');
+    const unconfirmedCount = orders.filter(o => !o.confirmed).length;
+    html = (unconfirmedCount > 0 ? `<div style="font-size:12px;color:var(--t);font-weight:700;margin-bottom:10px">미확인 ${unconfirmedCount}건</div>` : '') +
+      filtered.map((o, i) => {
+        const status = o.confirmed
+          ? `<span class="hc-status confirmed" onclick="toggleConfirm(${o.id})">확인 완료</span>`
+          : `<span class="hc-status unconfirmed" onclick="toggleConfirm(${o.id})">미확인</span>`;
+        return `<div class="history-card ${o.confirmed ? 'confirmed' : ''}">
+          <div class="hc-top">
+            <div class="hc-date">${o.date}</div>
+            ${status}
+          </div>
+          <div class="hc-user">${o.userName || '-'} · ${o.userBrand || '-'} · ${o.userPhone || '-'}</div>
+          <div class="hc-title">${o.description || '-'}</div>
+          <div class="hc-detail">
+            ${o.formula} · ${o.volume}ml × ${N(o.quantity)}개 · ${o.container}<br>
+            원료: ${o.extracts.length ? o.extracts.join(', ') : '없음'}
+          </div>
+        </div>`;
+      }).join('');
   }
   document.getElementById('historyList').innerHTML = html;
-  document.getElementById('historyOverlay').classList.add('open');
+}
+
+function filterHistory(filter, btn) {
+  historyFilter = filter;
+  document.querySelectorAll('.hc-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+
+function toggleConfirm(orderId) {
+  const orders = getOrderHistory();
+  const order = orders.find(o => o.id === orderId);
+  if (order) {
+    order.confirmed = !order.confirmed;
+    localStorage.setItem('ag_orders', JSON.stringify(orders));
+    renderHistory();
+    updateHistoryBadge();
+  }
 }
 
 function closeHistory() {
   document.getElementById('historyOverlay').classList.remove('open');
+}
+
+function updateHistoryBadge() {
+  const badge = document.getElementById('historyBadge');
+  if (!badge) return;
+  const count = getOrderHistory().filter(o => !o.confirmed).length;
+  badge.style.display = count > 0 ? 'inline' : 'none';
+  badge.textContent = count;
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1374,6 +1887,7 @@ function submitAdminLogin() {
     STATE.isAdmin = true;
     document.getElementById('mainApp').classList.add('admin-mode');
     document.getElementById('adminToggleBtn').innerHTML = '🔓 로그아웃';
+    updateHistoryBadge();
     closeAdminLogin();
   } else {
     document.getElementById('adminLoginError').style.display = 'block';
@@ -1396,7 +1910,55 @@ function openAdmin() {
 // ════════════════════════════════════════════════════════════
 function startWithoutKey() {
   if (CONFIG.GEMINI_API_KEY) STATE.apiKey = CONFIG.GEMINI_API_KEY;
-  launch();
+  const isTest = new URLSearchParams(location.search).has('test');
+  if (isTest) {
+    STATE.userName = '테스트'; STATE.userBrand = '테스트브랜드';
+    STATE.userPhone = '010-0000-0000'; STATE.userAddress = '테스트 주소';
+    document.getElementById('apiScreen').style.display = 'none';
+    launchMain();
+    return;
+  }
+  document.getElementById('apiScreen').style.display = 'none';
+  // 저장된 개인정보 불러오기
+  const saved = JSON.parse(localStorage.getItem('ag_userInfo') || 'null');
+  if (saved) {
+    document.getElementById('userNameInput').value    = saved.name || '';
+    document.getElementById('userBrandInput').value   = saved.brand || '';
+    document.getElementById('userPhoneInput').value   = saved.phone || '';
+    document.getElementById('userAddressInput').value = saved.address || '';
+  }
+  document.getElementById('userInfoScreen').style.display = 'flex';
+}
+
+function submitUserInfo() {
+  const name    = document.getElementById('userNameInput').value.trim();
+  const brand   = document.getElementById('userBrandInput').value.trim();
+  const phone   = document.getElementById('userPhoneInput').value.trim();
+  const address = document.getElementById('userAddressInput').value.trim();
+
+  if (!name || !brand || !phone || !address) {
+    document.getElementById('userInfoError').style.display = 'block';
+    return;
+  }
+  document.getElementById('userInfoError').style.display = 'none';
+
+  STATE.userName    = name;
+  STATE.userBrand   = brand;
+  STATE.userPhone   = phone;
+  STATE.userAddress  = address;
+
+  // 개인정보 localStorage에 저장
+  localStorage.setItem('ag_userInfo', JSON.stringify({ name, brand, phone, address }));
+
+  document.getElementById('userInfoScreen').style.display = 'none';
+  launchMain();
+}
+
+function launchMain() {
+  initEmailJS();
+  document.getElementById('mainApp').style.display = 'block';
+  updateApiStatus();
+  goToStep(1);
 }
 
 function openApiSetting() {
@@ -1421,12 +1983,28 @@ function initEmailJS() {
 }
 
 function launch() {
-  initEmailJS();
+  if (CONFIG.GEMINI_API_KEY) STATE.apiKey = CONFIG.GEMINI_API_KEY;
+  const isTest = new URLSearchParams(location.search).has('test');
+  if (isTest) {
+    STATE.userName = '테스트'; STATE.userBrand = '테스트브랜드';
+    STATE.userPhone = '010-0000-0000'; STATE.userAddress = '테스트 주소';
+    document.getElementById('apiScreen').style.display = 'none';
+    launchMain();
+    return;
+  }
   document.getElementById('apiScreen').style.display = 'none';
-  document.getElementById('mainApp').style.display   = 'block';
-  updateApiStatus();
-  goToStep(1);
+  const saved2 = JSON.parse(localStorage.getItem('ag_userInfo') || 'null');
+  if (saved2) {
+    document.getElementById('userNameInput').value    = saved2.name || '';
+    document.getElementById('userBrandInput').value   = saved2.brand || '';
+    document.getElementById('userPhoneInput').value   = saved2.phone || '';
+    document.getElementById('userAddressInput').value = saved2.address || '';
+  }
+  document.getElementById('userInfoScreen').style.display = 'flex';
 }
+
+// 테스트 모드: 자동 시작
+if (new URLSearchParams(location.search).has('test')) startWithoutKey();
 
 </script>
 </body>
