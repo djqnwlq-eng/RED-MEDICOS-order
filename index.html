@@ -93,6 +93,16 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--gf); color: va
 .status-btn.next:hover { background:var(--tmd); }
 .status-btn.prev { border-color:var(--tm); color:var(--tmd); }
 
+/* ─── MATERIAL CHECKLIST ─── */
+.mat-checklist { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.mat-item { display:flex; align-items:center; gap:4px; font-size:11px; padding:4px 10px; border-radius:16px; border:1.5px solid var(--ge); background:#fff; color:var(--g6); transition:all .15s; }
+.mat-item.checked { background:#D1FAE5; border-color:#6EE7B7; color:#065F46; }
+.mat-item .mat-check { width:14px; height:14px; border-radius:50%; border:1.5px solid #c8cad0; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:800; transition:all .15s; }
+.mat-item.checked .mat-check { background:#10B981; border-color:#10B981; color:#fff; }
+.mat-item.clickable { cursor:pointer; }
+.mat-item.clickable:hover { border-color:var(--t); }
+.mat-progress { font-size:10px; color:var(--g6); margin-top:4px; }
+
 /* ─── MAIN LAYOUT ─── */
 #mainApp { display:none; }
 .topbar {
@@ -333,6 +343,65 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
 /* ─── ADMIN MODE (for ingredients in order flow) ─── */
 .admin-only { display:none !important; }
 .admin-mode .admin-only { display:inline-flex !important; }
+
+/* ─── CHATBOT WIDGET ─── */
+#chatbotToggle {
+  position:fixed; bottom:24px; right:24px; z-index:90;
+  width:56px; height:56px; border-radius:50%;
+  background:var(--t); color:#fff; border:none; cursor:pointer;
+  box-shadow:0 4px 16px rgba(200,16,46,.3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; transition:all .2s;
+}
+#chatbotToggle:hover { transform:scale(1.08); box-shadow:0 6px 20px rgba(200,16,46,.4); }
+#chatbotToggle .badge { position:absolute; top:-2px; right:-2px; width:18px; height:18px; border-radius:50%; background:#dc2626; color:#fff; font-size:10px; font-weight:800; display:none; align-items:center; justify-content:center; }
+#chatbotPanel {
+  position:fixed; bottom:92px; right:24px; z-index:91;
+  width:380px; max-height:520px; background:#fff;
+  border-radius:var(--rlg); box-shadow:0 8px 40px rgba(0,0,0,.15);
+  border:1px solid var(--ge); display:none; flex-direction:column;
+  overflow:hidden;
+}
+@media(max-width:480px) { #chatbotPanel { right:8px; left:8px; width:auto; bottom:80px; max-height:70vh; } }
+#chatbotPanel.open { display:flex; }
+.cb-header {
+  background:var(--t); color:#fff; padding:14px 16px;
+  display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+}
+.cb-header-title { font-size:14px; font-weight:700; }
+.cb-header-sub { font-size:10px; opacity:.8; margin-top:2px; }
+.cb-close { background:none; border:none; color:#fff; font-size:18px; cursor:pointer; padding:4px; }
+.cb-messages {
+  flex:1; overflow-y:auto; padding:16px 14px; display:flex; flex-direction:column; gap:10px;
+  background:#f9fafb; min-height:200px;
+}
+.cb-msg { max-width:85%; padding:10px 14px; border-radius:14px; font-size:13px; line-height:1.55; word-break:break-word; }
+.cb-msg.bot { align-self:flex-start; background:#fff; border:1px solid var(--ge); color:var(--g1); border-bottom-left-radius:4px; }
+.cb-msg.user { align-self:flex-end; background:var(--t); color:#fff; border-bottom-right-radius:4px; }
+.cb-msg.system { align-self:center; background:var(--al); color:var(--ad); font-size:11px; border-radius:8px; text-align:center; max-width:90%; }
+.cb-msg.bot .cb-escalate { display:inline-block; margin-top:8px; padding:5px 12px; border-radius:16px; font-size:11px; font-weight:600; background:var(--tl); color:var(--t); border:1px solid var(--tm); cursor:pointer; }
+.cb-msg.bot .cb-escalate:hover { background:var(--t); color:#fff; }
+.cb-typing { align-self:flex-start; padding:10px 14px; background:#fff; border:1px solid var(--ge); border-radius:14px; border-bottom-left-radius:4px; }
+.cb-typing span { display:inline-block; width:6px; height:6px; border-radius:50%; background:#c8cad0; margin:0 1.5px; animation:cbBounce .6s infinite alternate; }
+.cb-typing span:nth-child(2) { animation-delay:.2s; }
+.cb-typing span:nth-child(3) { animation-delay:.4s; }
+@keyframes cbBounce { to { background:var(--g6); transform:translateY(-4px); } }
+.cb-input-area {
+  display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--ge);
+  background:#fff; flex-shrink:0;
+}
+.cb-input-area input {
+  flex:1; border:1px solid var(--ge); border-radius:20px; padding:9px 14px;
+  font-size:13px; font-family:inherit; outline:none; color:var(--g1);
+}
+.cb-input-area input:focus { border-color:var(--t); }
+.cb-input-area button {
+  width:36px; height:36px; border-radius:50%; background:var(--t); color:#fff;
+  border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-size:16px; flex-shrink:0; transition:background .15s;
+}
+.cb-input-area button:hover { background:var(--tmd); }
+.cb-input-area button:disabled { opacity:.4; cursor:not-allowed; }
 </style>
 </head>
 <body>
@@ -348,11 +417,11 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
 <!-- ════ LOGIN SCREEN ════ -->
 <div id="loginScreen">
   <div class="login-box">
-    <div style="text-align:center;margin-bottom:1.25rem">
-      <img src="logo.png" alt="RED MEDICOS" style="height:48px" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-      <div style="display:none;font-size:13px;letter-spacing:.18em;font-weight:700;color:var(--t)">RED MEDICOS</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:1.5rem">
+      <img src="logo.png" alt="RED MEDICOS" style="height:32px" onerror="this.style.display='none'">
+      <span style="font-size:14px;font-weight:700;color:var(--g6);letter-spacing:.04em">레드메디코스</span>
     </div>
-    <h1 style="text-align:center;font-size:22px;margin-bottom:.5rem">맞춤형 화장품 발주</h1>
+    <h1 style="text-align:center;font-size:24px;font-weight:800;margin-bottom:.5rem;color:var(--g1)">맞춤형 화장품 발주</h1>
     <p style="text-align:center;margin-bottom:1.5rem;font-size:13px;color:var(--g6)">교육생 전용 플랫폼</p>
 
     <div class="login-tabs">
@@ -461,6 +530,7 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
         <img src="logo.png" alt="RED MEDICOS" style="height:24px" onerror="this.outerHTML='레드메디코스'"> <em>관리자</em>
       </div>
       <button class="btn-sm" onclick="renderAdminStudentList()" style="font-weight:600">교육생 관리</button>
+      <button class="btn-sm" onclick="renderAdminInquiries()">문의 관리 <span id="inquiryBadge" style="display:none;background:var(--t);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:2px"></span></button>
       <button class="btn-sm" onclick="openAdmin()">성분 관리</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
@@ -494,6 +564,26 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
       <div class="gp-title">📋 가이드</div>
       <div id="guidePanelContent"></div>
     </aside>
+  </div>
+</div>
+
+<!-- ════ CHATBOT WIDGET ════ -->
+<button id="chatbotToggle" onclick="toggleChatbot()" style="display:none" title="AI 도우미">
+  💬
+  <span class="badge" id="cbBadge"></span>
+</button>
+<div id="chatbotPanel">
+  <div class="cb-header">
+    <div>
+      <div class="cb-header-title">AI 도우미</div>
+      <div class="cb-header-sub">교육 & 발주 관련 질문에 답변해드려요</div>
+    </div>
+    <button class="cb-close" onclick="toggleChatbot()">✕</button>
+  </div>
+  <div class="cb-messages" id="cbMessages"></div>
+  <div class="cb-input-area">
+    <input type="text" id="cbInput" placeholder="질문을 입력하세요..." onkeydown="if(event.key==='Enter'&&!event.shiftKey)sendChatMessage()">
+    <button onclick="sendChatMessage()" id="cbSendBtn">➤</button>
   </div>
 </div>
 
@@ -590,6 +680,13 @@ const ORDER_STAGES = [
   { id: 'production',  label: '생산일정' },
   { id: 'completed',   label: '생산완료' },
   { id: 'shipped',     label: '출고완료' },
+];
+
+const MATERIAL_ITEMS = [
+  { id: 'container',   label: '용기' },
+  { id: 'label',       label: '라벨지' },
+  { id: 'printed',     label: '인쇄용기' },
+  { id: 'box',         label: '단상자' },
 ];
 
 // ════════════════════════════════════════════════════════════
@@ -1432,6 +1529,24 @@ function renderStatusTimeline(currentStatus) {
   }).join('')}</div>`;
 }
 
+// 부자재 체크리스트 렌더 (교육생: 읽기전용, 관리자: 클릭 가능)
+function renderMaterialChecklist(order, editable = false, uid = '', name = '', brand = '') {
+  const mats = order.materials || {};
+  const checkedCount = MATERIAL_ITEMS.filter(m => mats[m.id]).length;
+  const safeArgs = editable ? `'${order.id}','${uid}','${name.replace(/'/g,"\\'")}','${brand.replace(/'/g,"\\'")}'` : '';
+
+  let html = '<div class="mat-checklist">';
+  html += MATERIAL_ITEMS.map(m => {
+    const checked = mats[m.id] ? 'checked' : '';
+    const clickable = editable ? 'clickable' : '';
+    const onclick = editable ? ` onclick="toggleMaterial(${safeArgs},'${m.id}')"` : '';
+    return `<div class="mat-item ${checked} ${clickable}"${onclick}><span class="mat-check">${mats[m.id] ? '✓' : ''}</span>${m.label}</div>`;
+  }).join('');
+  html += '</div>';
+  html += `<div class="mat-progress">${checkedCount}/${MATERIAL_ITEMS.length}개 입고 완료</div>`;
+  return html;
+}
+
 function getStatusBadge(status) {
   const colors = {
     ordered:    {bg:'#FEE2E2',color:'#DC2626'},
@@ -1474,7 +1589,9 @@ async function showDashboard() {
     } else {
       document.getElementById('dashOrderList').innerHTML = orders.map(o => {
         const date = o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleDateString('ko-KR') : '-';
-        return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div>${getStatusBadge(o.status)}</div><div class="oc-title">${o.description||'-'}</div><div class="oc-detail">${o.formula} · ${o.volume}ml × ${N(o.quantity)}개 · ${o.container}</div>${renderStatusTimeline(o.status)}</div>`;
+        const matSection = (ORDER_STAGES.findIndex(s=>s.id===o.status) >= ORDER_STAGES.findIndex(s=>s.id==='materials')) ? renderMaterialChecklist(o) : '';
+        const prodDate = o.productionStartDate ? `<div style="margin-top:8px;background:var(--bl);border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:var(--bd)">🏭 생산일정: <strong>${o.productionStartDate}</strong></div>` : '';
+        return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div>${getStatusBadge(o.status)}</div><div class="oc-title">${o.description||'-'}</div><div class="oc-detail">${o.formula} · ${o.volume}ml × ${N(o.quantity)}개 · ${o.container}</div>${renderStatusTimeline(o.status)}${matSection}${prodDate}</div>`;
       }).join('');
     }
   } catch(e) { console.error('Dashboard load error:', e); document.getElementById('dashOrderList').innerHTML = `<div style="color:#dc2626;font-size:12px">데이터 로드 실패: ${e.message}</div>`; }
@@ -1487,6 +1604,7 @@ async function showAdminScreen() {
   document.getElementById('adminScreen').style.display = 'block';
   document.getElementById('adminUserInfo').textContent = currentUserData.name + ' (관리자)';
   await renderAdminStudentList();
+  updateInquiryBadge();
 }
 
 async function renderAdminStudentList() {
@@ -1495,7 +1613,36 @@ async function renderAdminStudentList() {
     const snap = await db.collection('users').where('role','==','student').get();
     const students = []; snap.forEach(doc => students.push({ uid:doc.id, ...doc.data() }));
 
+    // Firestore 사용량 체크
+    const ordersSnap = await db.collection('orders').get();
+    const chatLogsSnap = await db.collection('chatLogs').get();
+    const inquiriesSnap = await db.collection('inquiries').get();
+    const totalDocs = students.length + ordersSnap.size + chatLogsSnap.size + inquiriesSnap.size;
+    const estimatedMB = (totalDocs * 1.5 / 1024).toFixed(1); // 문서당 약 1.5KB 추정
+    const testModeExpiry = '2026-04-26';
+    const daysLeft = Math.max(0, Math.ceil((new Date(testModeExpiry) - new Date()) / 86400000));
+    const daysColor = daysLeft <= 7 ? '#DC2626' : daysLeft <= 14 ? '#92400E' : '#065F46';
+
     let html = `<div style="font-size:18px;font-weight:700;margin-bottom:16px">교육생 관리 (${students.length}명)</div>`;
+
+    // 플랜 상태 카드
+    html += `<div style="background:#f0f4ff;border:1px solid #c7d2fe;border-radius:var(--r);padding:14px 16px;margin-bottom:16px;font-size:12px;color:#3730A3">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-weight:700;font-size:13px">📊 Firebase 현황 (Spark 무료 플랜)</span>
+        <span style="font-size:10px;color:${daysColor};font-weight:700;background:#fff;padding:2px 8px;border-radius:10px">테스트 모드 ${daysLeft}일 남음</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px">
+        <div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#3730A3">${students.length}</div><div style="font-size:9px;color:#6b7280">교육생</div></div>
+        <div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#3730A3">${ordersSnap.size}</div><div style="font-size:9px;color:#6b7280">발주</div></div>
+        <div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#3730A3">${chatLogsSnap.size}</div><div style="font-size:9px;color:#6b7280">채팅 로그</div></div>
+        <div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#3730A3">~${estimatedMB}MB</div><div style="font-size:9px;color:#6b7280">/ 1GB</div></div>
+      </div>
+      <div style="font-size:10px;color:#6b7280;line-height:1.5">
+        무료 한도: 저장 1GB · 일일 읽기 50,000건 · 일일 쓰기 20,000건<br>
+        ${daysLeft <= 14 ? '<span style="color:#DC2626;font-weight:700">⚠ Firestore 테스트 모드가 곧 만료됩니다. 보안 규칙 설정이 필요합니다.</span>' : '교육생 300명 이하는 무료 플랜으로 충분합니다.'}
+      </div>
+    </div>`;
+
     if (students.length === 0) {
       html += `<div style="text-align:center;padding:2rem;color:var(--g6)">등록된 교육생이 없습니다</div>`;
     } else {
@@ -1531,7 +1678,9 @@ async function showStudentOrders(uid, name, brand) {
         if (prevStage) actions += `<button class="status-btn prev" onclick="updateOrderStatus(${safeArgs},'${prevStage.id}')">← ${prevStage.label}</button>`;
         if (nextStage) actions += `<button class="status-btn next" onclick="updateOrderStatus(${safeArgs},'${nextStage.id}')">→ ${nextStage.label}</button>`;
         actions += '</div>';
-        return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div>${getStatusBadge(o.status)}</div><div class="oc-title">${o.description||'-'}</div><div class="oc-detail">${o.formula} · ${o.volume}ml × ${N(o.quantity)}개 · ${o.container}<br>원료: ${o.extracts?o.extracts.join(', '):'없음'}</div>${renderStatusTimeline(o.status)}${actions}</div>`;
+        const matSection = renderMaterialChecklist(o, true, uid, name, brand);
+        const prodDate = o.productionStartDate ? `<div style="margin-top:8px;background:var(--bl);border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:var(--bd)">🏭 생산일정: <strong>${o.productionStartDate}</strong></div>` : '';
+        return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div>${getStatusBadge(o.status)}</div><div class="oc-title">${o.description||'-'}</div><div class="oc-detail">${o.formula} · ${o.volume}ml × ${N(o.quantity)}개 · ${o.container}<br>원료: ${o.extracts?o.extracts.join(', '):'없음'}</div>${renderStatusTimeline(o.status)}${matSection}${prodDate}${actions}</div>`;
       }).join('');
     }
     document.getElementById('adminContent').innerHTML = html;
@@ -1539,10 +1688,142 @@ async function showStudentOrders(uid, name, brand) {
 }
 
 async function updateOrderStatus(orderId, uid, name, brand, newStatus) {
+  if (newStatus === 'production') {
+    showProductionDateModal(orderId, uid, name, brand);
+    return;
+  }
   try {
     await db.collection('orders').doc(orderId).update({ status: newStatus, statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp() });
     await showStudentOrders(uid, name, brand);
   } catch(e) { alert('상태 변경 실패: ' + e.message); }
+}
+
+function showProductionDateModal(orderId, uid, name, brand) {
+  const today = new Date().toISOString().split('T')[0];
+  const overlay = document.createElement('div');
+  overlay.id = 'prodDateOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:var(--rlg);padding:2rem 1.75rem;max-width:360px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.12)">
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:4px">생산일정 입력</h3>
+      <p style="font-size:12px;color:var(--g6);margin-bottom:1.25rem">생산일정 단계로 전환합니다. 생산일정을 입력해주세요.</p>
+      <label style="font-size:11px;font-weight:700;color:var(--g6);display:block;margin-bottom:4px">생산일정</label>
+      <input type="date" id="prodDateInput" value="${today}" style="width:100%;padding:10px 12px;border:1px solid var(--ge);border-radius:var(--rsm);font-size:14px;font-family:inherit;margin-bottom:16px">
+      <div style="display:flex;gap:8px">
+        <button class="btn" style="flex:1" onclick="closeProductionDateModal()">취소</button>
+        <button class="btn primary" style="flex:1" onclick="confirmProductionDate('${orderId}','${uid}','${name.replace(/'/g,"\\'")}','${brand.replace(/'/g,"\\'")}')">확인</button>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeProductionDateModal(); });
+  document.body.appendChild(overlay);
+  document.getElementById('prodDateInput').focus();
+}
+
+function closeProductionDateModal() {
+  const el = document.getElementById('prodDateOverlay');
+  if (el) el.remove();
+}
+
+async function confirmProductionDate(orderId, uid, name, brand) {
+  const dateVal = document.getElementById('prodDateInput').value;
+  if (!dateVal) { alert('생산일정을 선택해주세요'); return; }
+  closeProductionDateModal();
+  try {
+    await db.collection('orders').doc(orderId).update({
+      status: 'production',
+      productionStartDate: dateVal,
+      statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await showStudentOrders(uid, name, brand);
+  } catch(e) { alert('상태 변경 실패: ' + e.message); }
+}
+
+async function toggleMaterial(orderId, uid, name, brand, materialId) {
+  try {
+    const doc = await db.collection('orders').doc(orderId).get();
+    const mats = doc.data()?.materials || {};
+    mats[materialId] = !mats[materialId];
+
+    await db.collection('orders').doc(orderId).update({ materials: mats, statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await showStudentOrders(uid, name, brand);
+  } catch(e) { alert('부자재 상태 변경 실패: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════════
+//  📨  ADMIN INQUIRY MANAGEMENT
+// ════════════════════════════════════════════════════════════
+async function renderAdminInquiries() {
+  document.getElementById('adminContent').innerHTML = `<div class="ai-loading"><div class="spinner"></div> 문의 목록을 불러오는 중...</div>`;
+  try {
+    const snap = await db.collection('inquiries').get();
+    const inquiries = []; snap.forEach(doc => inquiries.push({ id:doc.id, ...doc.data() }));
+    inquiries.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+
+    const pending = inquiries.filter(q => q.status === 'pending');
+    const answered = inquiries.filter(q => q.status === 'answered');
+
+    let html = `<div style="font-size:18px;font-weight:700;margin-bottom:16px">문의 관리 (미답변 ${pending.length}건)</div>`;
+
+    if (inquiries.length === 0) {
+      html += `<div style="text-align:center;padding:2rem;color:var(--g6)">접수된 문의가 없습니다</div>`;
+    } else {
+      if (pending.length > 0) {
+        html += `<div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:8px">미답변</div>`;
+        html += pending.map(q => renderInquiryCard(q)).join('');
+      }
+      if (answered.length > 0) {
+        html += `<div style="font-size:12px;font-weight:700;color:var(--g6);margin:16px 0 8px">답변 완료</div>`;
+        html += answered.map(q => renderInquiryCard(q)).join('');
+      }
+    }
+    document.getElementById('adminContent').innerHTML = html;
+  } catch(e) { document.getElementById('adminContent').innerHTML = `<div style="color:#dc2626">오류: ${e.message}</div>`; }
+}
+
+function renderInquiryCard(q) {
+  const date = q.createdAt ? new Date(q.createdAt.seconds*1000).toLocaleString('ko-KR') : '-';
+  const isPending = q.status === 'pending';
+  const statusBadge = isPending
+    ? `<span class="oc-badge" style="background:#FEE2E2;color:#DC2626">미답변</span>`
+    : `<span class="oc-badge" style="background:#D1FAE5;color:#065F46">답변완료</span>`;
+
+  let answerSection = '';
+  if (isPending) {
+    answerSection = `<div style="margin-top:10px"><textarea id="answerInput_${q.id}" placeholder="답변을 입력하세요..." style="width:100%;min-height:60px;border:1px solid var(--ge);border-radius:var(--rsm);padding:8px 10px;font-size:12px;font-family:inherit;resize:vertical"></textarea><button class="btn primary" style="margin-top:6px;padding:6px 16px;font-size:12px" onclick="submitInquiryAnswer('${q.id}')">답변 전송</button></div>`;
+  } else if (q.answer) {
+    answerSection = `<div style="margin-top:8px;background:var(--tl);border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:var(--tmd)"><strong>답변:</strong> ${q.answer}</div>`;
+  }
+
+  return `<div class="order-card" style="${isPending?'border-left:3px solid var(--t)':'opacity:.7'}">
+    <div class="oc-header"><div class="oc-date">${date}</div>${statusBadge}</div>
+    <div style="font-size:12px;color:var(--g6);margin-bottom:4px">${q.userName||'-'} · ${q.userBrand||'-'} · ${q.userEmail||'-'}</div>
+    <div class="oc-title">${q.question||'-'}</div>
+    ${answerSection}
+  </div>`;
+}
+
+async function submitInquiryAnswer(inquiryId) {
+  const textarea = document.getElementById('answerInput_' + inquiryId);
+  const answer = textarea?.value?.trim();
+  if (!answer) { alert('답변을 입력해주세요'); return; }
+  try {
+    await db.collection('inquiries').doc(inquiryId).update({
+      answer, status: 'answered', answeredAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await renderAdminInquiries();
+  } catch(e) { alert('답변 전송 실패: ' + e.message); }
+}
+
+async function updateInquiryBadge() {
+  try {
+    const snap = await db.collection('inquiries').where('status','==','pending').get();
+    const badge = document.getElementById('inquiryBadge');
+    if (badge) {
+      const count = snap.size;
+      badge.style.display = count > 0 ? 'inline' : 'none';
+      badge.textContent = count;
+    }
+  } catch(e) { /* ignore */ }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1581,6 +1862,407 @@ function goToDashboard() {
 function goHome() { goToDashboard(); }
 
 // ════════════════════════════════════════════════════════════
+//  💬  CHATBOT
+// ════════════════════════════════════════════════════════════
+const CHATBOT_KNOWLEDGE = `당신은 "화창하다" 맞춤형 화장품 교육 플랫폼의 AI 도우미입니다.
+교육생(대표님)들의 질문에 친절하고 정확하게 답변합니다.
+
+[핵심 정보]
+- 화창하다: 맞춤형 화장품 브랜드 창업 교육 프로그램
+- 깡대표님(깡회장님): 메인 강사/대표
+- 미진실장님: 제조/개발 담당
+- 캐이 코치, 마크 팀장(조재훈): 마케팅 담당
+- 학습지원방: 1:4 카카오톡 방 (대표님+코치3명)
+
+[교육 관련]
+- 온라인 강의: 6개월 후 마감
+- 줌 피드백: 약 1년간 열어둠
+- 미션: 하루에 하나씩이라도 꾸준히 진행 권장
+- 카페: 화온연카페 (네이버 카페) - 가입 후 아이디 알려주면 등업
+- ChatGPT: 계정 로그인 필수, 유료버전 추천
+- 상세페이지: 망고보드로 제작 가능, 무료버전은 워터마크 있음
+- 상세페이지 사이즈: 가로 860px, 세로 자유
+- 움짤: 상세페이지에 직접 넣는 게 아니라 스마트스토어 업로드 시 함께 올림
+
+[발주/제조 관련]
+- 신제품 개발의뢰서: 거래처명=사업자등록증 상호(없으면 이름), 의뢰담당자=본인 성함, 사업자등록번호=본인 사업자
+- 타겟제품: 개발의뢰서와 함께 공장으로 택배 발송
+- 샘플링 기간: 보통 3~4주 소요
+- 샘플링 프로세스: 개발의뢰서 제출 → 샘플링 → 피드백 → 수정샘플링 → 확정
+- 제품 출시 비용: 300개 기준 약 300만원 미만 (단상자, 라벨지, 용기 모두 포함)
+- 개당 단가: 약 10,000원 이하 (최대 기준)
+- 유통기한: 보통 2~3년
+- 재생산: 4주 정도 소요, 보통 500~1000개 이상 주문
+- 견적서: 50% 선입금 → 생산완료 후 잔금
+- 소량수급 안되는 성분: 대체성분으로 진행 (연구팀 협의)
+
+[용기/포장 관련]
+- 실크인쇄: 1000개부터 가능 → 300개 생산, 나머지 보관 후 재생산 시 사용
+- 스티커 인쇄: 300개 소량 가능 → 첫 생산 시 추천 (리뉴얼 가능성 때문)
+- 용기테스트: 샘플 확정 후 진행, 적합판정 나와야 생산
+- 부자재: 용기/라벨지/단상자 → 각각 준비 후 공장으로 전달
+
+[디자인/출시 관련]
+- 문안: 라벨지, 단상자에 들어갈 필수항목 → 디자인 후 반드시 문안체크 받기 (오타, 광고법 위반 체크)
+- 바코드: EPS 파일 → 일러스트레이터로 열어야 함
+- 고객센터 번호: 아톡(aTalk) 앱으로 070 번호 생성 추천 (신뢰도 높음)
+- 제품명 주의: 전성분에 없는 성분을 제품명에 쓸 수 없음 (예: 콜라겐 없으면 "콜라겐 크림" 불가)
+- 기능성 표기: 효능효과 & 용법용량 표기 필수
+
+[향 관련]
+- 에센셜오일: 천연향, 알러지 성분(리날룰/리모넨) 포함될 수 있음
+- 합성향: 알러지프리 가능
+- 향 선택 팁: 올리브영에서 직접 비교해보기 추천
+- 향 농도 조절 가능
+- 향은 1가지로 가는 것 추천 (섞으면 역효과 가능)
+
+[성분 관련]
+- 바오밥나무씨오일 vs 추출물: 차이 있으나 추출물도 효과 괜찮음
+- 비타민C = 아스코빅애씨드
+- 콜라겐은 비건 성분이 아님
+- 달맞이꽃오일: 다소 비싸지만 효능 좋음 (시어버터 대비 약 1.5배)
+- 알갱이(스크럽): 소량수급 불가
+
+[주의사항]
+- 답변이 확실하지 않으면 반드시 "관리자에게 확인이 필요합니다"라고 안내
+- 가격, 일정 등 구체적 숫자는 "대략적인 안내이며, 정확한 내용은 담당자 확인이 필요합니다"라고 안내
+- 친절하고 따뜻한 말투 사용 (존댓말)
+- 답변은 간결하게 (3~5문장 이내)`;
+
+let chatMessages = [];
+let chatbotVisible = false;
+let inquiryListener = null;
+
+// 알림 소리
+function playNotificationSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 800; osc.type = 'sine';
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.5);
+    // 두번째 음
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.connect(gain2); gain2.connect(ctx.destination);
+    osc2.frequency.value = 1000; osc2.type = 'sine';
+    gain2.gain.setValueAtTime(0.3, ctx.currentTime + 0.15);
+    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+    osc2.start(ctx.currentTime + 0.15); osc2.stop(ctx.currentTime + 0.6);
+  } catch(e) {}
+}
+
+// 브라우저 알림 요청
+function requestNotificationPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+function showBrowserNotification(title, body) {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(title, { body, icon: 'logo.png' });
+  }
+}
+
+// 관리자: 실시간 문의 감시
+function startInquiryListener() {
+  if (inquiryListener) inquiryListener(); // 기존 리스너 해제
+  let firstLoad = true;
+  inquiryListener = db.collection('inquiries').where('status','==','pending')
+    .onSnapshot(snap => {
+      const count = snap.size;
+      const badge = document.getElementById('inquiryBadge');
+      if (badge) { badge.style.display = count > 0 ? 'inline' : 'none'; badge.textContent = count; }
+      if (firstLoad) { firstLoad = false; return; }
+      // 새 문의가 추가되었을 때
+      snap.docChanges().forEach(change => {
+        if (change.type === 'added') {
+          const data = change.doc.data();
+          playNotificationSound();
+          showBrowserNotification('새 문의 접수', `${data.userName || '교육생'}: ${data.question || ''}`);
+        }
+      });
+    });
+}
+
+function stopInquiryListener() {
+  if (inquiryListener) { inquiryListener(); inquiryListener = null; }
+}
+
+// 교육생: 미확인 답변 체크
+async function checkPendingAnswers() {
+  if (!currentUser) return;
+  try {
+    const snap = await db.collection('inquiries')
+      .where('userId','==',currentUser.uid)
+      .where('status','==','answered')
+      .get();
+    let hasNew = false;
+    snap.forEach(doc => {
+      const data = doc.data();
+      if (data.answer) {
+        addBotMessage('📩 관리자 답변이 도착했습니다!\n\n질문: ' + data.question + '\n\n답변: ' + data.answer);
+        db.collection('inquiries').doc(doc.id).update({ status: 'read' });
+        hasNew = true;
+      }
+    });
+    if (hasNew) {
+      const badge = document.getElementById('cbBadge');
+      if (badge && !chatbotVisible) { badge.style.display = 'flex'; badge.textContent = '!'; }
+    }
+  } catch(e) { console.warn('답변 체크 실패:', e); }
+}
+
+// 교육생: 실시간 답변 도착 감지
+let answerListener = null;
+function startAnswerListener() {
+  if (answerListener) answerListener();
+  if (!currentUser) return;
+  let firstLoad = true;
+  answerListener = db.collection('inquiries')
+    .where('userId','==',currentUser.uid)
+    .where('status','==','answered')
+    .onSnapshot(snap => {
+      if (firstLoad) { firstLoad = false; return; }
+      snap.docChanges().forEach(change => {
+        if (change.type === 'added' || change.type === 'modified') {
+          const data = change.doc.data();
+          if (data.answer && data.status === 'answered') {
+            playNotificationSound();
+            const badge = document.getElementById('cbBadge');
+            if (badge) { badge.style.display = 'flex'; badge.textContent = '!'; }
+            if (chatbotVisible) {
+              addBotMessage('📩 관리자 답변이 도착했습니다!\n\n질문: ' + data.question + '\n\n답변: ' + data.answer);
+              db.collection('inquiries').doc(change.doc.id).update({ status: 'read' });
+            }
+          }
+        }
+      });
+    });
+}
+
+function stopAnswerListener() {
+  if (answerListener) { answerListener(); answerListener = null; }
+}
+
+let chatHistoryLoaded = false;
+
+async function loadChatHistory() {
+  if (!currentUser || chatHistoryLoaded) return;
+  chatHistoryLoaded = true;
+  try {
+    const snap = await db.collection('chatLogs')
+      .where('userId','==',currentUser.uid)
+      .get();
+    const logs = [];
+    snap.forEach(doc => logs.push(doc.data()));
+    logs.sort((a,b) => (a.createdAt?.seconds||0) - (b.createdAt?.seconds||0));
+
+    if (logs.length > 0) {
+      const recent = logs.slice(-30); // 최근 30개만 표시
+      const msgEl = document.getElementById('cbMessages');
+
+      // 이전 대화 구분선
+      const divider = document.createElement('div');
+      divider.className = 'cb-msg system';
+      divider.textContent = '이전 대화 ' + recent.length + '건';
+      msgEl.appendChild(divider);
+
+      recent.forEach(log => {
+        if (log.question) {
+          const uEl = document.createElement('div');
+          uEl.className = 'cb-msg user';
+          uEl.textContent = log.question;
+          uEl.style.opacity = '0.7';
+          msgEl.appendChild(uEl);
+          chatMessages.push({ role:'user', text:log.question });
+        }
+        if (log.answer) {
+          const bEl = document.createElement('div');
+          bEl.className = 'cb-msg bot';
+          bEl.innerHTML = log.answer.replace(/\n/g,'<br>');
+          bEl.style.opacity = '0.7';
+          msgEl.appendChild(bEl);
+          chatMessages.push({ role:'bot', text:log.answer });
+        }
+      });
+
+      // 구분선
+      const sep = document.createElement('div');
+      sep.className = 'cb-msg system';
+      sep.textContent = '새 대화를 시작하세요';
+      msgEl.appendChild(sep);
+    }
+  } catch(e) { console.warn('채팅 기록 로드 실패:', e); }
+}
+
+async function toggleChatbot() {
+  const panel = document.getElementById('chatbotPanel');
+  chatbotVisible = !chatbotVisible;
+  panel.classList.toggle('open', chatbotVisible);
+  if (chatbotVisible) {
+    const badge = document.getElementById('cbBadge');
+    if (badge) badge.style.display = 'none';
+    if (chatMessages.length === 0) {
+      addBotMessage('안녕하세요! 화창하다 AI 도우미입니다 😊\n교육이나 발주 관련 궁금한 점을 물어보세요!');
+      await loadChatHistory();
+      await checkPendingAnswers();
+    }
+    setTimeout(() => document.getElementById('cbInput').focus(), 100);
+    scrollChatBottom();
+  }
+}
+
+function showChatbotButton() {
+  document.getElementById('chatbotToggle').style.display = 'flex';
+  requestNotificationPermission();
+  if (currentUserData?.role === 'admin') {
+    startInquiryListener();
+  } else {
+    startAnswerListener();
+    checkPendingAnswers();
+  }
+}
+
+function hideChatbotButton() {
+  document.getElementById('chatbotToggle').style.display = 'none';
+  document.getElementById('chatbotPanel').classList.remove('open');
+  chatbotVisible = false;
+  stopInquiryListener();
+  stopAnswerListener();
+}
+
+function addBotMessage(text, showEscalate = false) {
+  chatMessages.push({ role: 'bot', text });
+  const el = document.createElement('div');
+  el.className = 'cb-msg bot';
+  el.innerHTML = text.replace(/\n/g, '<br>');
+  if (showEscalate) {
+    el.innerHTML += '<br><span class="cb-escalate" onclick="escalateToAdmin()">관리자에게 문의하기</span>';
+  }
+  document.getElementById('cbMessages').appendChild(el);
+  scrollChatBottom();
+}
+
+function addUserMessage(text) {
+  chatMessages.push({ role: 'user', text });
+  const el = document.createElement('div');
+  el.className = 'cb-msg user';
+  el.textContent = text;
+  document.getElementById('cbMessages').appendChild(el);
+  scrollChatBottom();
+}
+
+function addSystemMessage(text) {
+  const el = document.createElement('div');
+  el.className = 'cb-msg system';
+  el.textContent = text;
+  document.getElementById('cbMessages').appendChild(el);
+  scrollChatBottom();
+}
+
+function showTyping() {
+  const el = document.createElement('div');
+  el.className = 'cb-typing'; el.id = 'cbTyping';
+  el.innerHTML = '<span></span><span></span><span></span>';
+  document.getElementById('cbMessages').appendChild(el);
+  scrollChatBottom();
+}
+function hideTyping() { const el = document.getElementById('cbTyping'); if (el) el.remove(); }
+function scrollChatBottom() { const el = document.getElementById('cbMessages'); setTimeout(() => { el.scrollTop = el.scrollHeight; }, 50); }
+
+// 과거 Q&A를 Gemini 프롬프트에 포함 (학습 효과)
+async function getLearnedQA() {
+  try {
+    const snap = await db.collection('inquiries').where('status','==','read').get();
+    const qas = [];
+    snap.forEach(doc => {
+      const d = doc.data();
+      if (d.question && d.answer) qas.push({ q: d.question, a: d.answer });
+    });
+    if (qas.length === 0) return '';
+    const recent = qas.slice(-20);
+    return '\n\n[관리자가 직접 답변한 Q&A - 이 내용을 우선 참고하세요]\n' +
+      recent.map(qa => `Q: ${qa.q}\nA: ${qa.a}`).join('\n\n');
+  } catch(e) { return ''; }
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('cbInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addUserMessage(text);
+  document.getElementById('cbSendBtn').disabled = true;
+  showTyping();
+
+  try {
+    const apiKey = CONFIG.GEMINI_API_KEY;
+    if (!apiKey) { hideTyping(); addBotMessage('AI 서비스에 연결할 수 없습니다.', true); document.getElementById('cbSendBtn').disabled = false; return; }
+
+    const history = chatMessages.slice(-10).map(m => (m.role==='user'?'교육생':'AI도우미') + ': ' + m.text).join('\n');
+    const learnedQA = await getLearnedQA();
+    const prompt = CHATBOT_KNOWLEDGE + learnedQA + '\n\n[대화 기록]\n' + history + '\n\n교육생의 질문에 답변하세요. 모르거나 애매한 내용은 반드시 "[관리자 확인 필요]"라고 표시하세요. 답변만 출력하세요.';
+
+    const res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + CONFIG.GEMINI_MODEL + ':generateContent?key=' + apiKey,
+      { method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ contents:[{parts:[{text:prompt}]}], generationConfig:{temperature:0.4,maxOutputTokens:500} }) }
+    );
+    const data = await res.json();
+    hideTyping();
+
+    const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (!answer) { addBotMessage('죄송합니다, 답변을 생성할 수 없었습니다.', true); }
+    else {
+      const needsEscalation = answer.includes('[관리자 확인 필요]') || answer.includes('확인이 필요');
+      addBotMessage(answer.replace('[관리자 확인 필요]', '').trim(), needsEscalation);
+    }
+
+    // 대화 내용 Firestore에 저장 (학습용)
+    if (currentUser) {
+      db.collection('chatLogs').add({
+        userId: currentUser.uid, userName: currentUserData?.name || '',
+        question: text, answer: answer || '',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(() => {});
+    }
+  } catch (e) {
+    hideTyping();
+    console.error('Chatbot error:', e);
+    addBotMessage('네트워크 오류가 발생했습니다.', true);
+  }
+  document.getElementById('cbSendBtn').disabled = false;
+}
+
+async function escalateToAdmin() {
+  if (!currentUser || !currentUserData) return;
+  const lastUserMsg = chatMessages.filter(m => m.role === 'user').pop();
+  const question = lastUserMsg ? lastUserMsg.text : '(질문 내용 없음)';
+
+  try {
+    await db.collection('inquiries').add({
+      userId: currentUser.uid,
+      userName: currentUserData.name,
+      userBrand: currentUserData.brand,
+      userEmail: currentUser.email,
+      question: question,
+      chatHistory: chatMessages.slice(-6).map(m => ({ role:m.role, text:m.text })),
+      status: 'pending',
+      answer: '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    addSystemMessage('관리자에게 문의가 전달되었습니다. 빠른 시일 내 답변드리겠습니다!');
+  } catch(e) {
+    addSystemMessage('문의 전달에 실패했습니다. 카카오톡으로 직접 문의해주세요.');
+  }
+}
+
+// ════════════════════════════════════════════════════════════
 //  🚀  AUTH STATE LISTENER (LAUNCH)
 // ════════════════════════════════════════════════════════════
 auth.onAuthStateChanged(async (user) => {
@@ -1600,6 +2282,7 @@ auth.onAuthStateChanged(async (user) => {
         currentUserData = { email:user.email, name:user.email.split('@')[0], brand:'', phone:'', address:'', role:'student' };
         await db.collection('users').doc(user.uid).set({ ...currentUserData, createdAt:firebase.firestore.FieldValue.serverTimestamp() });
       }
+      showChatbotButton();
       if (currentUserData.role === 'admin') showAdminScreen();
       else showDashboard();
     } catch(e) {
@@ -1609,6 +2292,10 @@ auth.onAuthStateChanged(async (user) => {
     }
   } else {
     currentUser = null; currentUserData = null;
+    hideChatbotButton();
+    chatMessages = [];
+    chatHistoryLoaded = false;
+    document.getElementById('cbMessages').innerHTML = '';
     document.getElementById('loginScreen').style.display = 'flex';
     // Reset login form state
     document.getElementById('loginBtn').disabled = false;
