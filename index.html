@@ -87,17 +87,25 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--gf); color: va
 @media(max-width:640px) { .admin-student-grid { grid-template-columns:repeat(2,1fr); } }
 .admin-student-card { background:#fff; border-radius:var(--r); border:0.5px solid var(--ge); padding:14px 16px; cursor:pointer; transition:all .15s; }
 .admin-student-card:hover { border-color:var(--t); background:var(--tl); }
+.admin-student-card.has-new { border-color:#FCA5A5; background:#FFF5F5; }
+.admin-student-card.has-new:hover { border-color:#DC2626; background:#FEE2E2; }
+.asc-new-badge { font-size:8px; font-weight:800; color:#fff; background:#DC2626; padding:1px 6px; border-radius:8px; margin-left:6px; animation:orderPulse 1.5s infinite; }
+.asc-stat.st-new { font-weight:800; animation:orderPulse 1.5s infinite; }
 .asc-name { font-size:13px; font-weight:700; color:var(--g1); }
 .asc-brand { font-size:11px; color:var(--t); font-weight:600; margin-top:2px; }
 .asc-email { font-size:10px; color:var(--g6); margin-top:4px; }
 .asc-stats { display:flex; gap:4px; margin-top:8px; flex-wrap:wrap; }
 .asc-stat { font-size:9px; padding:2px 7px; border-radius:10px; font-weight:600; }
-.asc-stat.st-ordered { background:#FEE2E2; color:#991B1B; }
+.asc-stat.st-ordered { background:#FEE2E2; color:#991B1B; position:relative; padding-left:16px; }
+.asc-stat.st-ordered::before { content:''; position:absolute; left:6px; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:#DC2626; animation:orderPulse 1.5s infinite; }
+@keyframes orderPulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(220,38,38,.4)} 50%{opacity:.7;box-shadow:0 0 0 4px rgba(220,38,38,0)} }
 .asc-stat.st-sample_sent { background:#FEF3C7; color:#92400E; }
 .asc-stat.st-materials { background:#DBEAFE; color:#1E40AF; }
 .asc-stat.st-production { background:#E0E7FF; color:#3730A3; }
 .asc-stat.st-completed { background:#D1FAE5; color:#065F46; }
 .asc-stat.st-shipped { background:#F3F4F6; color:#374151; }
+.asc-stat.st-cancel_requested { background:#FEF3C7; color:#92400E; }
+.asc-stat.st-cancelled { background:#F3F4F6; color:#9CA3AF; text-decoration:line-through; }
 .admin-filter-bar { display:flex; gap:8px; margin-bottom:14px; align-items:center; }
 .admin-filter-bar input { flex:1; padding:8px 12px; border:1px solid var(--ge); border-radius:var(--rsm); font-size:12px; font-family:inherit; }
 .admin-filter-bar input:focus { outline:none; border-color:var(--t); }
@@ -208,6 +216,9 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
 .cat-badge.cat-특허증활용가능 { background:#F3E8FF; color:#6B21A8; }
 .cat-badge.cat-추출물 { background:#D1FAE5; color:#065F46; }
 .cat-badge.cat-첨가원료 { background:#DBEAFE; color:#1E40AF; }
+.cat-badge.cat-base { background:#065F46; color:#fff; }
+.chip.base-chip { background:#D1FAE5 !important; border-color:#6EE7B7 !important; cursor:default; opacity:1 !important; }
+.chip.base-chip:hover { transform:none; box-shadow:none; }
 .chip .inci-tooltip {
   display:none; position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%);
   background:#1F2937; color:#fff; font-size:11px; padding:8px 12px; border-radius:8px;
@@ -569,7 +580,7 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
       <div class="topbar-brand" style="cursor:default">
         <img src="logo.png" alt="RED MEDICOS" style="height:24px" onerror="this.outerHTML='레드메디코스'"> <em>관리자</em>
       </div>
-      <button class="btn-sm" onclick="renderAdminStudentList()" style="font-weight:600">교육생 관리</button>
+      <button class="btn-sm" onclick="renderAdminStudentList()" style="font-weight:600">교육생 관리 <span id="orderBadge" style="display:none;background:#DC2626;color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:2px"></span></button>
       <button class="btn-sm" onclick="renderAdminInquiries()">문의 관리 <span id="inquiryBadge" style="display:none;background:var(--t);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:2px"></span></button>
       <button class="btn-sm" onclick="openAdmin()">성분 관리</button>
     </div>
@@ -623,7 +634,7 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
   </div>
   <div class="cb-messages" id="cbMessages"></div>
   <div class="cb-input-area">
-    <input type="text" id="cbInput" placeholder="질문을 입력하세요..." onkeydown="if(event.key==='Enter'&&!event.shiftKey)sendChatMessage()">
+    <input type="text" id="cbInput" placeholder="질문을 입력하세요..." onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing)sendChatMessage()">
     <button onclick="sendChatMessage()" id="cbSendBtn">➤</button>
   </div>
 </div>
@@ -754,6 +765,8 @@ const ORDER_STAGES = [
   { id: 'production',  label: '생산일정' },
   { id: 'completed',   label: '생산완료' },
   { id: 'shipped',     label: '출고완료' },
+  { id: 'cancel_requested', label: '취소요청' },
+  { id: 'cancelled',   label: '취소완료' },
 ];
 
 const MATERIAL_ITEMS = [
@@ -946,6 +959,34 @@ const DEFAULT_EXTRACTS = [
   { id:67, name:'하이드롤라이즈드해면(리들샷)', category:'첨가원료', price:7500, tags:['재생','흡수','침투','주름개선','탄력','얼굴','크림전용','피부결'], inci:'' },
   { id:68, name:'알파-알부틴',        category:'첨가원료', price:1600, tags:['미백','색소','톤업','기미','잡티','자외선','얼굴','항산화'], inci:'' },
 ];
+
+// ═══ 제형별 기본 전성분 (하위 성분 한글명) ═══
+const BASE_INGREDIENTS = {
+  'serum-a': [
+    '정제수','부틸렌글라이콜','글리세린','약모밀추출물','자일리톨','1,2-헥산다이올','베타인','엑토인',
+    '하이드롤라이즈드글라이코사미노글리칸','소듐하이알루로네이트','소듐하이알루로네이트크로스폴리머',
+    '하이드롤라이즈드하이알루로닉애씨드','하이드록시프로필트라이모늄하이알루로네이트','하이알루로닉애씨드',
+    '소듐아세틸레이티드하이알루로네이트','아시아티코사이드','마데카소사이드','마데카식애씨드','아시아틱애씨드',
+    '세라마이드엔에스','세라마이드엔피','세라마이드에이에스','세라마이드에이피','세라마이드이오피',
+    '알란토인','판테놀','다이포타슘글리시리제이트','카보머','알지닌',
+    '하이드록시에틸아크릴레이트/소듐아크릴로일다이메틸타우레이트코폴리머','카프릴릴글라이콜',
+    '락토바실러스/콩발효추출물','흰버드나무껍질추출물','육계나무껍질추출물','오레가노잎추출물',
+    '편백잎추출물','황금추출물','쇠비름추출물','대왕송잎추출물','당느릅나무뿌리추출물',
+    '달맞이꽃추출물','칡뿌리추출물'
+  ],
+  // 나중에 다른 제형 추가: 'serum-b': [...], 'cream-a': [...], ...
+};
+
+// 추출물의 하위 성분이 전부 기본 전성분에 포함되는지 체크
+function isFullyInBase(extract, formulaId) {
+  const base = BASE_INGREDIENTS[formulaId];
+  if (!base) return false;
+  // inci가 없는 단일 추출물 → 이름 자체로 체크
+  if (!extract.inci) return base.includes(extract.name);
+  // 복합 추출물 → 하위 성분 전부 포함되어야 함
+  const subs = extract.inci.split(',').map(s => s.trim());
+  return subs.length > 0 && subs.every(s => base.includes(s));
+}
 
 const EXTRACT_VERSION = 8;
 const CAT_DISPLAY = {'에센셜오일':'에센셜 오일', '특허증활용가능':'특허증 활용가능'};
@@ -1204,7 +1245,8 @@ function buildStepScent() {
     <div class="card"><div class="card-title">향 선택</div><div class="card-sub">에센셜 오일 중 <strong style="color:var(--t)">1가지</strong>만 선택할 수 있습니다. 향을 넣지 않으려면 <strong>무향</strong>을 선택하세요.</div>
       <div class="container-grid">${cards}</div>
     </div>
-    <div class="price-bar"><div><div class="pb-label">선택한 향</div><div class="pb-sub">${selName}</div></div></div>
+    <div class="price-bar"><div><div class="pb-label">선택한 향</div><div class="pb-sub">${selName}</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가 (변동 가능)</div><div class="pb-price">${N(getUnitCost())}원</div></div></div>
+    ${buildFullIngredientsList()}
     <div class="btn-row"><button class="btn" onclick="goToStep(5)">← 이전</button><button class="btn primary" ${STATE.selectedScent!==null?'':'disabled'} onclick="goToStep(7)">다음 단계 →</button></div>`;
 }
 
@@ -1218,11 +1260,62 @@ function selectScent(name, price) {
   document.getElementById('stepContent').innerHTML = buildStepScent();
 }
 
+function buildFullIngredientsList() {
+  const base = BASE_INGREDIENTS[STATE.formula];
+  if (!base) return '';
+  // 기본 전성분
+  const allIngredients = [...base];
+  // 선택한 추출물의 하위 성분 추가 (기본 전성분에 없는 것만)
+  const selKeys = Object.keys(STATE.selExtracts);
+  selKeys.forEach(name => {
+    const e = extracts.find(x => x.name === name);
+    if (!e || e.category === '에센셜오일') return;
+    if (isFullyInBase(e, STATE.formula)) return;
+    if (e.inci) {
+      e.inci.split(',').map(s => s.trim()).forEach(s => { if (!allIngredients.includes(s)) allIngredients.push(s); });
+    } else {
+      if (!allIngredients.includes(e.name)) allIngredients.push(e.name);
+    }
+  });
+  // 향 추가
+  if (STATE.selectedScent && STATE.selectedScent !== '무향') {
+    if (!allIngredients.includes(STATE.selectedScent)) allIngredients.push(STATE.selectedScent);
+  }
+  const text = allIngredients.join(', ');
+  return `<div class="card" style="margin-top:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="card-title" style="margin:0">전성분 (${allIngredients.length}종)</div>
+      <button class="btn-sm" onclick="copyIngredients()" style="font-size:10px;padding:4px 10px">복사</button>
+    </div>
+    <div id="fullIngredientsList" style="font-size:11px;color:var(--g6);line-height:1.8;word-break:keep-all">${text}</div>
+  </div>`;
+}
+
+function copyIngredients() {
+  const text = document.getElementById('fullIngredientsList')?.textContent;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => alert('전성분이 복사되었습니다.')).catch(() => {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    alert('전성분이 복사되었습니다.');
+  });
+}
+
 function buildStep3(aiLoading=false) {
   const aiSection = aiLoading ? `<div class="ai-loading"><div class="spinner"></div> Gemini가 성분을 분석 중입니다...</div>` : `<div class="chips" id="aiChips">${buildAIChips()}</div>`;
   const catOrder = {'특허증활용가능':0,'추출물':1,'첨가원료':2};
-  const sorted = [...extracts].filter(e => e.category !== '에센셜오일').sort((a,b) => (catOrder[a.category]||0) - (catOrder[b.category]||0));
+  const sorted = [...extracts].filter(e => e.category !== '에센셜오일').sort((a,b) => {
+    const aBase = isFullyInBase(a, STATE.formula) ? -1 : 0;
+    const bBase = isFullyInBase(b, STATE.formula) ? -1 : 0;
+    if (aBase !== bBase) return aBase - bBase;
+    return (catOrder[a.category]||0) - (catOrder[b.category]||0);
+  });
   const allChips = sorted.map(e => {
+    const inBase = isFullyInBase(e, STATE.formula);
+    if (inBase) {
+      const badge = `<span class="cat-badge cat-base">전성분</span>`;
+      const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
+      return `<div class="chip sel base-chip" data-name="${e.name}">${badge}${e.name}&nbsp;<span style="color:#065F46;font-size:10px;font-weight:600">기본 포함</span>${tooltip}</div>`;
+    }
     const badge = `<span class="cat-badge cat-${e.category||'추출물'}">${catLabel(e.category||'추출물')}</span>`;
     const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
     const safeName = e.name.replace(/'/g, "\\'");
@@ -1245,6 +1338,12 @@ function buildAIChips() {
   return STATE.aiRecs.map(name => {
     const e = extracts.find(x => x.name === name);
     if (!e) return '';
+    const inBase = isFullyInBase(e, STATE.formula);
+    if (inBase) {
+      const badge = `<span class="cat-badge cat-base">전성분</span>`;
+      const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
+      return `<div class="chip ai-chip sel base-chip" data-name="${name}"><span style="font-size:9px;font-weight:800;color:var(--t);margin-right:2px">AI</span>${badge}${name}&nbsp;<span style="color:#065F46;font-size:10px;font-weight:600">기본 포함</span>${tooltip}</div>`;
+    }
     const safeName = name.replace(/'/g, "\\'");
     const badge = `<span class="cat-badge cat-${e.category||'추출물'}">${catLabel(e.category||'추출물')}</span>`;
     const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
@@ -1297,7 +1396,7 @@ function buildStep6() {
       <div class="summary-row"><span class="sum-key">기능성</span><span class="sum-val">${hasFn?STATE.functions.join(' + '):'해당 없음'}</span></div>
       <div class="summary-row"><span class="sum-key">사용 부위</span><span class="sum-val">${STATE.bodyPart||'-'}</span></div>
       <div class="summary-row"><span class="sum-key">제형</span><span class="sum-val">${formula?.name} (${formula?.desc})</span></div>
-      <div class="summary-row"><span class="sum-key">향</span><span class="sum-val">${STATE.selectedScent||'미선택'}</span></div>
+      <div class="summary-row"><span class="sum-key">향</span><span class="sum-val">${STATE.delegateExtracts?'🔬 제조 전문가 위임':(STATE.selectedScent||'미선택')}</span></div>
       <div class="summary-row"><span class="sum-key">원료</span><span class="sum-val" style="font-size:12px">${STATE.delegateExtracts?'🔬 제조 전문가 위임':(selKeys.length?selKeys.join(', '):'없음')}</span></div>
       <div class="summary-row"><span class="sum-key">용량 / 수량</span><span class="sum-val">${STATE.volume}ml / ${N(STATE.quantity)}개</span></div>
       <div class="summary-row"><span class="sum-key">용기</span><span class="sum-val">${container?.name||'-'}</span></div>
@@ -1305,7 +1404,7 @@ function buildStep6() {
       ${hasFn?`<div class="notice blue" style="margin-top:.875rem">📋 기능성 화장품 (${STATE.functions.join(' + ')}): 원료 규격서 및 임상 시험 자료 별도 준비 필요</div>`:''}
       <div class="notice info" style="margin-top:.75rem">✓ 제출 즉시 연구팀 이메일로 전달되며, 제품 개발에 착수합니다</div>
     </div>
-    <div class="btn-row"><button class="btn" onclick="goToStep(6)">← 이전</button><button class="btn primary" onclick="submitOrder()">📩 연구팀에 제출하기</button></div>`;
+    <div class="btn-row"><button class="btn" onclick="goToStep(${STATE.delegateExtracts?5:6})">← 이전</button><button class="btn primary" onclick="submitOrder()">📩 연구팀에 제출하기</button></div>`;
 }
 
 function buildSuccess() {
@@ -1344,6 +1443,7 @@ function toggleFunction(fn, checked, el) {
     notice.style.display = n ? 'block' : 'none';
     notice.innerHTML = `<div class="notice info" style="margin-top:0;font-size:12px">💰 기능성 추가 비용: <strong>1개 40,000원 / 2개 65,000원</strong><br><span style="font-size:11px;color:var(--g6)">주름기능성과 미백기능성만 중복사용가능</span><br><span style="font-size:11px;color:var(--g6)">현재 ${n}개 선택 → <strong style="color:var(--t)">${N(cost)}원</strong> 추가</span></div>`;
   }
+  updateGuidePanel(1);
 }
 
 function selectBodyPart(name, el) {
@@ -1433,7 +1533,10 @@ async function goToStep(n) {
   else if (n===3) html = buildStep5();
   else if (n===4) html = buildStep4();
   else if (n===5) html = buildStep3(!!STATE.apiKey);
-  else if (n===6) html = buildStepScent();
+  else if (n===6) {
+    if (STATE.delegateExtracts) { STATE.selectedScent = null; STATE.step = 7; n = 7; renderProgress(); html = buildStep6(); }
+    else html = buildStepScent();
+  }
   else if (n===7) html = buildStep6();
   document.getElementById('stepContent').innerHTML = html;
   document.getElementById('progressBar').scrollIntoView({ behavior:'smooth', block:'start' });
@@ -1443,8 +1546,10 @@ async function goToStep(n) {
 
 function updateGuidePanel(step) {
   const el = document.getElementById('guidePanelContent'); if (!el) return;
+  const hasSpecialFn = STATE.functions.some(f => f.includes('탈모') || f.includes('자외선'));
+  const factoryNotice = hasSpecialFn ? `<div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title" style="color:#DC2626">제조 안내</div><div class="gp-text" style="color:#991B1B;font-weight:600">탈모·자외선차단 기능성 선택 시, 화장품 제조업자는 변경될 수 있습니다.</div></div>` : '';
   const guides = {
-    1: `<div class="gp-section"><div class="gp-section-title">기능성 화장품 안내</div><div class="gp-text"><ul><li><strong>씻어내는 제품</strong>(바디워시, 샴푸, 폼클렌징 등)에는 주름개선·미백·자외선차단 기능성이 <strong>실효성이 없거나 적용 불가</strong>합니다.</li><li>기능성 선택시 패키지및 상세페이지에 활용 가능</li></ul></div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">추가 비용 안내</div><div class="gp-text"><ul><li>기능성 1개: <strong>40,000원</strong></li><li>기능성 2개: <strong>65,000원</strong></li></ul></div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">작성 팁</div><div class="gp-text">원하는 효능, 타겟 고객, 피부 고민을 구체적으로 적을수록 AI가 더 정확한 원료를 추천합니다.</div></div>`,
+    1: `<div class="gp-section"><div class="gp-section-title">기능성 화장품 안내</div><div class="gp-text"><ul><li><strong>씻어내는 제품</strong>(바디워시, 샴푸, 폼클렌징 등)에는 주름개선·미백·자외선차단 기능성이 <strong>실효성이 없거나 적용 불가</strong>합니다.</li><li>기능성 선택시 패키지및 상세페이지에 활용 가능</li></ul></div></div>${factoryNotice}<div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">추가 비용 안내</div><div class="gp-text"><ul><li>기능성 1개: <strong>40,000원</strong></li><li>기능성 2개: <strong>65,000원</strong></li></ul></div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">작성 팁</div><div class="gp-text">원하는 효능, 타겟 고객, 피부 고민을 구체적으로 적을수록 AI가 더 정확한 원료를 추천합니다.</div></div>`,
     2: `<div class="gp-section"><div class="gp-section-title">제품 유형 선택</div><div class="gp-text">제품 유형을 선택하면 세부 제형(텍스처)을 고를 수 있습니다. 선택한 유형에 따라 용기 옵션이 자동으로 필터링됩니다.</div></div>`,
     3: `<div class="gp-section"><div class="gp-section-title">용기 선택 안내</div><div class="gp-text"><ul><li>선택한 제품 유형에 적합한 용기만 표시됩니다.</li><li><strong>추천</strong> 뱃지가 붙은 용기가 해당 제형에 가장 적합합니다.</li><li>용기는 <strong>불투명과 반투명</strong>을 권장합니다.</li></ul></div></div>`,
     4: `<div class="gp-section"><div class="gp-section-title">용량/수량 안내</div><div class="gp-text"><ul><li>기본 수량: <strong>300개</strong></li><li>30ml 선택 시: 최소 <strong>1,000개</strong></li><li>50ml 선택 시: 최소 <strong>500개</strong></li><li>수량은 100개 단위로 조절 가능합니다.</li></ul></div></div>`,
@@ -1482,7 +1587,7 @@ async function submitOrder() {
     functions:   [...STATE.functions],
     bodyPart:    STATE.bodyPart,
     formula:     formula ? `${formula.name} (${formula.desc})` : '-',
-    scent:       STATE.selectedScent || '미선택',
+    scent:       STATE.delegateExtracts ? '제조 전문가 위임' : (STATE.selectedScent || '미선택'),
     extracts:    STATE.delegateExtracts ? ['제조 전문가 위임'] : selKeys,
     extractCost: getExtTotal(),
     unitCost:    getUnitCost(),
@@ -1491,6 +1596,7 @@ async function submitOrder() {
     container:   container?.name || '-',
     totalCost:   getUnitCost() * STATE.quantity,
     status:      'ordered',
+    adminViewed: false,
     createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
   };
   try {
@@ -1672,8 +1778,14 @@ function doLogout() { auth.signOut(); }
 //  📊  STATUS TIMELINE RENDERER
 // ════════════════════════════════════════════════════════════
 function renderStatusTimeline(currentStatus) {
-  const currentIdx = ORDER_STAGES.findIndex(s => s.id === currentStatus);
-  return `<div class="status-timeline">${ORDER_STAGES.map((stage, i) => {
+  if (currentStatus === 'cancel_requested' || currentStatus === 'cancelled') {
+    const label = currentStatus === 'cancelled' ? '취소완료' : '취소요청 (승인 대기)';
+    const color = currentStatus === 'cancelled' ? '#9CA3AF' : '#92400E';
+    return `<div style="text-align:center;padding:10px;font-size:12px;font-weight:600;color:${color}">${label}</div>`;
+  }
+  const mainStages = ORDER_STAGES.filter(s => s.id !== 'cancel_requested' && s.id !== 'cancelled');
+  const currentIdx = mainStages.findIndex(s => s.id === currentStatus);
+  return `<div class="status-timeline">${mainStages.map((stage, i) => {
     const done = i <= currentIdx;
     const isCurrent = i === currentIdx;
     const stepClass = done && !isCurrent ? 'done' : '';
@@ -1709,6 +1821,8 @@ function getStatusBadge(status) {
     production: {bg:'#E0E7FF',color:'#3730A3'},
     completed:  {bg:'#D1FAE5',color:'#065F46'},
     shipped:    {bg:'#D1FAE5',color:'#065F46'},
+    cancel_requested: {bg:'#FEF3C7',color:'#92400E'},
+    cancelled:  {bg:'#F3F4F6',color:'#9CA3AF'},
   };
   const stage = ORDER_STAGES.find(s => s.id === status) || ORDER_STAGES[0];
   const c = colors[status] || colors.ordered;
@@ -1745,7 +1859,15 @@ async function showDashboard() {
         const date = o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleDateString('ko-KR') : '-';
         const matSection = (ORDER_STAGES.findIndex(s=>s.id===o.status) >= ORDER_STAGES.findIndex(s=>s.id==='materials')) ? renderMaterialChecklist(o) : '';
         const prodDate = o.productionStartDate ? `<div style="margin-top:8px;background:var(--bl);border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:var(--bd)">🏭 생산일정: <strong>${o.productionStartDate}</strong></div>` : '';
-        return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div>${getStatusBadge(o.status)}</div><div class="oc-title">${o.description||'-'}</div><div class="oc-detail">${o.formula} · ${o.volume}ml × ${N(o.quantity)}개 · ${o.container}${o.scent?' · 향: '+o.scent:''}</div>${renderStatusTimeline(o.status)}${matSection}${prodDate}</div>`;
+        let cancelBtn = '';
+        if (o.status === 'cancel_requested') {
+          cancelBtn = `<div style="margin-top:10px;padding:8px 12px;background:#FEF3C7;border-radius:var(--rsm);font-size:12px;color:#92400E;font-weight:600">취소 요청이 접수되었습니다. 관리자 승인을 기다리고 있습니다.</div>`;
+        } else if (o.status === 'cancelled') {
+          cancelBtn = `<div style="margin-top:10px;padding:8px 12px;background:#F3F4F6;border-radius:var(--rsm);font-size:12px;color:#9CA3AF;font-weight:600">취소된 발주입니다.</div>`;
+        } else if (o.status !== 'shipped' && o.status !== 'completed') {
+          cancelBtn = `<div style="margin-top:10px;text-align:right"><button onclick="requestCancelOrder('${o.id}')" style="padding:5px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #FCA5A5;background:#FFF5F5;color:#DC2626;font-family:inherit">취소 요청</button></div>`;
+        }
+        return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div>${getStatusBadge(o.status)}</div><div class="oc-title">${o.description||'-'}</div><div class="oc-detail">${o.formula} · ${o.volume}ml × ${N(o.quantity)}개 · ${o.container}${o.scent?' · 향: '+o.scent:''}</div>${renderStatusTimeline(o.status)}${matSection}${prodDate}${cancelBtn}</div>`;
       }).join('');
     }
   } catch(e) { console.error('Dashboard load error:', e); document.getElementById('dashOrderList').innerHTML = `<div style="color:#dc2626;font-size:12px">데이터 로드 실패: ${e.message}</div>`; }
@@ -1759,6 +1881,7 @@ async function showAdminScreen() {
   document.getElementById('adminUserInfo').textContent = currentUserData.name + ' (관리자)';
   await renderAdminStudentList();
   updateInquiryBadge();
+  updateOrderBadge();
 }
 
 let _adminStudents = [];
@@ -1777,14 +1900,18 @@ async function renderAdminStudentList() {
     const inquiriesSnap = await db.collection('inquiries').get();
     _adminOrderCounts = {}; _adminChatCounts = {};
     let _adminOrderStatuses = {};
+    let _adminNewOrderCounts = {};
     ordersSnap.forEach(doc => {
       const d = doc.data(); const uid = d.userId;
       _adminOrderCounts[uid] = (_adminOrderCounts[uid]||0) + 1;
       if (!_adminOrderStatuses[uid]) _adminOrderStatuses[uid] = [];
-      _adminOrderStatuses[uid].push(d.status || 'ordered');
+      const isNew = d.adminViewed !== true;
+      _adminOrderStatuses[uid].push({ status: d.status || 'ordered', isNew });
+      if (isNew) _adminNewOrderCounts[uid] = (_adminNewOrderCounts[uid]||0) + 1;
     });
     chatLogsSnap.forEach(doc => { const uid = doc.data().userId; _adminChatCounts[uid] = (_adminChatCounts[uid]||0) + 1; });
     window._adminOrderStatuses = _adminOrderStatuses;
+    window._adminNewOrderCounts = _adminNewOrderCounts;
 
     const totalDocs = _adminStudents.length + ordersSnap.size + chatLogsSnap.size + inquiriesSnap.size;
     const estimatedMB = (totalDocs * 1.5 / 1024).toFixed(1);
@@ -1836,12 +1963,18 @@ function buildStudentCards(list) {
   return list.map(s => {
     const safeName = (s.name||'').replace(/'/g,"\\'");
     const safeBrand = (s.brand||'').replace(/'/g,"\\'");
-    const statuses = (window._adminOrderStatuses || {})[s.uid] || [];
-    const statusBadges = statuses.length
-      ? statuses.map(st => `<span class="asc-stat st-${st}">${stageLabel(st)}</span>`).join('')
+    const entries = (window._adminOrderStatuses || {})[s.uid] || [];
+    const newCount = (window._adminNewOrderCounts || {})[s.uid] || 0;
+    const statusBadges = entries.length
+      ? entries.map(e => {
+          const label = stageLabel(e.status);
+          if (e.isNew) return `<span class="asc-stat st-${e.status} st-new">신규 ${label}</span>`;
+          return `<span class="asc-stat st-${e.status}">${label}</span>`;
+        }).join('')
       : '<span style="font-size:10px;color:var(--g8)">발주 없음</span>';
-    return `<div class="admin-student-card" onclick="showStudentOrders('${s.uid}','${safeName}','${safeBrand}')">
-      <div class="asc-name">${s.name}</div>
+    const newBadge = newCount > 0 ? `<span class="asc-new-badge">NEW ${newCount}</span>` : '';
+    return `<div class="admin-student-card${newCount > 0 ? ' has-new' : ''}" onclick="showStudentOrders('${s.uid}','${safeName}','${safeBrand}')">
+      <div class="asc-name">${s.name}${newBadge}</div>
       <div class="asc-brand">${s.brand}</div>
       <div class="asc-email">${s.phone||'-'}</div>
       <div class="asc-stats">${statusBadges}</div>
@@ -1877,28 +2010,78 @@ async function showStudentOrders(uid, name, brand) {
     const orders = []; snap.forEach(doc => orders.push({ id:doc.id, ...doc.data() }));
     orders.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
 
-    let html = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><button class="btn-sm" onclick="renderAdminStudentList()">← 목록</button><div><div style="font-size:18px;font-weight:700">${name}</div><div style="font-size:12px;color:var(--g6)">${brand} · 발주 ${orders.length}건</div></div></div>`;
+    // 미확인 발주 → 확인 처리
+    const unviewed = orders.filter(o => o.adminViewed !== true);
+    for (const o of unviewed) {
+      db.collection('orders').doc(o.id).update({ adminViewed: true }).catch(() => {});
+    }
+
+    let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px"><div style="display:flex;align-items:center;gap:12px"><button class="btn-sm" onclick="renderAdminStudentList()">← 목록</button><div><div style="font-size:18px;font-weight:700">${name}</div><div style="font-size:12px;color:var(--g6)">${brand} · 발주 ${orders.length}건</div></div></div><button class="btn-sm" onclick="deleteStudent('${uid}','${name.replace(/'/g,"\\'")}')" style="color:#DC2626;border-color:#FCA5A5">교육생 삭제</button></div>`;
 
     if (orders.length === 0) {
       html += `<div style="text-align:center;padding:2rem;color:var(--g6)">발주 내역이 없습니다</div>`;
     } else {
       html += orders.map(o => {
         const date = o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleDateString('ko-KR') : '-';
-        const currentIdx = ORDER_STAGES.findIndex(s => s.id === o.status);
-        const nextStage = currentIdx < ORDER_STAGES.length-1 ? ORDER_STAGES[currentIdx+1] : null;
-        const prevStage = currentIdx > 0 ? ORDER_STAGES[currentIdx-1] : null;
+        const mainStages = ORDER_STAGES.filter(s => s.id !== 'cancel_requested' && s.id !== 'cancelled');
+        const currentIdx = mainStages.findIndex(s => s.id === o.status);
+        const nextStage = currentIdx >= 0 && currentIdx < mainStages.length-1 ? mainStages[currentIdx+1] : null;
+        const prevStage = currentIdx > 0 ? mainStages[currentIdx-1] : null;
         const safeArgs = `'${o.id}','${uid}','${name.replace(/'/g,"\\'")}','${brand.replace(/'/g,"\\'")}'`;
-        let actions = '<div class="status-actions">';
-        if (prevStage) actions += `<button class="status-btn prev" onclick="updateOrderStatus(${safeArgs},'${prevStage.id}')">← ${prevStage.label}</button>`;
-        if (nextStage) actions += `<button class="status-btn next" onclick="updateOrderStatus(${safeArgs},'${nextStage.id}')">→ ${nextStage.label}</button>`;
-        actions += '</div>';
+        let actions = '';
+        if (o.status === 'cancel_requested') {
+          actions = `<div style="margin-top:10px;padding:10px 14px;background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:var(--r);font-size:12px;color:#92400E;font-weight:600">⚠ 교육생이 취소를 요청했습니다<div class="status-actions" style="margin-top:8px"><button class="status-btn prev" onclick="approveCancelOrder(${safeArgs})">취소 승인</button><button class="status-btn next" onclick="rejectCancelOrder(${safeArgs})">취소 거절</button></div></div>`;
+        } else if (o.status === 'cancelled') {
+          actions = `<div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#F3F4F6;border-radius:var(--rsm)"><span style="font-size:12px;color:#9CA3AF;font-weight:600">취소된 발주</span><button class="btn-sm" onclick="deleteOrder('${o.id}','${uid}','${name.replace(/'/g,"\\'")}','${brand.replace(/'/g,"\\'")}')" style="color:#DC2626;border-color:#FCA5A5;font-size:10px;padding:4px 10px">영구 삭제</button></div>`;
+        } else {
+          actions = '<div class="status-actions">';
+          if (prevStage) actions += `<button class="status-btn prev" onclick="updateOrderStatus(${safeArgs},'${prevStage.id}')">← ${prevStage.label}</button>`;
+          if (nextStage) actions += `<button class="status-btn next" onclick="updateOrderStatus(${safeArgs},'${nextStage.id}')">→ ${nextStage.label}</button>`;
+          actions += '</div>';
+        }
         const matSection = renderMaterialChecklist(o, true, uid, name, brand);
         const prodDate = o.productionStartDate ? `<div style="margin-top:8px;background:var(--bl);border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:var(--bd)">🏭 생산일정: <strong>${o.productionStartDate}</strong></div>` : '';
         return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div>${getStatusBadge(o.status)}</div><div class="oc-title">${o.description||'-'}</div><div class="oc-detail">${o.formula} · ${o.volume}ml × ${N(o.quantity)}개 · ${o.container}<br>향: ${o.scent||'미선택'} · 원료: ${o.extracts?o.extracts.join(', '):'없음'}</div>${renderStatusTimeline(o.status)}${matSection}${prodDate}${actions}</div>`;
       }).join('');
     }
+
+    // 대화 내역 섹션
+    const chatSnap = await db.collection('chatLogs').where('userId','==',uid).get();
+    const chats = []; chatSnap.forEach(doc => chats.push(doc.data()));
+    chats.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+    if (chats.length > 0) {
+      html += `<div style="margin-top:24px;font-size:16px;font-weight:700;margin-bottom:12px">대화 내역 (${chats.length}건)</div>`;
+      html += `<div class="admin-filter-bar"><input type="text" id="chatSearchInput" placeholder="대화 내용 검색..." oninput="filterStudentChats()"></div>`;
+      html += `<div id="studentChatList" style="max-height:500px;overflow-y:auto">`;
+      html += chats.map(c => {
+        const d = c.createdAt ? new Date(c.createdAt.seconds*1000).toLocaleString('ko-KR') : '-';
+        return `<div class="chat-log-item" style="padding:10px 12px;border-bottom:1px solid #f3f4f6">
+          <div style="font-size:9px;color:var(--g8);margin-bottom:4px">${d}</div>
+          <div style="font-size:12px;margin-bottom:3px"><strong style="color:var(--t)">Q.</strong> ${c.question||'-'}</div>
+          <div style="font-size:12px;color:var(--g6)"><strong style="color:#3730A3">A.</strong> ${c.answer||'-'}</div>
+        </div>`;
+      }).join('');
+      html += `</div>`;
+    }
+
     document.getElementById('adminContent').innerHTML = html;
+    window._studentChats = chats;
   } catch(e) { document.getElementById('adminContent').innerHTML = `<div style="color:#dc2626">오류: ${e.message}</div>`; }
+}
+
+function filterStudentChats() {
+  const q = (document.getElementById('chatSearchInput')?.value || '').toLowerCase().trim();
+  const list = document.getElementById('studentChatList');
+  if (!list || !window._studentChats) return;
+  const filtered = q ? window._studentChats.filter(c => (c.question||'').toLowerCase().includes(q) || (c.answer||'').toLowerCase().includes(q)) : window._studentChats;
+  list.innerHTML = filtered.length ? filtered.map(c => {
+    const d = c.createdAt ? new Date(c.createdAt.seconds*1000).toLocaleString('ko-KR') : '-';
+    return `<div class="chat-log-item" style="padding:10px 12px;border-bottom:1px solid #f3f4f6">
+      <div style="font-size:9px;color:var(--g8);margin-bottom:4px">${d}</div>
+      <div style="font-size:12px;margin-bottom:3px"><strong style="color:var(--t)">Q.</strong> ${c.question||'-'}</div>
+      <div style="font-size:12px;color:var(--g6)"><strong style="color:#3730A3">A.</strong> ${c.answer||'-'}</div>
+    </div>`;
+  }).join('') : `<div style="text-align:center;padding:2rem;color:var(--g6)">검색 결과가 없습니다</div>`;
 }
 
 async function updateOrderStatus(orderId, uid, name, brand, newStatus) {
@@ -1964,6 +2147,73 @@ async function toggleMaterial(orderId, uid, name, brand, materialId) {
 }
 
 // ════════════════════════════════════════════════════════════
+//  ❌  ORDER CANCEL / STUDENT DELETE
+// ════════════════════════════════════════════════════════════
+// 교육생: 취소 요청
+async function requestCancelOrder(orderId) {
+  if (!confirm('이 발주를 취소 요청하시겠습니까?\n관리자 승인 후 최종 취소됩니다.')) return;
+  try {
+    await db.collection('orders').doc(orderId).update({
+      status: 'cancel_requested',
+      cancelRequestedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert('취소 요청이 접수되었습니다.');
+    showDashboard();
+  } catch(e) { alert('취소 요청 실패: ' + e.message); }
+}
+
+// 관리자: 취소 승인
+async function approveCancelOrder(orderId, uid, name, brand) {
+  if (!confirm(`${name}님의 발주를 취소 승인하시겠습니까?`)) return;
+  try {
+    await db.collection('orders').doc(orderId).update({
+      status: 'cancelled',
+      cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await showStudentOrders(uid, name, brand);
+  } catch(e) { alert('취소 승인 실패: ' + e.message); }
+}
+
+// 관리자: 취소 거절
+async function rejectCancelOrder(orderId, uid, name, brand) {
+  if (!confirm(`${name}님의 취소 요청을 거절하시겠습니까?\n발주접수 상태로 복원됩니다.`)) return;
+  try {
+    await db.collection('orders').doc(orderId).update({
+      status: 'ordered',
+      cancelRejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await showStudentOrders(uid, name, brand);
+  } catch(e) { alert('취소 거절 실패: ' + e.message); }
+}
+
+// 관리자: 취소된 발주 영구 삭제
+async function deleteOrder(orderId, uid, name, brand) {
+  if (!confirm('이 발주를 영구 삭제하시겠습니까? 되돌릴 수 없습니다.')) return;
+  try {
+    await db.collection('orders').doc(orderId).delete();
+    await showStudentOrders(uid, name, brand);
+  } catch(e) { alert('삭제 실패: ' + e.message); }
+}
+
+// 관리자: 교육생 삭제 (inquiries는 보존)
+async function deleteStudent(uid, name) {
+  if (!confirm(`${name} 교육생을 삭제하시겠습니까?\n발주, 채팅 기록이 모두 삭제됩니다.\n(문의 답변 데이터는 보존됩니다)`)) return;
+  if (!confirm(`정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
+  try {
+    // 발주 삭제
+    const ordersSnap = await db.collection('orders').where('userId','==',uid).get();
+    for (const doc of ordersSnap.docs) await db.collection('orders').doc(doc.id).delete();
+    // 채팅 로그 삭제
+    const chatSnap = await db.collection('chatLogs').where('userId','==',uid).get();
+    for (const doc of chatSnap.docs) await db.collection('chatLogs').doc(doc.id).delete();
+    // 유저 문서 삭제
+    await db.collection('users').doc(uid).delete();
+    alert(`${name} 교육생이 삭제되었습니다.`);
+    renderAdminStudentList();
+  } catch(e) { alert('삭제 실패: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════════
 //  📨  ADMIN INQUIRY MANAGEMENT
 // ════════════════════════════════════════════════════════════
 async function renderAdminInquiries() {
@@ -1974,45 +2224,87 @@ async function renderAdminInquiries() {
     inquiries.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
 
     const pending = inquiries.filter(q => q.status === 'pending');
-    const answered = inquiries.filter(q => q.status === 'answered');
+    const followUp = inquiries.filter(q => q.followUp === true);
+    const answered = inquiries.filter(q => q.status === 'answered' || q.status === 'read');
 
-    let html = `<div style="font-size:18px;font-weight:700;margin-bottom:16px">문의 관리 (미답변 ${pending.length}건)</div>`;
+    let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:18px;font-weight:700">문의 관리 (미답변 ${pending.length}건${followUp.length ? ' · 후속 ' + followUp.length + '건' : ''})</div>
+    </div>`;
+    html += `<div class="admin-filter-bar"><input type="text" id="inquirySearch" placeholder="질문, 답변, 교육생 이름으로 검색..." oninput="filterInquiries()"></div>`;
 
     if (inquiries.length === 0) {
       html += `<div style="text-align:center;padding:2rem;color:var(--g6)">접수된 문의가 없습니다</div>`;
     } else {
+      html += `<div id="inquiryList">`;
+      if (followUp.length > 0) {
+        html += `<div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:8px">📌 후속 관리 필요</div>`;
+        html += followUp.map(q => renderInquiryCard(q)).join('');
+      }
       if (pending.length > 0) {
-        html += `<div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:8px">미답변</div>`;
+        html += `<div style="font-size:12px;font-weight:700;color:var(--t);margin:${followUp.length?'16px':'0'} 0 8px">미답변</div>`;
         html += pending.map(q => renderInquiryCard(q)).join('');
       }
       if (answered.length > 0) {
         html += `<div style="font-size:12px;font-weight:700;color:var(--g6);margin:16px 0 8px">답변 완료</div>`;
         html += answered.map(q => renderInquiryCard(q)).join('');
       }
+      html += `</div>`;
     }
     document.getElementById('adminContent').innerHTML = html;
+    window._allInquiries = inquiries;
   } catch(e) { document.getElementById('adminContent').innerHTML = `<div style="color:#dc2626">오류: ${e.message}</div>`; }
+}
+
+function filterInquiries() {
+  const q = (document.getElementById('inquirySearch')?.value || '').toLowerCase().trim();
+  if (!q) { renderAdminInquiries(); return; }
+  const filtered = (window._allInquiries || []).filter(i =>
+    (i.question||'').toLowerCase().includes(q) ||
+    (i.answer||'').toLowerCase().includes(q) ||
+    (i.userName||'').toLowerCase().includes(q) ||
+    (i.memo||'').toLowerCase().includes(q)
+  );
+  const list = document.getElementById('inquiryList');
+  if (list) {
+    list.innerHTML = filtered.length
+      ? `<div style="font-size:12px;font-weight:700;color:var(--g6);margin-bottom:8px">검색 결과 ${filtered.length}건</div>` + filtered.map(q => renderInquiryCard(q)).join('')
+      : `<div style="text-align:center;padding:2rem;color:var(--g6)">검색 결과가 없습니다</div>`;
+  }
 }
 
 function renderInquiryCard(q) {
   const date = q.createdAt ? new Date(q.createdAt.seconds*1000).toLocaleString('ko-KR') : '-';
   const isPending = q.status === 'pending';
-  const statusBadge = isPending
+  const hasFollowUp = q.followUp === true;
+  let statusBadge = isPending
     ? `<span class="oc-badge" style="background:#FEE2E2;color:#DC2626">미답변</span>`
     : `<span class="oc-badge" style="background:#D1FAE5;color:#065F46">답변완료</span>`;
+  if (hasFollowUp) statusBadge += `<span class="oc-badge" style="background:#FEF3C7;color:#92400E;margin-left:4px">후속 관리</span>`;
 
   let answerSection = '';
   if (isPending) {
-    answerSection = `<div style="margin-top:10px"><textarea id="answerInput_${q.id}" placeholder="답변을 입력하세요..." style="width:100%;min-height:60px;border:1px solid var(--ge);border-radius:var(--rsm);padding:8px 10px;font-size:12px;font-family:inherit;resize:vertical"></textarea><button class="btn primary" style="margin-top:6px;padding:6px 16px;font-size:12px" onclick="submitInquiryAnswer('${q.id}')">답변 전송</button></div>`;
+    answerSection = `<div style="margin-top:10px"><textarea id="answerInput_${q.id}" placeholder="답변을 입력하세요..." style="width:100%;min-height:60px;border:1px solid var(--ge);border-radius:var(--rsm);padding:8px 10px;font-size:12px;font-family:inherit;resize:vertical"></textarea><div style="display:flex;gap:6px;margin-top:6px"><button class="btn primary" style="padding:6px 16px;font-size:12px" onclick="submitInquiryAnswer('${q.id}')">답변 전송</button><button class="btn-sm" style="color:#9CA3AF;border-color:#D1D5DB;font-size:11px" onclick="deleteInquiry('${q.id}')">삭제</button></div></div>`;
   } else if (q.answer) {
     answerSection = `<div style="margin-top:8px;background:var(--tl);border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:var(--tmd)"><strong>답변:</strong> ${q.answer}</div>`;
   }
 
-  return `<div class="order-card" style="${isPending?'border-left:3px solid var(--t)':'opacity:.7'}">
+  // 메모 섹션
+  const memoVal = q.memo || '';
+  const memoSection = `<div style="margin-top:8px">
+    <textarea id="memo_${q.id}" placeholder="메모 (예: 내일 확인 필요, 샘플 발송 후 답변 등)" style="width:100%;min-height:36px;border:1px solid #E5E7EB;border-radius:var(--rsm);padding:6px 8px;font-size:11px;font-family:inherit;resize:vertical;background:#FAFAFA">${memoVal}</textarea>
+    <div style="display:flex;gap:6px;margin-top:4px;align-items:center">
+      <button class="btn-sm" style="font-size:10px;padding:3px 8px" onclick="saveMemo('${q.id}')">메모 저장</button>
+      <button class="btn-sm" style="font-size:10px;padding:3px 8px;${hasFollowUp?'background:#FEF3C7;border-color:#FCD34D;color:#92400E':'color:#9CA3AF;border-color:#D1D5DB'}" onclick="toggleFollowUp('${q.id}',${!hasFollowUp})">${hasFollowUp?'📌 후속 관리 해제':'📌 후속 관리 등록'}</button>
+    </div>
+  </div>`;
+
+  const borderStyle = hasFollowUp ? 'border-left:3px solid #F59E0B' : (isPending ? 'border-left:3px solid var(--t)' : 'opacity:.7');
+  return `<div class="order-card" style="${borderStyle}">
     <div class="oc-header"><div class="oc-date">${date}</div>${statusBadge}</div>
     <div style="font-size:12px;color:var(--g6);margin-bottom:4px">${q.userName||'-'} · ${q.userBrand||'-'} · ${q.userEmail||'-'}</div>
     <div class="oc-title">${q.question||'-'}</div>
     ${answerSection}
+    ${memoSection}
   </div>`;
 }
 
@@ -2026,6 +2318,107 @@ async function submitInquiryAnswer(inquiryId) {
     });
     await renderAdminInquiries();
   } catch(e) { alert('답변 전송 실패: ' + e.message); }
+}
+
+async function saveMemo(inquiryId) {
+  const memo = document.getElementById('memo_' + inquiryId)?.value?.trim() || '';
+  try {
+    await db.collection('inquiries').doc(inquiryId).update({ memo });
+    alert('메모가 저장되었습니다.');
+  } catch(e) { alert('메모 저장 실패: ' + e.message); }
+}
+
+async function toggleFollowUp(inquiryId, val) {
+  try {
+    await db.collection('inquiries').doc(inquiryId).update({ followUp: val });
+    await renderAdminInquiries();
+  } catch(e) { alert('후속 관리 변경 실패: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════════
+//  💬  ADMIN CHAT LOGS
+// ════════════════════════════════════════════════════════════
+async function renderAdminChatLogs() {
+  document.getElementById('adminContent').innerHTML = `<div class="ai-loading"><div class="spinner"></div> 대화 내역을 불러오는 중...</div>`;
+  try {
+    const usersSnap = await db.collection('users').where('role','==','student').get();
+    const students = []; usersSnap.forEach(doc => students.push({ uid:doc.id, ...doc.data() }));
+    const chatSnap = await db.collection('chatLogs').get();
+    const chatsByUser = {};
+    chatSnap.forEach(doc => {
+      const d = doc.data();
+      if (!chatsByUser[d.userId]) chatsByUser[d.userId] = [];
+      chatsByUser[d.userId].push(d);
+    });
+
+    let html = `<div style="font-size:18px;font-weight:700;margin-bottom:16px">대화 내역</div>`;
+    html += `<div class="admin-filter-bar"><input type="text" id="chatLogSearch" placeholder="질문, 답변, 교육생 이름으로 검색..." oninput="filterChatLogs()"></div>`;
+    html += `<div id="chatLogList">`;
+
+    if (students.length === 0) {
+      html += `<div style="text-align:center;padding:2rem;color:var(--g6)">교육생이 없습니다</div>`;
+    } else {
+      students.forEach(s => {
+        const chats = (chatsByUser[s.uid] || []).sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+        if (chats.length === 0) return;
+        html += `<div class="order-card" style="margin-bottom:12px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px">${s.name} <span style="font-size:11px;color:var(--t);font-weight:600">${s.brand}</span> <span style="font-size:10px;color:var(--g6);font-weight:400">(${chats.length}건)</span></div>
+          <div class="chat-log-toggle" style="cursor:pointer;font-size:11px;color:var(--tmd);font-weight:600" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.nextElementSibling.style.display==='none'?'▶ 대화 펼치기':'▼ 대화 접기'">▶ 대화 펼치기</div>
+          <div style="display:none;margin-top:8px;max-height:400px;overflow-y:auto;border:1px solid var(--ge);border-radius:var(--rsm);padding:10px">
+            ${chats.map(c => {
+              const d = c.createdAt ? new Date(c.createdAt.seconds*1000).toLocaleString('ko-KR') : '-';
+              return `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f3f4f6">
+                <div style="font-size:9px;color:var(--g8);margin-bottom:4px">${d}</div>
+                <div style="font-size:12px;margin-bottom:3px"><strong style="color:var(--t)">Q.</strong> ${c.question||'-'}</div>
+                <div style="font-size:12px;color:var(--g6)"><strong style="color:#3730A3">A.</strong> ${c.answer||'-'}</div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      });
+    }
+    html += `</div>`;
+    document.getElementById('adminContent').innerHTML = html;
+    window._chatLogStudents = students;
+    window._chatsByUser = chatsByUser;
+  } catch(e) { document.getElementById('adminContent').innerHTML = `<div style="color:#dc2626">오류: ${e.message}</div>`; }
+}
+
+function filterChatLogs() {
+  const q = (document.getElementById('chatLogSearch')?.value || '').toLowerCase().trim();
+  const list = document.getElementById('chatLogList');
+  if (!list || !window._chatLogStudents) return;
+  const students = window._chatLogStudents;
+  const chatsByUser = window._chatsByUser || {};
+  let html = '';
+  students.forEach(s => {
+    const chats = (chatsByUser[s.uid] || []).sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+    const filtered = q ? chats.filter(c => (c.question||'').toLowerCase().includes(q) || (c.answer||'').toLowerCase().includes(q) || (s.name||'').toLowerCase().includes(q)) : chats;
+    if (filtered.length === 0) return;
+    html += `<div class="order-card" style="margin-bottom:12px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">${s.name} <span style="font-size:11px;color:var(--t);font-weight:600">${s.brand}</span> <span style="font-size:10px;color:var(--g6);font-weight:400">(${filtered.length}건)</span></div>
+      <div style="margin-top:8px;max-height:400px;overflow-y:auto;border:1px solid var(--ge);border-radius:var(--rsm);padding:10px">
+        ${filtered.map(c => {
+          const d = c.createdAt ? new Date(c.createdAt.seconds*1000).toLocaleString('ko-KR') : '-';
+          return `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f3f4f6">
+            <div style="font-size:9px;color:var(--g8);margin-bottom:4px">${d}</div>
+            <div style="font-size:12px;margin-bottom:3px"><strong style="color:var(--t)">Q.</strong> ${c.question||'-'}</div>
+            <div style="font-size:12px;color:var(--g6)"><strong style="color:#3730A3">A.</strong> ${c.answer||'-'}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+  list.innerHTML = html || `<div style="text-align:center;padding:2rem;color:var(--g6)">검색 결과가 없습니다</div>`;
+}
+
+async function deleteInquiry(inquiryId) {
+  if (!confirm('이 문의를 삭제하시겠습니까?')) return;
+  try {
+    await db.collection('inquiries').doc(inquiryId).delete();
+    await renderAdminInquiries();
+    updateInquiryBadge();
+  } catch(e) { alert('삭제 실패: ' + e.message); }
 }
 
 async function updateInquiryBadge() {
@@ -2081,70 +2474,18 @@ function goHome() { goToDashboard(); }
 const CHATBOT_KNOWLEDGE = `당신은 "화창하다" 맞춤형 화장품 교육 플랫폼의 AI 도우미입니다.
 교육생(대표님)들의 질문에 친절하고 정확하게 답변합니다.
 
-[핵심 정보]
-- 화창하다: 맞춤형 화장품 브랜드 창업 교육 프로그램
-- 깡대표님(깡회장님): 메인 강사/대표
-- 미진실장님: 제조/개발 담당
-- 캐이 코치, 마크 팀장(조재훈): 마케팅 담당
-- 학습지원방: 1:4 카카오톡 방 (대표님+코치3명)
+[지식베이스]
+(현재 등록된 지식이 없습니다)
 
-[교육 관련]
-- 온라인 강의: 6개월 후 마감
-- 줌 피드백: 약 1년간 열어둠
-- 미션: 하루에 하나씩이라도 꾸준히 진행 권장
-- 카페: 화온연카페 (네이버 카페) - 가입 후 아이디 알려주면 등업
-- ChatGPT: 계정 로그인 필수, 유료버전 추천
-- 상세페이지: 망고보드로 제작 가능, 무료버전은 워터마크 있음
-- 상세페이지 사이즈: 가로 860px, 세로 자유
-- 움짤: 상세페이지에 직접 넣는 게 아니라 스마트스토어 업로드 시 함께 올림
+[주제 범위 - 최우선 규칙]
+- 이 챗봇은 화장품 교육, 발주, 제조, 원료, 용기, 디자인, 성분 등 "화창하다" 플랫폼과 관련된 질문에만 답변합니다.
+- 화장품/교육/발주와 무관한 질문(일상 대화, 날씨, 정치, 게임, 코딩, 일반 상식 등)에는 답변하지 말고 다음과 같이 안내하세요: "저는 화장품 교육 및 발주 관련 질문만 답변 가능합니다. 관련 질문을 입력해주세요!"
+- "어디까지 답변이 되는거야?", "뭘 물어볼 수 있어?" 같은 질문에는: "화장품 제조, 원료, 용기, 발주, 교육 과정 등에 대해 답변드릴 수 있습니다. 궁금한 점을 질문해주세요!"
 
-[발주/제조 관련]
-- 신제품 개발의뢰서: 거래처명=사업자등록증 상호(없으면 이름), 의뢰담당자=본인 성함, 사업자등록번호=본인 사업자
-- 타겟제품: 개발의뢰서와 함께 공장으로 택배 발송
-- 샘플링 기간: 보통 3~4주 소요
-- 샘플링 프로세스: 개발의뢰서 제출 → 샘플링 → 피드백 → 수정샘플링 → 확정
-- 제품 출시 비용: 300개 기준 약 300만원 미만 (단상자, 라벨지, 용기 모두 포함)
-- 개당 단가: 약 10,000원 이하 (최대 기준)
-- 유통기한: 보통 2~3년
-- 재생산: 4주 정도 소요, 보통 500~1000개 이상 주문
-- 견적서: 50% 선입금 → 생산완료 후 잔금
-- 소량수급 안되는 성분: 대체성분으로 진행 (연구팀 협의)
-
-[용기/포장 관련]
-- 실크인쇄: 1000개부터 가능 → 300개 생산, 나머지 보관 후 재생산 시 사용
-- 스티커 인쇄: 300개 소량 가능 → 첫 생산 시 추천 (리뉴얼 가능성 때문)
-- 용기테스트: 샘플 확정 후 진행, 적합판정 나와야 생산
-- 부자재: 용기/라벨지/단상자 → 각각 준비 후 공장으로 전달
-
-[디자인/출시 관련]
-- 문안: 라벨지, 단상자에 들어갈 필수항목 → 디자인 후 반드시 문안체크 받기 (오타, 광고법 위반 체크)
-- 바코드: EPS 파일 → 일러스트레이터로 열어야 함
-- 고객센터 번호: 아톡(aTalk) 앱으로 070 번호 생성 추천 (신뢰도 높음)
-- 제품명 주의: 전성분에 없는 성분을 제품명에 쓸 수 없음 (예: 콜라겐 없으면 "콜라겐 크림" 불가)
-- 기능성 표기: 효능효과 & 용법용량 표기 필수
-
-[향 관련]
-- 에센셜오일: 천연향, 알러지 성분(리날룰/리모넨) 포함될 수 있음
-- 합성향: 알러지프리 가능
-- 향 선택 팁: 올리브영에서 직접 비교해보기 추천
-- 향 농도 조절 가능
-- 향은 1가지로 가는 것 추천 (섞으면 역효과 가능)
-
-[성분 관련]
-- 바오밥나무씨오일 vs 추출물: 차이 있으나 추출물도 효과 괜찮음
-- 비타민C = 아스코빅애씨드
-- 콜라겐은 비건 성분이 아님
-- 달맞이꽃오일: 다소 비싸지만 효능 좋음 (시어버터 대비 약 1.5배)
-- 알갱이(스크럽): 소량수급 불가
-
-[발주서 접수/확인 요청]
-- "발주서 넣었습니다", "발주서 보냈습니다", "발주서 확인 부탁드립니다" 등 발주서 제출 관련 메시지:
-  → "네, 대표님! 발주서 접수 확인했습니다. 담당 부서에서 내용을 검토한 뒤, 영업일 기준 1~2일 이내에 순차적으로 연락드릴 예정입니다. 감사합니다!" 라고 답변
-- "발주서 1개 더 보냈습니다", "추가 발주서 보냈습니다" 등 추가 발주 메시지:
-  → "네, 대표님! 추가 발주서도 접수 확인했습니다. 함께 검토 후 안내드리겠습니다. 감사합니다!" 라고 답변
-
-[주의사항]
-- 반드시 제공된 지식베이스와 관리자 Q&A 내에서만 답변하세요. 지식에 없는 내용을 추측하거나 지어내지 마세요.
+[주의사항 - 매우 중요, 반드시 준수]
+- 반드시 제공된 지식베이스와 관리자 Q&A 내에서만 답변하세요. 지식에 없는 내용을 절대 추측하거나 지어내지 마세요.
+- 질문의 핵심 의도를 먼저 파악하세요. 지식베이스에 해당 의도에 정확히 대응하는 정보가 없으면, 비슷해 보이는 다른 정보를 끌어다 답변하지 말고 반드시 "[관리자 확인 필요]"를 출력하세요.
+- 지식베이스의 특정 문장과 직접적으로 연결되는 질문에만 답변하세요. 간접적으로 관련되거나 유추가 필요한 경우는 "[관리자 확인 필요]"입니다.
 - 답변이 확실하지 않으면 반드시 "[관리자 확인 필요]"라고 표시하세요. 엉뚱한 답변을 생성하는 것보다 관리자에게 넘기는 것이 훨씬 낫습니다.
 - 가격, 일정 등 구체적 숫자는 "대략적인 안내이며, 정확한 내용은 담당자 확인이 필요합니다"라고 안내
 - 친절하고 따뜻한 말투 사용 (존댓말)
@@ -2173,6 +2514,37 @@ function playNotificationSound() {
     gain2.gain.setValueAtTime(0.3, ctx.currentTime + 0.15);
     gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
     osc2.start(ctx.currentTime + 0.15); osc2.stop(ctx.currentTime + 0.6);
+  } catch(e) {}
+}
+
+// 발주 알림 소리 (문의 알림과 다른 3음 멜로디)
+function playOrderNotificationSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // 첫번째 음: 낮은 C (523Hz)
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.connect(gain1); gain1.connect(ctx.destination);
+    osc1.frequency.value = 523; osc1.type = 'triangle';
+    gain1.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+    osc1.start(ctx.currentTime); osc1.stop(ctx.currentTime + 0.25);
+    // 두번째 음: E (659Hz)
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.connect(gain2); gain2.connect(ctx.destination);
+    osc2.frequency.value = 659; osc2.type = 'triangle';
+    gain2.gain.setValueAtTime(0.4, ctx.currentTime + 0.2);
+    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+    osc2.start(ctx.currentTime + 0.2); osc2.stop(ctx.currentTime + 0.45);
+    // 세번째 음: 높은 G (784Hz)
+    const osc3 = ctx.createOscillator();
+    const gain3 = ctx.createGain();
+    osc3.connect(gain3); gain3.connect(ctx.destination);
+    osc3.frequency.value = 784; osc3.type = 'triangle';
+    gain3.gain.setValueAtTime(0.4, ctx.currentTime + 0.4);
+    gain3.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+    osc3.start(ctx.currentTime + 0.4); osc3.stop(ctx.currentTime + 0.8);
   } catch(e) {}
 }
 
@@ -2212,6 +2584,48 @@ function startInquiryListener() {
 
 function stopInquiryListener() {
   if (inquiryListener) { inquiryListener(); inquiryListener = null; }
+}
+
+// 관리자: 실시간 발주 감시
+let orderListener = null;
+function startOrderListener() {
+  if (orderListener) orderListener();
+  let firstLoad = true;
+  orderListener = db.collection('orders').where('adminViewed','==',false)
+    .onSnapshot(snap => {
+      // 미확인 발주 배지 업데이트
+      const count = snap.size;
+      const badge = document.getElementById('orderBadge');
+      if (badge) { badge.style.display = count > 0 ? 'inline' : 'none'; badge.textContent = count; }
+      if (firstLoad) { firstLoad = false; return; }
+      // 새 발주가 들어왔을 때
+      snap.docChanges().forEach(change => {
+        if (change.type === 'added') {
+          const data = change.doc.data();
+          playOrderNotificationSound();
+          showBrowserNotification('📦 새 발주 접수', `${data.userName || '교육생'} (${data.userBrand || ''}): ${data.description || ''}`);
+          // 교육생 관리 탭이 보이고 있으면 자동 새로고침
+          const grid = document.getElementById('studentGrid');
+          if (grid) renderAdminStudentList();
+        }
+      });
+    });
+}
+
+function stopOrderListener() {
+  if (orderListener) { orderListener(); orderListener = null; }
+}
+
+async function updateOrderBadge() {
+  try {
+    const snap = await db.collection('orders').where('adminViewed','==',false).get();
+    const badge = document.getElementById('orderBadge');
+    if (badge) {
+      const count = snap.size;
+      badge.style.display = count > 0 ? 'inline' : 'none';
+      badge.textContent = count;
+    }
+  } catch(e) { /* ignore */ }
 }
 
 // 교육생: 미확인 답변 체크
@@ -2343,6 +2757,7 @@ function showChatbotButton() {
   requestNotificationPermission();
   if (currentUserData?.role === 'admin') {
     startInquiryListener();
+    startOrderListener();
   } else {
     startAnswerListener();
     checkPendingAnswers();
@@ -2354,6 +2769,7 @@ function hideChatbotButton() {
   document.getElementById('chatbotPanel').classList.remove('open');
   chatbotVisible = false;
   stopInquiryListener();
+  stopOrderListener();
   stopAnswerListener();
 }
 
@@ -2417,6 +2833,11 @@ async function sendChatMessage() {
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
+  if (text.length < 5) {
+    addUserMessage(text);
+    addBotMessage('혹시 오타나 실수는 아닌지 확인해주세요. 다시 작성해주시면 정확하게 도움드리겠습니다!');
+    return;
+  }
   addUserMessage(text);
   document.getElementById('cbSendBtn').disabled = true;
   showTyping();
@@ -2427,7 +2848,7 @@ async function sendChatMessage() {
 
     const history = chatMessages.slice(-10).map(m => (m.role==='user'?'교육생':'AI도우미') + ': ' + m.text).join('\n');
     const learnedQA = await getLearnedQA();
-    const prompt = CHATBOT_KNOWLEDGE + learnedQA + '\n\n[대화 기록]\n' + history + '\n\n위 교육생의 마지막 메시지에 답변하세요.\n중요 규칙:\n1. 반드시 위 지식베이스에 있는 내용만으로 답변하세요.\n2. 지식에 없는 내용은 절대 추측하거나 지어내지 마세요.\n3. 모르거나 애매하면 반드시 "[관리자 확인 필요]"라고 표시하세요.\n4. 답변만 출력하세요.';
+    const prompt = CHATBOT_KNOWLEDGE + learnedQA + '\n\n[대화 기록]\n' + history + '\n\n위 교육생의 마지막 메시지에 답변하세요.\n\n중요 규칙 (절대 위반 금지, 순서대로 적용):\n1. 먼저 질문이 화장품/교육/발주 관련인지 판단하세요. 무관한 질문이면 "[관리자 확인 필요]"를 쓰지 말고 "저는 화장품 교육 및 발주 관련 질문만 답변 가능합니다. 관련 질문을 입력해주세요!"라고만 답변하세요.\n2. 관련 질문이라면, 지식베이스에 직접 대응하는 정보가 있는 경우에만 답변하세요.\n3. 지식베이스에 정확히 매칭되는 정보가 없으면 반드시 "[관리자 확인 필요]"를 출력하세요.\n4. 비슷한 다른 정보를 가져다 답변하거나, 질문 의도와 다른 맥락의 정보를 조합하는 것은 금지입니다.\n5. 답변만 출력하세요.';
 
     const res = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/' + CONFIG.GEMINI_MODEL + ':generateContent?key=' + apiKey,
@@ -2442,7 +2863,8 @@ async function sendChatMessage() {
     const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     if (!answer) { addBotMessage('답변을 드리기 어려운 질문입니다. 관리자에게 문의하겠습니다.', true); }
     else {
-      const needsEscalation = answer.includes('[관리자 확인 필요]') || answer.includes('확인이 필요');
+      const isOffTopic = answer.includes('관련 질문만 답변 가능') || answer.includes('관련 질문을 입력');
+      const needsEscalation = !isOffTopic && (answer.includes('[관리자 확인 필요]') || answer.includes('확인이 필요'));
       addBotMessage(answer.replace('[관리자 확인 필요]', '').trim(), needsEscalation);
     }
 
