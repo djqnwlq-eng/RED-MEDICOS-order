@@ -906,7 +906,7 @@ const DEFAULT_EXTRACTS = [
   { id:10, name:'베르가모트오일',   category:'에센셜오일', price:800,  tags:['진정','항균','시트러스','톤업','지성','트러블','모공','상쾌함'], inci:'' },
   { id:11, name:'레몬오일',         category:'에센셜오일', price:700,  tags:['미백','상쾌함','시트러스','톤업','색소','각질','지성','모공'], inci:'' },
   { id:12, name:'페퍼민트오일',     category:'에센셜오일', price:375,  tags:['쿨링','두피','상쾌함','가려움','비듬','지성','혈행','탈모'], inci:'' },
-  { id:13, name:'병풀추출물',           category:'추출물', price:70,  tags:['진정','재생','민감성','상처','홍조','트러블','장벽','얼굴'], inci:'' },
+  { id:13, name:'병풀추출물',           category:'추출물', price:70,  tags:['진정','재생','민감성','상처','홍조','트러블','장벽','얼굴'], inci:'', detail:{ eng:'Centella Asiatica', effects:['피부 119: 자극받아 붉어진 피부를 즉각적으로 잠재웁니다.','손상 피부 복구: 마데카소사이드 성분이 무너진 피부 장벽을 재생합니다.','탄력 부스팅: 콜라겐 합성을 도와 느슨해진 피부에 힘을 줍니다.','트러블 진정: 항염 작용으로 성난 여드름과 염증을 완화합니다.','흔적 지우개: 색소 침착을 예방하여 깨끗한 피부 톤을 유지합니다.'], positions:['시카/재생 라인 (크림, 앰플)','긴급 진정 라인 (마스크팩, 미스트)','트러블 케어 라인 (스팟 패치)'] } },
   { id:14, name:'약모밀추출물',         category:'추출물', price:75,  tags:['진정','항염','민감성','홍조','가려움','아토피','트러블','얼굴'], inci:'' },
   { id:15, name:'알로에베라잎즙',       category:'추출물', price:35,  tags:['진정','보습','쿨링','건성','상처','얼굴','바디','민감성'], inci:'' },
   { id:16, name:'율무씨수',             category:'추출물', price:19.5,tags:['보습','미백','톤업','색소','수분','건성','얼굴','영양'], inci:'' },
@@ -992,7 +992,7 @@ function isFullyInBase(extract, formulaId) {
   return subs.length > 0 && subs.every(s => base.includes(s));
 }
 
-const EXTRACT_VERSION = 8;
+const EXTRACT_VERSION = 9;
 const CAT_DISPLAY = {'에센셜오일':'에센셜 오일', '특허증활용가능':'특허증 활용가능'};
 function catLabel(c) { return CAT_DISPLAY[c] || c; }
 let extracts;
@@ -1318,12 +1318,12 @@ function buildStep3(aiLoading=false) {
     if (inBase) {
       const badge = `<span class="cat-badge cat-base">전성분</span>`;
       const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
-      return `<div class="chip sel base-chip" data-name="${e.name}">${badge}${e.name}&nbsp;<span style="color:#065F46;font-size:10px;font-weight:600">기본 포함</span>${tooltip}</div>`;
+      return `<div class="chip sel base-chip" data-name="${e.name}" onmouseover="showExtractDetail('${e.name.replace(/'/g,"\\'")}')">${badge}${e.name}&nbsp;<span style="color:#065F46;font-size:10px;font-weight:600">기본 포함</span>${tooltip}</div>`;
     }
     const badge = `<span class="cat-badge cat-${e.category||'추출물'}">${catLabel(e.category||'추출물')}</span>`;
     const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
     const safeName = e.name.replace(/'/g, "\\'");
-    return `<div class="chip ${STATE.selExtracts[e.name]!==undefined?'sel':''}" data-name="${e.name}" onclick="toggleExtract('${safeName}',${e.price})">${badge}${e.name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${tooltip}</div>`;
+    return `<div class="chip ${STATE.selExtracts[e.name]!==undefined?'sel':''}" data-name="${e.name}" onclick="toggleExtract('${safeName}',${e.price})" onmouseover="showExtractDetail('${safeName}')">${badge}${e.name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${tooltip}</div>`;
   }).join('');
   const selKeys = Object.keys(STATE.selExtracts);
   const isDel = STATE.delegateExtracts;
@@ -1346,12 +1346,12 @@ function buildAIChips() {
     if (inBase) {
       const badge = `<span class="cat-badge cat-base">전성분</span>`;
       const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
-      return `<div class="chip ai-chip sel base-chip" data-name="${name}"><span style="font-size:9px;font-weight:800;color:var(--t);margin-right:2px">AI</span>${badge}${name}&nbsp;<span style="color:#065F46;font-size:10px;font-weight:600">기본 포함</span>${tooltip}</div>`;
+      return `<div class="chip ai-chip sel base-chip" data-name="${name}" onmouseover="showExtractDetail('${name.replace(/'/g,"\\'")}')">${badge}${name}&nbsp;<span style="color:#065F46;font-size:10px;font-weight:600">기본 포함</span>${tooltip}</div>`;
     }
     const safeName = name.replace(/'/g, "\\'");
     const badge = `<span class="cat-badge cat-${e.category||'추출물'}">${catLabel(e.category||'추출물')}</span>`;
     const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
-    return `<div class="chip ai-chip ${STATE.selExtracts[name]!==undefined?'sel':''}" data-name="${name}" onclick="toggleExtract('${safeName}',${e.price})"><span style="font-size:9px;font-weight:800;color:var(--t);margin-right:2px">AI</span>${badge}${name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${tooltip}</div>`;
+    return `<div class="chip ai-chip ${STATE.selExtracts[name]!==undefined?'sel':''}" data-name="${name}" onclick="toggleExtract('${safeName}',${e.price})" onmouseover="showExtractDetail('${safeName}')"><span style="font-size:9px;font-weight:800;color:var(--t);margin-right:2px">AI</span>${badge}${name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${tooltip}</div>`;
   }).join('');
 }
 
@@ -1510,6 +1510,32 @@ function toggleExtract(name, price) {
   const pd = document.getElementById('priceDisplay'); if (pd) pd.textContent = N(getUnitCost()) + '원';
   const sl = document.getElementById('selectedList'); if (sl) sl.textContent = keys.length ? keys.join(', ') : '원료 미선택';
   const pl = document.querySelector('.pb-label'); if (pl && !STATE.delegateExtracts) pl.textContent = '선택한 원료 ' + keys.length + '개';
+}
+
+function showExtractDetail(name) {
+  const el = document.getElementById('guidePanelContent'); if (!el) return;
+  const e = DEFAULT_EXTRACTS.find(x => x.name === name) || extracts.find(x => x.name === name);
+  if (!e) return;
+
+  if (e.detail) {
+    let html = `<div class="gp-section"><div class="gp-section-title">${e.name}</div>`;
+    if (e.detail.eng) html += `<div style="font-size:11px;color:var(--g6);margin-bottom:8px">${e.detail.eng}</div>`;
+    html += `<div class="gp-text"><ul>${e.detail.effects.map(ef => `<li>${ef}</li>`).join('')}</ul></div></div>`;
+    if (e.detail.positions && e.detail.positions.length) {
+      html += `<div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">주요 포지션</div><div class="gp-text"><ul>${e.detail.positions.map(p => `<li>${p}</li>`).join('')}</ul></div></div>`;
+    }
+    el.innerHTML = html;
+  } else {
+    // detail 없으면 태그 기반 간략 표시
+    const tagStr = e.tags.length ? e.tags.join(', ') : '-';
+    const priceStr = e.price > 0 ? `+${N(e.price)}원` : '무료';
+    let html = `<div class="gp-section"><div class="gp-section-title">${e.name}</div>`;
+    html += `<div style="font-size:11px;color:var(--g6);margin-bottom:6px">${catLabel(e.category)} · ${priceStr}</div>`;
+    html += `<div class="gp-text">키워드: ${tagStr}</div>`;
+    if (e.inci) html += `<div style="margin-top:6px;font-size:10px;color:var(--g8)">하위 성분: ${e.inci}</div>`;
+    html += `</div>`;
+    el.innerHTML = html;
+  }
 }
 
 function updateVolume(v) { STATE.volume = parseInt(v); STATE.quantity = getMOQ(STATE.volume); document.getElementById('stepContent').innerHTML = buildStep4(); }
