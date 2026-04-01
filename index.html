@@ -219,6 +219,11 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
 .cat-badge.cat-base { background:#065F46; color:#fff; }
 .chip.base-chip { background:#D1FAE5 !important; border-color:#6EE7B7 !important; cursor:default; opacity:1 !important; }
 .chip.base-chip:hover { transform:none; box-shadow:none; }
+.chip.base-chip.patent-chip { border-left:3px solid #7C3AED !important; background:linear-gradient(135deg, #F3E8FF 0%, #D1FAE5 40%) !important; border-color:#A78BFA !important; }
+.cat-badge.cat-patent { background:#7C3AED; color:#fff; font-size:8px; letter-spacing:.05em; }
+.patent-hover-info { display:none; position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); background:linear-gradient(135deg, #6B21A8, #7C3AED); color:#fff; font-size:11px; padding:10px 14px; border-radius:10px; white-space:nowrap; z-index:100; box-shadow:0 4px 12px rgba(124,58,237,.3); line-height:1.5; text-align:center; }
+.patent-hover-info::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:6px solid transparent; border-top-color:#7C3AED; }
+.chip:hover .patent-hover-info { display:block; }
 .chip .inci-tooltip {
   display:none; position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%);
   background:#1F2937; color:#fff; font-size:11px; padding:8px 12px; border-radius:8px;
@@ -396,17 +401,29 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
 
 /* ─── CHATBOT WIDGET ─── */
 #chatbotToggle {
-  position:fixed; bottom:24px; right:24px; z-index:90;
-  width:56px; height:56px; border-radius:50%;
-  background:var(--t); color:#fff; border:none; cursor:pointer;
-  box-shadow:0 4px 16px rgba(200,16,46,.3);
-  display:flex; align-items:center; justify-content:center;
-  font-size:24px; transition:all .2s;
+  position:fixed; bottom:0; right:32px; z-index:90;
+  width:52px; height:auto; border-radius:0; background:none;
+  color:#fff; border:none; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center;
+  font-size:20px; transition:all .2s; padding:0;
+  filter:drop-shadow(0 2px 8px rgba(200,16,46,.3));
 }
-#chatbotToggle:hover { transform:scale(1.08); box-shadow:0 6px 20px rgba(200,16,46,.4); }
-#chatbotToggle .badge { position:absolute; top:-2px; right:-2px; width:18px; height:18px; border-radius:50%; background:#dc2626; color:#fff; font-size:10px; font-weight:800; display:none; align-items:center; justify-content:center; }
+#chatbotToggle .cb-screen {
+  width:52px; height:46px; background:var(--t); border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+}
+#chatbotToggle .cb-pole {
+  width:6px; height:22px; background:#1F2937; border-radius:0 0 2px 2px;
+}
+#chatbotToggle .cb-base {
+  width:28px; height:4px; background:#1F2937; border-radius:2px;
+  margin-bottom:0;
+}
+#chatbotToggle:hover { filter:drop-shadow(0 4px 14px rgba(200,16,46,.45)); transform:translateY(-2px); }
+#chatbotToggle .badge { position:absolute; top:-4px; right:-4px; width:18px; height:18px; border-radius:50%; background:#dc2626; color:#fff; font-size:10px; font-weight:800; display:none; align-items:center; justify-content:center; z-index:1; }
 #chatbotPanel {
-  position:fixed; bottom:92px; right:24px; z-index:91;
+  position:fixed; bottom:84px; right:24px; z-index:91;
   width:380px; max-height:520px; background:#fff;
   border-radius:var(--rlg); box-shadow:0 8px 40px rgba(0,0,0,.15);
   border:1px solid var(--ge); display:none; flex-direction:column;
@@ -623,8 +640,9 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
 
 <!-- ════ CHATBOT WIDGET ════ -->
 <button id="chatbotToggle" onclick="toggleChatbot()" style="display:none" title="도우미">
-  💬
-  <span class="badge" id="cbBadge"></span>
+  <div class="cb-screen">💬<span class="badge" id="cbBadge"></span></div>
+  <div class="cb-pole"></div>
+  <div class="cb-base"></div>
 </button>
 <div id="chatbotPanel">
   <div class="cb-header">
@@ -1262,6 +1280,7 @@ function selectScent(name, price) {
     if (name !== '무향' && price > 0) STATE.selExtracts[name] = price;
   }
   document.getElementById('stepContent').innerHTML = buildStepScent();
+  updateGuidePanel(6);
 }
 
 function buildFullIngredientsList() {
@@ -1316,15 +1335,20 @@ function buildStep3(aiLoading=false) {
   });
   const allChips = sorted.map(e => {
     const inBase = isFullyInBase(e, STATE.formula);
+    const isPatent = e.category === '특허증활용가능';
     if (inBase) {
       const badge = `<span class="cat-badge cat-base">전성분</span>`;
+      const patentBadge = isPatent ? `<span class="cat-badge cat-patent">특허출원</span>` : '';
+      const patentTooltip = isPatent ? `<span class="patent-hover-info">📋 특허출원 원료<br>상세페이지에 특허증 활용 가능</span>` : '';
       const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
-      return `<div class="chip sel base-chip" data-name="${e.name}" onmouseover="showExtractDetail('${e.name.replace(/'/g,"\\'")}')" onmouseleave="updateGuidePanel(5)">${badge}${e.name}&nbsp;<span style="color:#065F46;font-size:10px;font-weight:600">기본 포함</span>${tooltip}</div>`;
+      return `<div class="chip sel base-chip${isPatent?' patent-chip':''}" data-name="${e.name}" onmouseover="showExtractDetail('${e.name.replace(/'/g,"\\'")}')" onmouseleave="updateGuidePanel(5)">${badge}${patentBadge}${e.name}&nbsp;<span style="color:#065F46;font-size:10px;font-weight:600">기본 포함</span>${patentTooltip}${tooltip}</div>`;
     }
     const badge = `<span class="cat-badge cat-${e.category||'추출물'}">${catLabel(e.category||'추출물')}</span>`;
+    const patentBadge2 = isPatent ? `<span class="cat-badge cat-patent">특허출원</span>` : '';
+    const patentTooltip2 = isPatent ? `<span class="patent-hover-info">📋 특허출원 원료<br>상세페이지에 특허증 활용 가능</span>` : '';
     const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
     const safeName = e.name.replace(/'/g, "\\'");
-    return `<div class="chip ${STATE.selExtracts[e.name]!==undefined?'sel':''}" data-name="${e.name}" onclick="toggleExtract('${safeName}',${e.price})" onmouseover="showExtractDetail('${safeName}')" onmouseleave="updateGuidePanel(5)">${badge}${e.name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${tooltip}</div>`;
+    return `<div class="chip ${STATE.selExtracts[e.name]!==undefined?'sel':''}" data-name="${e.name}" onclick="toggleExtract('${safeName}',${e.price})" onmouseover="showExtractDetail('${safeName}')" onmouseleave="updateGuidePanel(5)">${badge}${patentBadge2}${e.name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${patentTooltip2}${tooltip}</div>`;
   }).join('');
   const selKeys = Object.keys(STATE.selExtracts);
   const isDel = STATE.delegateExtracts;
@@ -1344,15 +1368,20 @@ function buildAIChips() {
     const e = extracts.find(x => x.name === name);
     if (!e) return '';
     const inBase = isFullyInBase(e, STATE.formula);
+    const isPatent = e.category === '특허증활용가능';
     if (inBase) {
       const badge = `<span class="cat-badge cat-base">전성분</span>`;
+      const patentBadge = isPatent ? `<span class="cat-badge cat-patent">특허출원</span>` : '';
+      const patentTooltip = isPatent ? `<span class="patent-hover-info">📋 특허출원 원료<br>상세페이지에 특허증 활용 가능</span>` : '';
       const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
-      return `<div class="chip ai-chip sel base-chip" data-name="${name}" onmouseover="showExtractDetail('${name.replace(/'/g,"\\'")}')" onmouseleave="updateGuidePanel(5)">${badge}${name}&nbsp;<span style="color:#065F46;font-size:10px;font-weight:600">기본 포함</span>${tooltip}</div>`;
+      return `<div class="chip ai-chip sel base-chip${isPatent?' patent-chip':''}" data-name="${name}" onmouseover="showExtractDetail('${name.replace(/'/g,"\\'")}')" onmouseleave="updateGuidePanel(5)">${badge}${patentBadge}${name}&nbsp;<span style="color:#065F46;font-size:10px;font-weight:600">기본 포함</span>${patentTooltip}${tooltip}</div>`;
     }
     const safeName = name.replace(/'/g, "\\'");
     const badge = `<span class="cat-badge cat-${e.category||'추출물'}">${catLabel(e.category||'추출물')}</span>`;
+    const patentBadge3 = isPatent ? `<span class="cat-badge cat-patent">특허출원</span>` : '';
+    const patentTooltip3 = isPatent ? `<span class="patent-hover-info">📋 특허출원 원료<br>상세페이지에 특허증 활용 가능</span>` : '';
     const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
-    return `<div class="chip ai-chip ${STATE.selExtracts[name]!==undefined?'sel':''}" data-name="${name}" onclick="toggleExtract('${safeName}',${e.price})" onmouseover="showExtractDetail('${safeName}')" onmouseleave="updateGuidePanel(5)"><span style="font-size:9px;font-weight:800;color:var(--t);margin-right:2px">AI</span>${badge}${name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${tooltip}</div>`;
+    return `<div class="chip ai-chip ${STATE.selExtracts[name]!==undefined?'sel':''}" data-name="${name}" onclick="toggleExtract('${safeName}',${e.price})" onmouseover="showExtractDetail('${safeName}')" onmouseleave="updateGuidePanel(5)"><span style="font-size:9px;font-weight:800;color:var(--t);margin-right:2px">AI</span>${badge}${patentBadge3}${name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${patentTooltip3}${tooltip}</div>`;
   }).join('');
 }
 
@@ -1480,13 +1509,14 @@ function selectFormulaCategory(catId) {
   const chips = cat.subs.map(s => `<button class="sub-chip ${STATE.formula===s.id?'active':''}" data-id="${s.id}" onclick="selectFormulaSub('${s.id}')">${s.name}</button>`).join('');
   document.getElementById('formulaSubArea').innerHTML = `<div class="formula-sub-area"><div class="formula-sub-label">${formulaIcon(cat.icon)} ${cat.name} 세부 타입을 선택하세요</div><div class="formula-sub-chips">${chips}</div></div>`;
   if (cat.subs.length === 1) selectFormulaSub(cat.subs[0].id);
-  else { const btn = document.getElementById('btnNext2'); if (btn) btn.setAttribute('disabled',''); }
+  else { const btn = document.getElementById('btnNext2'); if (btn) btn.setAttribute('disabled',''); updateGuidePanel(2); }
 }
 
 function selectFormulaSub(subId) {
   STATE.formula = subId; STATE.container = null;
   document.querySelectorAll('.sub-chip').forEach(c => c.classList.toggle('active', c.dataset.id === subId));
   const btn = document.getElementById('btnNext2'); if (btn) btn.removeAttribute('disabled');
+  updateGuidePanel(2);
 }
 
 function selectContainer(id) {
@@ -1494,12 +1524,14 @@ function selectContainer(id) {
   document.querySelectorAll('.container-grid .sel-card').forEach(c => c.classList.remove('active'));
   event.currentTarget.classList.add('active');
   const nextBtn = document.querySelector('.btn-row .btn.primary'); if (nextBtn) nextBtn.removeAttribute('disabled');
+  updateGuidePanel(3);
 }
 
 function toggleDelegate() {
   STATE.delegateExtracts = !STATE.delegateExtracts;
   if (STATE.delegateExtracts) STATE.selExtracts = {};
   document.getElementById('stepContent').innerHTML = buildStep3();
+  updateGuidePanel(5);
 }
 
 function toggleExtract(name, price) {
@@ -1511,6 +1543,7 @@ function toggleExtract(name, price) {
   const pd = document.getElementById('priceDisplay'); if (pd) pd.textContent = N(getUnitCost()) + '원';
   const sl = document.getElementById('selectedList'); if (sl) sl.textContent = keys.length ? keys.join(', ') : '원료 미선택';
   const pl = document.querySelector('.pb-label'); if (pl && !STATE.delegateExtracts) pl.textContent = '선택한 성분 ' + keys.length + '개';
+  updateGuidePanel(5);
 }
 
 function showExtractDetail(name) {
@@ -1576,17 +1609,99 @@ async function goToStep(n) {
   if (n === 5) loadAIRecommendations();
 }
 
-function updateGuidePanel(step) {
-  const el = document.getElementById('guidePanelContent'); if (!el) return;
+function getStep1Guide() {
   const hasSpecialFn = STATE.functions.some(f => f.includes('탈모') || f.includes('자외선'));
   const factoryNotice = hasSpecialFn ? `<div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title" style="color:#DC2626">제조 안내</div><div class="gp-text" style="color:#991B1B;font-weight:600">탈모·자외선차단 기능성 선택 시, 화장품 제조업자는 변경될 수 있습니다.</div></div>` : '';
+  const fnCount = STATE.functions.length;
+
+  if (fnCount === 0) {
+    // 기능성 미선택: 작성 팁 + 기능성 설명
+    return `<div class="gp-section"><div class="gp-section-title">작성 팁</div><div class="gp-text">원하는 효능, 타겟 고객, 피부 고민을 구체적으로 적을수록 AI가 더 정확한 원료를 추천합니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">기능성 화장품이란?</div><div class="gp-text"><ul><li>주름개선·미백·자외선차단 등 식약처 인증 기능성을 부여할 수 있습니다.</li><li>기능성 선택 시 패키지 및 상세페이지에 활용 가능</li><li><strong>씻어내는 제품</strong>(바디워시, 샴푸 등)에는 기능성이 실효성이 없거나 적용 불가합니다.</li></ul></div></div>`;
+  }
+  // 기능성 선택됨: 선택된 기능성 + 비용 + 제조 안내
+  const costText = fnCount === 1 ? '40,000원' : '65,000원';
+  return `<div class="gp-section"><div class="gp-section-title">기능성 선택 완료</div><div class="gp-text">현재 <strong>${fnCount}개</strong> 기능성이 선택되었습니다.<br>추가 비용: <strong style="color:var(--t)">${costText}</strong></div></div>${factoryNotice}<div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">참고</div><div class="gp-text"><ul><li><strong>주름기능성과 미백기능성</strong>만 중복 선택이 가능합니다.</li><li><strong>씻어내는 제품</strong>에는 기능성이 실효성이 없거나 적용 불가합니다.</li></ul></div></div>`;
+}
+
+function getStep2Guide() {
+  const selCat = typeof getSelectedCategory === 'function' ? getSelectedCategory() : null;
+  const formula = typeof getFormula === 'function' ? getFormula() : null;
+
+  // 제형 영상 매핑 (카테고리 ID → 파일명)
+  const videoMap = {
+    'cream': 'cream.mp4',
+  };
+
+  if (!selCat) {
+    return `<div class="gp-section"><div class="gp-section-title">제품 유형 선택</div><div class="gp-text">제품 유형을 선택하면 세부 제형(텍스처)을 고를 수 있습니다.<br><br>선택한 유형에 따라 <strong>용기 옵션이 자동으로 필터링</strong>됩니다.</div></div>`;
+  }
+
+  const videoFile = videoMap[selCat.id];
+  const videoHtml = videoFile ? `<div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">${selCat.name} 제형 미리보기</div><video src="videos/${videoFile}" autoplay loop muted playsinline style="width:100%;border-radius:8px;margin-top:6px"></video></div>` : '';
+
+  if (!formula) {
+    return `<div class="gp-section"><div class="gp-section-title">${selCat.name} 선택</div><div class="gp-text"><strong>${selCat.name}</strong> 카테고리의 세부 제형(텍스처)을 선택해주세요.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">안내</div><div class="gp-text">세부 제형에 따라 적합한 용기가 달라집니다.</div></div>${videoHtml}`;
+  }
+  return `<div class="gp-section"><div class="gp-section-title">제형 선택 완료</div><div class="gp-text"><strong>${formula.name}</strong>이(가) 선택되었습니다.<br><br>다음 단계에서 이 제형에 적합한 용기를 선택할 수 있습니다.</div></div>${videoHtml}`;
+}
+
+function getStep3Guide() {
+  const cid = STATE.container;
+  const c = cid ? CONTAINERS.find(x => x.id === cid) : null;
+
+  if (!c) {
+    return `<div class="gp-section"><div class="gp-section-title">용기 선택 안내</div><div class="gp-text"><ul><li>선택한 제품 유형에 적합한 용기만 표시됩니다.</li><li><strong>추천</strong> 뱃지가 붙은 용기가 해당 제형에 가장 적합합니다.</li><li>용기는 <strong>불투명과 반투명</strong>을 권장합니다.</li></ul></div></div>`;
+  }
+  const imgHtml = `<img src="images/containers/${cid}.jpeg" alt="${c.name}" style="width:100%;border-radius:8px;margin-top:6px" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='images/containers/${cid}.png'}else{this.style.display='none'}">`;
+  return `<div class="gp-section"><div class="gp-section-title">${c.name} 용기</div><div class="gp-text">${c.desc}</div>${imgHtml}</div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">안내</div><div class="gp-text"><ul><li><strong>추천</strong> 뱃지가 붙은 용기가 해당 제형에 가장 적합합니다.</li><li>용기는 <strong>불투명과 반투명</strong>을 권장합니다.</li></ul></div></div>`;
+}
+
+function getStep5Guide() {
+  const isDel = STATE.delegateExtracts;
+  const selCount = Object.keys(STATE.selExtracts).length;
+
+  if (isDel) {
+    // 위임 선택: 위임 안내
+    return `<div class="gp-section"><div class="gp-section-title">제조 전문가 위임</div><div class="gp-text">입력하신 개발 목표와 제형을 바탕으로<br><strong>제조 연구팀이 최적의 원료를 직접 배합</strong>해드립니다.<br><br>성분 선택이 어려우시다면 위임을 추천합니다.</div></div>`;
+  }
+  if (selCount === 0) {
+    // 직접 선택 모드, 미선택: 선택 안내 + 카테고리
+    return `<div class="gp-section"><div class="gp-section-title">컨셉성분 선택 안내</div><div class="gp-text"><ul><li>AI가 개발 목표를 분석해 최적 성분을 추천합니다.</li><li>성분에 마우스를 올리면 효능·효과를 확인할 수 있습니다.</li><li>선택이 어려우시면 <strong>제조 전문가에게 위임</strong>할 수 있습니다.</li></ul></div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">카테고리 구분</div><div class="gp-text"><span class="cat-badge cat-특허증활용가능">특허증 활용가능</span> 특허 보유 원료<br><span class="cat-badge cat-추출물" style="margin-top:4px">추출물</span> 천연 식물 추출 원료<br><span class="cat-badge cat-첨가원료" style="margin-top:4px">첨가원료</span> 기능성 합성/정제 원료</div></div>`;
+  }
+  // 성분 선택 중: 선택 현황
+  return `<div class="gp-section"><div class="gp-section-title">성분 선택 현황</div><div class="gp-text">현재 <strong>${selCount}개</strong> 성분이 선택되었습니다.<br><br>성분에 마우스를 올리면 효능·효과를 확인할 수 있습니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">카테고리 구분</div><div class="gp-text"><span class="cat-badge cat-특허증활용가능">특허증 활용가능</span> 특허 보유 원료<br><span class="cat-badge cat-추출물" style="margin-top:4px">추출물</span> 천연 식물 추출 원료<br><span class="cat-badge cat-첨가원료" style="margin-top:4px">첨가원료</span> 기능성 합성/정제 원료</div></div>`;
+}
+
+function getScentGuide() {
+  const scent = STATE.selectedScent;
+  const recs = typeof getScentRecommendations === 'function' ? getScentRecommendations() : {};
+  const isRec = scent && recs[scent] > 0;
+
+  if (!scent) {
+    // 미선택 상태: 에센셜 오일 설명 → 1가지 선택 → 무향 안내
+    return `<div class="gp-section"><div class="gp-section-title">에센셜 오일이란?</div><div class="gp-text">식물에서 추출한 천연 향 원료로, 향 외에도 항균·진정·혈행 촉진 등 기능성 효과가 있습니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">향 선택 안내</div><div class="gp-text"><ul><li>향은 <strong>1가지만</strong> 선택할 수 있습니다.</li><li>향료·에센셜 오일을 넣지 않을 경우 <strong>무향</strong>을 선택하세요.</li></ul></div></div>`;
+  }
+  if (scent === '무향') {
+    // 무향 선택: 자체 향 안내
+    return `<div class="gp-section"><div class="gp-section-title">무향 선택</div><div class="gp-text">무향 선택 시에도 원료 자체의 특성 향이 있을 수 있습니다.<br><br>이는 에센셜 오일이나 향료를 첨가하지 않은 상태이며, <strong>원료 고유의 자연스러운 향</strong>입니다.</div></div>`;
+  }
+  if (isRec) {
+    // 추천 뱃지 항목 선택: 추천 설명 + 1가지 제한
+    return `<div class="gp-section"><div class="gp-section-title">추천 향 선택</div><div class="gp-text"><strong>${scent}</strong>은(는) 입력하신 개발 목표에 기능적으로 적합한 향입니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">안내</div><div class="gp-text"><ul><li>향은 <strong>1가지만</strong> 선택할 수 있습니다.</li><li>변경을 원하시면 다른 향을 선택하세요.</li></ul></div></div>`;
+  }
+  // 일반 에센셜 오일 선택: 1가지 제한 + 무향 전환 안내
+  return `<div class="gp-section"><div class="gp-section-title">향 선택 완료</div><div class="gp-text"><strong>${scent}</strong>이(가) 선택되었습니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">안내</div><div class="gp-text"><ul><li>향은 <strong>1가지만</strong> 선택할 수 있습니다.</li><li>향을 넣지 않으려면 <strong>무향</strong>을 선택하세요.</li></ul></div></div>`;
+}
+
+function updateGuidePanel(step) {
+  const el = document.getElementById('guidePanelContent'); if (!el) return;
   const guides = {
-    1: `<div class="gp-section"><div class="gp-section-title">기능성 화장품 안내</div><div class="gp-text"><ul><li><strong>씻어내는 제품</strong>(바디워시, 샴푸, 폼클렌징 등)에는 주름개선·미백·자외선차단 기능성이 <strong>실효성이 없거나 적용 불가</strong>합니다.</li><li>기능성 선택시 패키지및 상세페이지에 활용 가능</li></ul></div></div>${factoryNotice}<div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">추가 비용 안내</div><div class="gp-text"><ul><li>기능성 1개: <strong>40,000원</strong></li><li>기능성 2개: <strong>65,000원</strong></li></ul></div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">작성 팁</div><div class="gp-text">원하는 효능, 타겟 고객, 피부 고민을 구체적으로 적을수록 AI가 더 정확한 원료를 추천합니다.</div></div>`,
-    2: `<div class="gp-section"><div class="gp-section-title">제품 유형 선택</div><div class="gp-text">제품 유형을 선택하면 세부 제형(텍스처)을 고를 수 있습니다. 선택한 유형에 따라 용기 옵션이 자동으로 필터링됩니다.</div></div>`,
-    3: `<div class="gp-section"><div class="gp-section-title">용기 선택 안내</div><div class="gp-text"><ul><li>선택한 제품 유형에 적합한 용기만 표시됩니다.</li><li><strong>추천</strong> 뱃지가 붙은 용기가 해당 제형에 가장 적합합니다.</li><li>용기는 <strong>불투명과 반투명</strong>을 권장합니다.</li></ul></div></div>`,
+    1: getStep1Guide(),
+    2: getStep2Guide(),
+    3: getStep3Guide(),
     4: `<div class="gp-section"><div class="gp-section-title">용량/수량 안내</div><div class="gp-text"><ul><li>기본 수량: <strong>300개</strong></li><li>30ml 선택 시: 최소 <strong>1,000개</strong></li><li>50ml 선택 시: 최소 <strong>500개</strong></li><li>수량은 100개 단위로 조절 가능합니다.</li></ul></div></div>`,
-    5: `<div class="gp-section"><div class="gp-section-title">컨셉성분 선택 안내</div><div class="gp-text"><ul><li>직접 컨셉성분을 선택하거나, <strong>제조 전문가에게 위임</strong>할 수 있습니다.</li><li>AI가 개발 목표를 분석해 최적 성분을 추천합니다.</li><li>성분에 마우스를 올리면 효능·효과를 확인할 수 있습니다.</li></ul></div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">카테고리 구분</div><div class="gp-text"><span class="cat-badge cat-특허증활용가능">특허증 활용가능</span> 특허 보유 원료<br><span class="cat-badge cat-추출물" style="margin-top:4px">추출물</span> 천연 식물 추출 원료<br><span class="cat-badge cat-첨가원료" style="margin-top:4px">첨가원료</span> 기능성 합성/정제 원료</div></div>`,
-    6: `<div class="gp-section"><div class="gp-section-title">향 선택 안내</div><div class="gp-text"><ul><li>에센셜 오일 중 <strong>1가지만</strong> 선택할 수 있습니다.</li><li>향을 넣지 않으려면 <strong>무향</strong>을 선택하세요.</li><li><strong>추천</strong> 뱃지는 입력하신 개발 목표에 기능적으로 적합한 향입니다.</li></ul></div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">에센셜 오일이란?</div><div class="gp-text">식물에서 추출한 천연 향 원료로, 향 외에도 항균·진정·혈행 촉진 등 기능성 효과가 있습니다.<br><br>향은 <strong>1가지</strong>로 가는 것을 추천합니다. (섞으면 역효과 가능)</div></div>`,
+    5: getStep5Guide(),
+    6: getScentGuide(),
     7: `<div class="gp-section"><div class="gp-section-title">최종 확인</div><div class="gp-text">모든 내용을 확인 후 제출하시면 연구팀에 자동 발송됩니다. 제출 후에도 새 발주를 통해 추가 주문이 가능합니다.</div></div>`,
   };
   el.innerHTML = guides[step] || '';
