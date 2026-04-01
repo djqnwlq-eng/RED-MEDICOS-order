@@ -366,6 +366,54 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
 .biz-section-title { font-size:13px; font-weight:700; color:var(--t); margin-bottom:8px; }
 .biz-copy-btn { display:inline-block; margin-top:4px; padding:3px 10px; border-radius:12px; font-size:10px; font-weight:600; background:var(--tl); color:var(--t); border:1px solid var(--tm); cursor:pointer; }
 .biz-copy-btn:hover { background:var(--t); color:#fff; }
+#myInfoModal {
+  position:fixed; inset:0; background:rgba(0,0,0,.45);
+  z-index:100; display:none; align-items:center; justify-content:center;
+}
+#myInfoModal.open { display:flex; }
+.myinfo-panel {
+  background:#fff; border-radius:var(--rlg); max-width:420px; width:92%;
+  padding:1.75rem; box-shadow:0 12px 40px rgba(0,0,0,.2); position:relative;
+}
+.myinfo-panel .biz-close { position:absolute; top:12px; right:14px; background:none; border:none; font-size:20px; cursor:pointer; color:var(--g6); }
+.myinfo-panel h3 { font-size:16px; font-weight:800; color:var(--g1); margin-bottom:16px; }
+.myinfo-field { margin-bottom:14px; }
+.myinfo-field label { display:block; font-size:11px; font-weight:700; color:var(--g6); margin-bottom:4px; }
+.myinfo-field input { width:100%; padding:10px 12px; border:1px solid var(--ge); border-radius:var(--rsm); font-size:14px; font-family:inherit; }
+.myinfo-field input:focus { outline:none; border-color:var(--t); }
+.myinfo-save { width:100%; padding:12px; border:none; border-radius:var(--rsm); background:var(--t); color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:8px; }
+.myinfo-save:hover { opacity:.9; }
+.myinfo-msg { text-align:center; font-size:12px; color:#059669; margin-top:8px; display:none; }
+#orderTypeModal {
+  position:fixed; inset:0; background:rgba(0,0,0,.45);
+  z-index:100; display:none; align-items:center; justify-content:center;
+}
+#orderTypeModal.open { display:flex; }
+.order-type-panel {
+  background:#fff; border-radius:var(--rlg); max-width:480px; width:92%;
+  padding:2rem; box-shadow:0 12px 40px rgba(0,0,0,.2); position:relative;
+}
+.order-type-panel h3 { font-size:18px; font-weight:800; color:var(--g1); margin-bottom:6px; text-align:center; }
+.order-type-panel .ot-sub { font-size:12px; color:var(--g6); text-align:center; margin-bottom:20px; }
+.order-type-cards { display:flex; gap:14px; }
+.order-type-card {
+  flex:1; border:2px solid var(--ge); border-radius:var(--r); padding:24px 16px; text-align:center;
+  cursor:pointer; transition:all .2s;
+}
+.order-type-card:hover { border-color:var(--t); transform:translateY(-2px); box-shadow:0 4px 16px rgba(200,16,46,.12); }
+.order-type-card .otc-icon { font-size:36px; margin-bottom:10px; }
+.order-type-card .otc-title { font-size:15px; font-weight:700; color:var(--g1); margin-bottom:6px; }
+.order-type-card .otc-desc { font-size:11px; color:var(--g6); line-height:1.6; }
+.order-type-card .otc-badge { display:inline-block; margin-top:10px; padding:3px 10px; border-radius:12px; font-size:10px; font-weight:700; }
+#devRequestScreen { display:none; }
+.dev-form-card { background:#fff; border:1px solid var(--ge); border-radius:var(--r); padding:24px; margin-bottom:16px; }
+.dev-form-card .card-title { font-size:15px; font-weight:800; color:var(--g1); margin-bottom:4px; }
+.dev-form-card .card-sub { font-size:12px; color:var(--g6); margin-bottom:16px; }
+.dev-field { margin-bottom:14px; }
+.dev-field label { display:block; font-size:12px; font-weight:700; color:var(--g3); margin-bottom:4px; }
+.dev-field input, .dev-field textarea { width:100%; padding:10px 12px; border:1px solid var(--ge); border-radius:var(--rsm); font-size:14px; font-family:inherit; }
+.dev-field input:focus, .dev-field textarea:focus { outline:none; border-color:var(--t); }
+.dev-field textarea { min-height:100px; resize:vertical; }
 
 /* ─── ADMIN PANEL (ingredients) ─── */
 #adminOverlay {
@@ -515,7 +563,7 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
 
     <!-- 교육생 회원가입 폼 -->
     <div class="login-form" id="signupForm">
-      <div style="background:var(--tl);border-radius:var(--rsm);padding:10px 13px;margin-bottom:14px;font-size:12px;color:var(--tmd)">교육생(대표님) 전용 가입입니다. 발주 및 샘플 배송을 위해 모든 정보를 입력해주세요.</div>
+      <div style="background:var(--tl);border-radius:var(--rsm);padding:10px 13px;margin-bottom:14px;font-size:12px;color:var(--tmd)">교육생(대표님) 전용 가입입니다.</div>
       <div class="info-field">
         <label class="field-label">이메일</label>
         <input type="email" class="inp" id="signupEmail" placeholder="example@email.com">
@@ -529,16 +577,12 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
         <input type="text" class="inp" id="signupName" placeholder="홍길동">
       </div>
       <div class="info-field">
-        <label class="field-label">브랜드명</label>
-        <input type="text" class="inp" id="signupBrand" placeholder="예: 레드메디코스">
+        <label class="field-label">소속 / 기수</label>
+        <input type="text" class="inp" id="signupBrand" placeholder="예: 온라인3기">
       </div>
       <div class="info-field">
-        <label class="field-label">전화번호</label>
+        <label class="field-label">연락처</label>
         <input type="tel" class="inp" id="signupPhone" placeholder="010-0000-0000">
-      </div>
-      <div class="info-field">
-        <label class="field-label">샘플받을 주소</label>
-        <input type="text" class="inp" id="signupAddress" placeholder="서울시 강남구 ...">
       </div>
       <div id="signupError" style="font-size:11px;color:#dc2626;margin-top:8px;display:none"></div>
       <button class="btn-full btn-primary" style="margin-top:16px;padding:13px;font-size:15px" onclick="doSignup()" id="signupBtn">교육생 가입</button>
@@ -577,7 +621,7 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="btn-sm" onclick="openBizInfo()" style="font-weight:600">사업자 정보</button>
-      <span style="font-size:12px;color:var(--g6)" id="dashUserInfo"></span>
+      <span style="font-size:12px;color:var(--g6);cursor:pointer;transition:color .15s" id="dashUserInfo" onclick="openMyInfo()" title="클릭하여 내 정보 수정"></span>
       <button class="btn-sm" onclick="doLogout()">로그아웃</button>
     </div>
   </div>
@@ -586,7 +630,7 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
     <div class="dash-stats" id="dashStats"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:14px;font-weight:700;color:var(--g1)">내 발주 현황</div>
-      <button class="btn primary" style="padding:8px 20px;font-size:13px" onclick="startNewOrder()">+ 새 발주</button>
+      <button class="btn primary" style="padding:8px 20px;font-size:13px" onclick="openOrderTypeModal()">+ 새 발주</button>
     </div>
     <div id="dashOrderList"></div>
   </div>
@@ -605,7 +649,7 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="btn-sm" onclick="openBizInfo()" style="font-weight:600">사업자 정보</button>
-      <span style="font-size:12px;color:var(--g6)" id="adminUserInfo"></span>
+      <span style="font-size:12px;color:var(--g6);cursor:pointer;transition:color .15s" id="adminUserInfo" onclick="openMyInfo()" title="클릭하여 내 정보 수정"></span>
       <button class="btn-sm" onclick="doLogout()">로그아웃</button>
     </div>
   </div>
@@ -689,6 +733,111 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
         <strong>info@redmedicos.co.kr</strong>로 요청해주세요.<br>
         입금 확인 후 익월 10일 이내 발행됩니다.
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MY INFO MODAL ════ -->
+<div id="myInfoModal" onclick="if(event.target===event.currentTarget)closeMyInfo()">
+  <div class="myinfo-panel">
+    <button class="biz-close" onclick="closeMyInfo()">✕</button>
+    <h3>내 정보 수정</h3>
+    <div class="myinfo-field"><label>이름</label><input type="text" id="myInfoName"></div>
+    <div class="myinfo-field"><label>소속 / 기수</label><input type="text" id="myInfoBrand"></div>
+    <div class="myinfo-field"><label>연락처</label><input type="tel" id="myInfoPhone" placeholder="010-0000-0000"></div>
+    <div style="border-top:1px solid var(--ge);margin:18px 0 14px;padding-top:14px">
+      <div style="font-size:13px;font-weight:700;color:var(--t);margin-bottom:12px">사업자 정보 <span style="font-size:10px;color:var(--g8);font-weight:400">(선택)</span></div>
+      <div class="myinfo-field"><label>사업자등록번호</label><input type="text" id="myInfoBizNum" placeholder="000-00-00000"></div>
+      <div class="myinfo-field"><label>상호명</label><input type="text" id="myInfoBizName" placeholder="예: (주)금빛코스메틱"></div>
+      <div class="myinfo-field"><label>대표자명</label><input type="text" id="myInfoBizCeo" placeholder="예: 조하준"></div>
+      <div class="myinfo-field"><label>사업장 주소</label><input type="text" id="myInfoBizAddr" placeholder="예: 서울시 강남구 ..."></div>
+    </div>
+    <button class="myinfo-save" onclick="saveMyInfo()">저장</button>
+    <div class="myinfo-msg" id="myInfoMsg">정보가 저장되었습니다.</div>
+  </div>
+</div>
+
+<!-- ════ ORDER TYPE SELECTION MODAL ════ -->
+<div id="orderTypeModal" onclick="if(event.target===event.currentTarget)closeOrderTypeModal()">
+  <div class="order-type-panel">
+    <button class="biz-close" onclick="closeOrderTypeModal()">✕</button>
+    <h3>발주 유형 선택</h3>
+    <div class="ot-sub">어떤 방식으로 제품을 개발하시겠습니까?</div>
+    <div class="order-type-cards">
+      <div class="order-type-card" onclick="closeOrderTypeModal();startCustomOrder()">
+        <div class="otc-icon">🧴</div>
+        <div class="otc-title">맞춤형 발주</div>
+        <div class="otc-desc">단계별로 제형·성분·용기·향을<br>직접 선택하여 발주합니다</div>
+        <div class="otc-badge" style="background:var(--tl);color:var(--t)">셀프 구성</div>
+      </div>
+      <div class="order-type-card" onclick="closeOrderTypeModal();startDevRequest()">
+        <div class="otc-icon">📋</div>
+        <div class="otc-title">독점개발 의뢰</div>
+        <div class="otc-desc">개발 의뢰서를 작성하면<br>연구팀이 처음부터 개발합니다</div>
+        <div class="otc-badge" style="background:#F3E8FF;color:#6B21A8">연구팀 전담</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ DEV REQUEST SCREEN ════ -->
+<div id="devRequestScreen">
+  <div class="dash-topbar">
+    <div class="topbar-brand" style="cursor:default">
+      <img src="logo.png" alt="RED MEDICOS" style="height:24px" onerror="this.outerHTML='레드메디코스'"> <em>독점개발 의뢰</em>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn-sm" onclick="goToDashboard()">← 대시보드</button>
+    </div>
+  </div>
+  <div style="max-width:640px;margin:0 auto;padding:1.5rem 1rem 5rem">
+    <div class="dev-form-card">
+      <div class="card-title">독점개발 의뢰서</div>
+      <div class="card-sub">연구팀이 처음부터 맞춤 개발합니다. 원하시는 내용을 자유롭게 작성해주세요.</div>
+      <div class="dev-field">
+        <label>개발 제품 *</label>
+        <input type="text" id="devProduct" placeholder="예: 임산부용 발열크림, 남성 올인원 에센스">
+      </div>
+      <div class="dev-field">
+        <label>상세 내용 *</label>
+        <textarea id="devDetail" placeholder="예: 메인성분은 미네랄·바닐릴부틸에테르를 넣고 싶습니다.&#10;EWG 그린등급 성분 위주로...&#10;천연보습 및 미백 성분을 추가해주세요."></textarea>
+      </div>
+      <div class="dev-field">
+        <label>넣고 싶은 컨셉 성분</label>
+        <input type="text" id="devIngredients" placeholder="예: 병풀추출물, 나이아신아마이드, 바닐릴부틸에테르">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="dev-field">
+          <label>타겟 고객 *</label>
+          <input type="text" id="devTarget" placeholder="예: 산모, 20대 여성">
+        </div>
+        <div class="dev-field">
+          <label>향 / 색상</label>
+          <input type="text" id="devScentColor" placeholder="예: 무향, 흰색">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="dev-field">
+          <label>효능 / 효과 *</label>
+          <input type="text" id="devEffect" placeholder="예: 발열, 보습, 미백">
+        </div>
+        <div class="dev-field">
+          <label>용기 / 용량</label>
+          <input type="text" id="devContainer" placeholder="예: 튜브 300g">
+        </div>
+      </div>
+      <div class="dev-field">
+        <label>생산 예정 수량 (최소 1,000개)</label>
+        <input type="number" id="devQuantity" value="1000" min="1000" step="1000" onchange="if(this.value<1000)this.value=1000">
+      </div>
+      <div class="dev-field">
+        <label>비고 (선택)</label>
+        <textarea id="devNote" placeholder="참고사항, 벤치마킹 제품, 기타 요청사항 등" style="min-height:60px"></textarea>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="goToDashboard()">← 취소</button>
+      <button class="btn primary" onclick="submitDevRequest()">의뢰서 제출</button>
     </div>
   </div>
 </div>
@@ -1422,7 +1571,7 @@ function buildStep6() {
   return `
     <div class="card"><div class="card-title">최종 기획안 확인</div><div class="card-sub">내용을 확인 후 제출하시면 연구팀에 자동 발송됩니다</div>
       <div class="summary-row"><span class="sum-key">성함</span><span class="sum-val">${STATE.userName}</span></div>
-      <div class="summary-row"><span class="sum-key">브랜드명</span><span class="sum-val">${STATE.userBrand}</span></div>
+      <div class="summary-row"><span class="sum-key">소속 / 기수</span><span class="sum-val">${STATE.userBrand}</span></div>
       <div class="summary-row"><span class="sum-key">전화번호</span><span class="sum-val">${STATE.userPhone}</span></div>
       <div class="summary-row"><span class="sum-key">샘플 주소</span><span class="sum-val" style="font-size:12px">${STATE.userAddress}</span></div>
       <div style="height:1px;background:var(--ge);margin:8px 0"></div>
@@ -1451,7 +1600,7 @@ function buildSuccess() {
         대시보드에서 진행 현황을 실시간으로 확인할 수 있습니다.
       </p>
       <button class="btn primary" onclick="goToDashboard()">대시보드로 돌아가기</button>
-      <button class="btn" onclick="startNewOrder()" style="margin-left:8px">+ 새 발주 시작</button>
+      <button class="btn" onclick="openOrderTypeModal()" style="margin-left:8px">+ 새 발주 시작</button>
     </div>`;
 }
 
@@ -1760,6 +1909,43 @@ async function submitOrder() {
 // ════════════════════════════════════════════════════════════
 function openBizInfo() { document.getElementById('bizInfoModal').classList.add('open'); }
 function closeBizInfo() { document.getElementById('bizInfoModal').classList.remove('open'); }
+
+function openMyInfo() {
+  if (!currentUserData) return;
+  document.getElementById('myInfoName').value = currentUserData.name || '';
+  document.getElementById('myInfoBrand').value = currentUserData.brand || '';
+  document.getElementById('myInfoPhone').value = currentUserData.phone || '';
+  document.getElementById('myInfoBizNum').value = currentUserData.bizNum || '';
+  document.getElementById('myInfoBizName').value = currentUserData.bizName || '';
+  document.getElementById('myInfoBizCeo').value = currentUserData.bizCeo || '';
+  document.getElementById('myInfoBizAddr').value = currentUserData.bizAddr || '';
+  document.getElementById('myInfoMsg').style.display = 'none';
+  document.getElementById('myInfoModal').classList.add('open');
+}
+function closeMyInfo() { document.getElementById('myInfoModal').classList.remove('open'); }
+async function saveMyInfo() {
+  if (!currentUser) return;
+  const name = document.getElementById('myInfoName').value.trim();
+  const brand = document.getElementById('myInfoBrand').value.trim();
+  const phone = document.getElementById('myInfoPhone').value.trim();
+  const bizNum = document.getElementById('myInfoBizNum').value.trim();
+  const bizName = document.getElementById('myInfoBizName').value.trim();
+  const bizCeo = document.getElementById('myInfoBizCeo').value.trim();
+  const bizAddr = document.getElementById('myInfoBizAddr').value.trim();
+  if (!name) { alert('이름을 입력해주세요.'); return; }
+  try {
+    await db.collection('users').doc(currentUser.uid).update({ name, brand, phone, bizNum, bizName, bizCeo, bizAddr });
+    Object.assign(currentUserData, { name, brand, phone, bizNum, bizName, bizCeo, bizAddr });
+    const dashInfo = document.getElementById('dashUserInfo');
+    if (dashInfo) dashInfo.textContent = name + ' · ' + brand;
+    const adminInfo = document.getElementById('adminUserInfo');
+    if (adminInfo) adminInfo.textContent = name + ' (관리자)';
+    const welcome = document.getElementById('dashWelcome');
+    if (welcome) welcome.textContent = name + '님, 안녕하세요';
+    document.getElementById('myInfoMsg').style.display = 'block';
+    setTimeout(() => closeMyInfo(), 1200);
+  } catch(e) { alert('저장 실패: ' + e.message); }
+}
 function copyAccount() {
   navigator.clipboard.writeText('412601-04-123456').then(() => {
     alert('계좌번호가 복사되었습니다.');
@@ -1870,16 +2056,15 @@ async function doSignup() {
   const name = document.getElementById('signupName').value.trim();
   const brand = document.getElementById('signupBrand').value.trim();
   const phone = document.getElementById('signupPhone').value.trim();
-  const address = document.getElementById('signupAddress').value.trim();
   const errEl = document.getElementById('signupError');
   errEl.style.display = 'none';
-  if (!email||!pw||!name||!brand||!phone||!address) { errEl.textContent='모든 항목을 입력하세요'; errEl.style.display='block'; return; }
+  if (!email||!pw||!name||!brand||!phone) { errEl.textContent='모든 항목을 입력하세요'; errEl.style.display='block'; return; }
   if (pw.length < 6) { errEl.textContent='비밀번호는 6자 이상이어야 합니다'; errEl.style.display='block'; return; }
   document.getElementById('signupBtn').disabled = true;
   try {
     const cred = await auth.createUserWithEmailAndPassword(email, pw);
     await db.collection('users').doc(cred.user.uid).set({
-      email, name, brand, phone, address, role: 'student',
+      email, name, brand, phone, address:'', role: 'student',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   } catch (e) {
@@ -2014,7 +2199,10 @@ async function showDashboard() {
         } else if (o.status !== 'shipped' && o.status !== 'completed') {
           cancelBtn = `<div style="margin-top:10px;text-align:right"><button onclick="requestCancelOrder('${o.id}')" style="padding:5px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #FCA5A5;background:#FFF5F5;color:#DC2626;font-family:inherit">취소 요청</button></div>`;
         }
-        return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div>${getStatusBadge(o.status)}</div><div class="oc-title">${o.description||'-'}</div><div class="oc-detail">${o.formula} · ${o.volume}ml × ${N(o.quantity)}개 · ${o.container}${o.scent?' · 향: '+o.scent:''}</div>${renderStatusTimeline(o.status)}${matSection}${prodDate}${cancelBtn}</div>`;
+        if (o.type === 'dev_request') {
+          return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div><span style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:#F3E8FF;color:#6B21A8">독점개발</span>${getStatusBadge(o.status)}</div><div class="oc-title">${o.product||'-'}</div><div class="oc-detail">${o.effect||''} · ${o.target||''} ${o.quantity?'· '+N(o.quantity)+'개':''}</div>${renderStatusTimeline(o.status)}${matSection}${prodDate}${cancelBtn}</div>`;
+        }
+        return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div><span style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:var(--tl);color:var(--t)">맞춤형</span>${getStatusBadge(o.status)}</div><div class="oc-title">${o.description||'-'}</div><div class="oc-detail">${o.formula||'-'} · ${o.volume||'-'}ml × ${N(o.quantity||0)}개 · ${o.container||'-'}${o.scent?' · 향: '+o.scent:''}</div>${renderStatusTimeline(o.status)}${matSection}${prodDate}${cancelBtn}</div>`;
       }).join('');
     }
   } catch(e) { console.error('Dashboard load error:', e); document.getElementById('dashOrderList').innerHTML = `<div style="color:#dc2626;font-size:12px">데이터 로드 실패: ${e.message}</div>`; }
@@ -2583,7 +2771,14 @@ async function updateInquiryBadge() {
 // ════════════════════════════════════════════════════════════
 //  🧭  NAVIGATION
 // ════════════════════════════════════════════════════════════
-function startNewOrder() {
+function openOrderTypeModal() {
+  document.getElementById('orderTypeModal').classList.add('open');
+}
+function closeOrderTypeModal() {
+  document.getElementById('orderTypeModal').classList.remove('open');
+}
+
+function startCustomOrder() {
   Object.assign(STATE, {
     step:1, description:'', functions:[], bodyPart:'',
     formula:null, delegateExtracts:false, selExtracts:{}, aiRecs:[], selectedScent:null, volume:100, quantity:300, container:null
@@ -2609,8 +2804,55 @@ function goToDashboard() {
   document.getElementById('mainApp').style.display = 'none';
   document.getElementById('dashboardScreen').style.display = 'none';
   document.getElementById('adminScreen').style.display = 'none';
+  document.getElementById('devRequestScreen').style.display = 'none';
   if (currentUserData.role === 'admin') showAdminScreen();
   else showDashboard();
+}
+
+function startDevRequest() {
+  document.getElementById('dashboardScreen').style.display = 'none';
+  document.getElementById('adminScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('devRequestScreen').style.display = 'block';
+  // 폼 초기화
+  ['devProduct','devDetail','devIngredients','devTarget','devScentColor','devEffect','devContainer','devNote'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('devQuantity').value = 1000;
+}
+
+async function submitDevRequest() {
+  const product = document.getElementById('devProduct').value.trim();
+  const detail = document.getElementById('devDetail').value.trim();
+  const ingredients = document.getElementById('devIngredients').value.trim();
+  const target = document.getElementById('devTarget').value.trim();
+  const scentColor = document.getElementById('devScentColor').value.trim();
+  const effect = document.getElementById('devEffect').value.trim();
+  const container = document.getElementById('devContainer').value.trim();
+  const quantity = document.getElementById('devQuantity').value.trim();
+  const note = document.getElementById('devNote').value.trim();
+
+  if (!product || !detail || !target || !effect) {
+    alert('필수 항목(*)을 모두 입력해주세요.'); return;
+  }
+
+  try {
+    await db.collection('orders').add({
+      type: 'dev_request',
+      userId: currentUser.uid,
+      userEmail: currentUser.email,
+      userName: currentUserData.name,
+      userBrand: currentUserData.brand,
+      userPhone: currentUserData.phone,
+      product, detail, ingredients, target, scentColor, effect, container,
+      quantity: quantity ? Number(quantity) : null,
+      note,
+      status: 'submitted',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert('독점개발 의뢰서가 제출되었습니다.\n연구팀에서 검토 후 연락드리겠습니다.');
+    goToDashboard();
+  } catch(e) { alert('제출 실패: ' + e.message); }
 }
 
 function goHome() { goToDashboard(); }
