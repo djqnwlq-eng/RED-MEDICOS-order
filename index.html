@@ -414,6 +414,44 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
 .dev-field input, .dev-field textarea { width:100%; padding:10px 12px; border:1px solid var(--ge); border-radius:var(--rsm); font-size:14px; font-family:inherit; }
 .dev-field input:focus, .dev-field textarea:focus { outline:none; border-color:var(--t); }
 .dev-field textarea { min-height:100px; resize:vertical; }
+#reorderModal {
+  position:fixed; inset:0; background:rgba(0,0,0,.45);
+  z-index:100; display:none; align-items:center; justify-content:center;
+}
+#reorderModal.open { display:flex; }
+.reorder-panel {
+  background:#fff; border-radius:var(--rlg); max-width:500px; width:92%;
+  padding:1.75rem; box-shadow:0 12px 40px rgba(0,0,0,.2); position:relative; max-height:85vh; overflow-y:auto;
+}
+.reorder-panel h3 { font-size:16px; font-weight:800; color:var(--g1); margin-bottom:16px; }
+.reorder-summary { background:#f9fafb; border:1px solid var(--ge); border-radius:var(--rsm); padding:14px; margin-bottom:16px; }
+.reorder-row { display:flex; justify-content:space-between; padding:5px 0; font-size:13px; }
+.reorder-row .rk { color:var(--g6); }
+.reorder-row .rv { color:var(--g1); font-weight:600; text-align:right; max-width:60%; }
+.round-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; background:#DBEAFE; color:#1E40AF; margin-left:4px; }
+.order-group { border:1px solid var(--ge); border-radius:var(--r); background:#fff; margin-bottom:16px; overflow:hidden; }
+.order-group-header { padding:16px 18px 12px; }
+.order-group-header .og-title { font-size:15px; font-weight:800; color:var(--g1); }
+.order-group-header .og-detail { font-size:12px; color:var(--g6); margin-top:4px; }
+.order-round { border-top:1px solid var(--ge); padding:14px 18px; }
+.order-round.collapsed { cursor:pointer; padding:10px 18px; background:#f9fafb; }
+.order-round.collapsed:hover { background:#f3f4f6; }
+.round-header { display:flex; align-items:center; gap:8px; font-size:12px; }
+.round-header .rh-round { font-weight:700; color:var(--g1); }
+.round-header .rh-date { color:var(--g8); }
+.round-header .rh-qty { color:var(--g6); }
+.order-group-footer { border-top:1px solid var(--ge); padding:10px 18px; text-align:right; background:#f9fafb; }
+.product-info-box { background:#f9fafb; border:1px solid var(--ge); border-radius:var(--rsm); padding:10px 14px; margin-top:10px; }
+.product-info-row { display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:4px; }
+.product-info-row:last-child { margin-bottom:0; }
+.product-info-row .pi-label { color:var(--g6); font-size:11px; font-weight:700; min-width:56px; }
+.product-info-row .pi-value { color:var(--g1); font-weight:600; flex:1; }
+.product-info-row .pi-value.empty { color:var(--g8); font-weight:400; font-style:italic; }
+.pi-edit-btn { padding:2px 8px; border-radius:8px; font-size:10px; font-weight:600; cursor:pointer; border:1px solid var(--ge); background:#fff; color:var(--g6); font-family:inherit; }
+.pi-edit-btn:hover { border-color:var(--t); color:var(--t); }
+.pi-input { padding:4px 8px; border:1px solid var(--t); border-radius:6px; font-size:13px; font-family:inherit; flex:1; }
+.pi-save-btn { padding:3px 10px; border-radius:8px; font-size:10px; font-weight:700; cursor:pointer; border:none; background:var(--t); color:#fff; font-family:inherit; }
+.og-product-title { font-size:13px; font-weight:700; color:var(--tmd); margin-top:4px; }
 
 /* ─── ADMIN PANEL (ingredients) ─── */
 #adminOverlay {
@@ -754,6 +792,28 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
     </div>
     <button class="myinfo-save" onclick="saveMyInfo()">저장</button>
     <div class="myinfo-msg" id="myInfoMsg">정보가 저장되었습니다.</div>
+  </div>
+</div>
+
+<!-- ════ REORDER MODAL ════ -->
+<div id="reorderModal" onclick="if(event.target===event.currentTarget)closeReorderModal()">
+  <div class="reorder-panel">
+    <button class="biz-close" onclick="closeReorderModal()">✕</button>
+    <h3>재발주 발주</h3>
+    <div id="reorderSummary"></div>
+    <div class="dev-field">
+      <label>생산 수량</label>
+      <input type="number" id="reorderQuantity" min="100" step="100">
+      <div style="font-size:10px;color:var(--g6);margin-top:4px" id="reorderMoqNotice"></div>
+    </div>
+    <div class="dev-field">
+      <label>비고 (선택)</label>
+      <textarea id="reorderNote" placeholder="변경사항이나 참고사항이 있으면 적어주세요" style="min-height:60px"></textarea>
+    </div>
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn" onclick="closeReorderModal()">취소</button>
+      <button class="btn primary" onclick="submitReorder()">재발주 제출</button>
+    </div>
   </div>
 </div>
 
@@ -2109,7 +2169,172 @@ function doLogout() { auth.signOut(); }
 // ════════════════════════════════════════════════════════════
 //  📊  STATUS TIMELINE RENDERER
 // ════════════════════════════════════════════════════════════
+function normalizeStatus(s) { return s === 'submitted' ? 'ordered' : (s || 'ordered'); }
+
+function groupOrders(orders) {
+  const groups = {};
+  const standalone = [];
+  orders.forEach(o => {
+    const origId = o.originalOrderId || o.id;
+    if (!groups[origId]) groups[origId] = [];
+    groups[origId].push(o);
+  });
+  // 그룹 내 차수순 정렬, 그룹은 최신 주문 기준 정렬
+  const result = Object.values(groups).map(g => {
+    g.sort((a,b) => (a.productionRound||1) - (b.productionRound||1));
+    return g;
+  });
+  result.sort((a,b) => {
+    const latestA = a[a.length-1].createdAt?.seconds||0;
+    const latestB = b[b.length-1].createdAt?.seconds||0;
+    return latestB - latestA;
+  });
+  return result;
+}
+
+function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') {
+  const groups = groupOrders(orders);
+  return groups.map(group => {
+    const first = group[0];
+    const latest = group[group.length-1];
+    const isDev = first.type === 'dev_request';
+    const typeBadge = isDev
+      ? `<span style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:#F3E8FF;color:#6B21A8">독점개발</span>`
+      : `<span style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:var(--tl);color:var(--t)">맞춤형</span>`;
+    const title = isDev ? (first.product||'-') : (first.description||'-');
+    const detail = isDev
+      ? `${first.effect||''} · ${first.target||''}`
+      : `${first.formula||'-'} · ${first.volume||'-'}ml · ${first.container||'-'}${first.scent?' · 향: '+first.scent:''}`;
+
+    let roundsHtml = '';
+    group.forEach((o, idx) => {
+      o.status = normalizeStatus(o.status);
+      const isLatest = idx === group.length - 1;
+      const date = o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleDateString('ko-KR') : '-';
+      const round = o.productionRound || 1;
+      const qty = o.quantity ? N(o.quantity)+'개' : '-';
+
+      if (!isLatest) {
+        // 이전 차수: 접힌 상태
+        const statusBadge = getStatusBadge(o.status);
+        roundsHtml += `<div class="order-round collapsed" onclick="this.classList.toggle('collapsed');this.querySelector('.round-expand').style.display=this.classList.contains('collapsed')?'none':'block'">
+          <div class="round-header">
+            <span class="rh-round">${round}차</span><span class="rh-date">${date}</span><span class="rh-qty">${qty}</span>${statusBadge}<span style="font-size:10px;color:var(--g8);margin-left:auto">▼ 펼치기</span>
+          </div>
+          <div class="round-expand" style="display:none;margin-top:10px">${renderStatusTimeline(o.status)}${renderRoundDetails(o, editable, uid, uname, ubrand)}</div>
+        </div>`;
+      } else {
+        // 최신 차수: 펼친 상태
+        const statusBadge = getStatusBadge(o.status);
+        let cancelBtn = '';
+        if (o.status === 'cancel_requested') {
+          cancelBtn = `<div style="margin-top:10px;padding:8px 12px;background:#FEF3C7;border-radius:var(--rsm);font-size:12px;color:#92400E;font-weight:600">취소 요청이 접수되었습니다. 관리자 승인을 기다리고 있습니다.</div>`;
+        } else if (o.status === 'cancelled') {
+          cancelBtn = `<div style="margin-top:10px;padding:8px 12px;background:#F3F4F6;border-radius:var(--rsm);font-size:12px;color:#9CA3AF;font-weight:600">취소된 발주입니다.</div>`;
+        } else if (!editable && o.status !== 'shipped' && o.status !== 'completed') {
+          cancelBtn = `<div style="margin-top:10px;text-align:right"><button onclick="requestCancelOrder('${o.id}')" style="padding:5px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #FCA5A5;background:#FFF5F5;color:#DC2626;font-family:inherit">취소 요청</button></div>`;
+        }
+        let adminActions = '';
+        if (editable) {
+          const mainStages = ORDER_STAGES.filter(s => s.id !== 'cancel_requested' && s.id !== 'cancelled');
+          const currentIdx = mainStages.findIndex(s => s.id === o.status);
+          const nextStage = currentIdx >= 0 && currentIdx < mainStages.length-1 ? mainStages[currentIdx+1] : null;
+          const prevStage = currentIdx > 0 ? mainStages[currentIdx-1] : null;
+          const safeArgs = `'${o.id}','${uid}','${uname.replace(/'/g,"\\'")}','${ubrand.replace(/'/g,"\\'")}'`;
+          if (o.status === 'cancel_requested') {
+            adminActions = `<div style="margin-top:10px;padding:10px 14px;background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:var(--r);font-size:12px;color:#92400E;font-weight:600">⚠ 교육생이 취소를 요청했습니다<div class="status-actions" style="margin-top:8px"><button class="status-btn prev" onclick="approveCancelOrder(${safeArgs})">취소 승인</button><button class="status-btn next" onclick="rejectCancelOrder(${safeArgs})">취소 거절</button></div></div>`;
+          } else if (o.status === 'cancelled') {
+            adminActions = `<div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#F3F4F6;border-radius:var(--rsm)"><span style="font-size:12px;color:#9CA3AF;font-weight:600">취소된 발주</span><button class="btn-sm" onclick="deleteOrder(${safeArgs})" style="color:#DC2626;border-color:#FCA5A5;font-size:10px;padding:4px 10px">영구 삭제</button></div>`;
+          } else {
+            adminActions = '<div class="status-actions">';
+            if (prevStage) adminActions += `<button class="status-btn prev" onclick="updateOrderStatus(${safeArgs},'${prevStage.id}')">← ${prevStage.label}</button>`;
+            if (nextStage) adminActions += `<button class="status-btn next" onclick="updateOrderStatus(${safeArgs},'${nextStage.id}')">→ ${nextStage.label}</button>`;
+            adminActions += '</div>';
+          }
+          cancelBtn = adminActions;
+        }
+        roundsHtml += `<div class="order-round">
+          <div class="round-header"><span class="rh-round">${round}차</span><span class="rh-date">${date}</span><span class="rh-qty">${qty}</span>${statusBadge}</div>
+          <div style="margin-top:10px">${renderStatusTimeline(o.status)}${renderRoundDetails(o, editable, uid, uname, ubrand)}${cancelBtn}</div>
+        </div>`;
+      }
+    });
+
+    // 재발주 버튼: 최신 차수가 완료/출고일 때만
+    const canReorder = !editable && (latest.status === 'completed' || latest.status === 'shipped');
+    const reorderBtn = canReorder ? `<div class="order-group-footer"><button onclick="openReorderModal('${latest.id}')" style="padding:6px 16px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #93C5FD;background:#EFF6FF;color:#1E40AF;font-family:inherit">🔄 재발주</button></div>` : '';
+
+    // 제품명/브랜드명 — 그룹 내 모든 주문에서 가장 최신 값을 사용
+    const pName = group.reduce((v, o) => o.productName || v, '') || '';
+    const pBrand = group.reduce((v, o) => o.productBrand || v, '') || '';
+    const origId = first.originalOrderId || first.id;
+    const productTitle = (pBrand && pName) ? `<div class="og-product-title">${pBrand} · ${pName}</div>` : '';
+
+    const productInfoBox = `<div class="product-info-box" id="pib-${origId}">
+      <div class="product-info-row">
+        <span class="pi-label">브랜드명</span>
+        <span class="pi-value ${pBrand?'':'empty'}" id="pib-brand-${origId}">${pBrand||'미정'}</span>
+        <button class="pi-edit-btn" onclick="editProductInfo('${origId}','brand')">수정</button>
+      </div>
+      <div class="product-info-row">
+        <span class="pi-label">제품명</span>
+        <span class="pi-value ${pName?'':'empty'}" id="pib-name-${origId}">${pName||'미정'}</span>
+        <button class="pi-edit-btn" onclick="editProductInfo('${origId}','name')">수정</button>
+      </div>
+    </div>`;
+
+    return `<div class="order-group">
+      <div class="order-group-header"><div style="display:flex;align-items:center;gap:8px">${typeBadge}<span class="og-title">${title}</span></div>${productTitle}<div class="og-detail">${detail}</div>${productInfoBox}</div>
+      ${roundsHtml}${reorderBtn}
+    </div>`;
+  }).join('');
+}
+
+function editProductInfo(origId, field) {
+  const label = field === 'brand' ? '브랜드명' : '제품명';
+  const el = document.getElementById(`pib-${field}-${origId}`);
+  const current = el.classList.contains('empty') ? '' : el.textContent;
+  el.innerHTML = `<input class="pi-input" id="pii-${field}-${origId}" value="${current}" placeholder="${label}을 입력하세요">`;
+  el.nextElementSibling.outerHTML = `<button class="pi-save-btn" onclick="saveProductInfo('${origId}','${field}')">저장</button>`;
+  document.getElementById(`pii-${field}-${origId}`).focus();
+}
+
+async function saveProductInfo(origId, field) {
+  const input = document.getElementById(`pii-${field}-${origId}`);
+  const value = input.value.trim();
+  const fieldName = field === 'brand' ? 'productBrand' : 'productName';
+
+  try {
+    // 그룹 내 모든 주문에 저장
+    const snap = await db.collection('orders').where('userId','==',currentUser.uid).get();
+    const batch = db.batch();
+    snap.forEach(doc => {
+      const d = doc.data();
+      const oid = d.originalOrderId || doc.id;
+      if (oid === origId || doc.id === origId) {
+        batch.update(doc.ref, { [fieldName]: value });
+      }
+    });
+    await batch.commit();
+
+    // UI 즉시 반영
+    const el = document.getElementById(`pib-${field}-${origId}`);
+    el.className = `pi-value ${value?'':'empty'}`;
+    el.textContent = value || '미정';
+    el.nextElementSibling.outerHTML = `<button class="pi-edit-btn" onclick="editProductInfo('${origId}','${field}')">수정</button>`;
+  } catch(e) { alert('저장 실패: ' + e.message); }
+}
+
+function renderRoundDetails(o, editable, uid, uname, ubrand) {
+  const matSection = (ORDER_STAGES.findIndex(s=>s.id===normalizeStatus(o.status)) >= ORDER_STAGES.findIndex(s=>s.id==='materials'))
+    ? renderMaterialChecklist(o, editable, uid, uname, ubrand) : '';
+  const prodDate = o.productionStartDate ? `<div style="margin-top:8px;background:var(--bl);border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:var(--bd)">🏭 생산일정: <strong>${o.productionStartDate}</strong></div>` : '';
+  const note = o.reorderNote ? `<div style="margin-top:6px;font-size:11px;color:var(--g6)">📝 ${o.reorderNote}</div>` : '';
+  return `${matSection}${prodDate}${note}`;
+}
+
 function renderStatusTimeline(currentStatus) {
+  currentStatus = normalizeStatus(currentStatus);
   if (currentStatus === 'cancel_requested' || currentStatus === 'cancelled') {
     const label = currentStatus === 'cancelled' ? '취소완료' : '취소요청 (승인 대기)';
     const color = currentStatus === 'cancelled' ? '#9CA3AF' : '#92400E';
@@ -2146,6 +2371,7 @@ function renderMaterialChecklist(order, editable = false, uid = '', name = '', b
 }
 
 function getStatusBadge(status) {
+  status = normalizeStatus(status);
   const colors = {
     ordered:    {bg:'#FEE2E2',color:'#DC2626'},
     sample_sent:{bg:'#FEF3C7',color:'#92400E'},
@@ -2187,23 +2413,8 @@ async function showDashboard() {
     if (orders.length === 0) {
       document.getElementById('dashOrderList').innerHTML = `<div style="text-align:center;padding:3rem 1rem;color:var(--g6)"><div style="font-size:40px;margin-bottom:12px">📦</div><div style="font-size:14px;font-weight:600;margin-bottom:4px">아직 발주 내역이 없습니다</div><div style="font-size:12px">위의 '+ 새 발주' 버튼을 눌러 첫 발주를 시작해보세요</div></div>`;
     } else {
-      document.getElementById('dashOrderList').innerHTML = orders.map(o => {
-        const date = o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleDateString('ko-KR') : '-';
-        const matSection = (ORDER_STAGES.findIndex(s=>s.id===o.status) >= ORDER_STAGES.findIndex(s=>s.id==='materials')) ? renderMaterialChecklist(o) : '';
-        const prodDate = o.productionStartDate ? `<div style="margin-top:8px;background:var(--bl);border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:var(--bd)">🏭 생산일정: <strong>${o.productionStartDate}</strong></div>` : '';
-        let cancelBtn = '';
-        if (o.status === 'cancel_requested') {
-          cancelBtn = `<div style="margin-top:10px;padding:8px 12px;background:#FEF3C7;border-radius:var(--rsm);font-size:12px;color:#92400E;font-weight:600">취소 요청이 접수되었습니다. 관리자 승인을 기다리고 있습니다.</div>`;
-        } else if (o.status === 'cancelled') {
-          cancelBtn = `<div style="margin-top:10px;padding:8px 12px;background:#F3F4F6;border-radius:var(--rsm);font-size:12px;color:#9CA3AF;font-weight:600">취소된 발주입니다.</div>`;
-        } else if (o.status !== 'shipped' && o.status !== 'completed') {
-          cancelBtn = `<div style="margin-top:10px;text-align:right"><button onclick="requestCancelOrder('${o.id}')" style="padding:5px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #FCA5A5;background:#FFF5F5;color:#DC2626;font-family:inherit">취소 요청</button></div>`;
-        }
-        if (o.type === 'dev_request') {
-          return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div><span style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:#F3E8FF;color:#6B21A8">독점개발</span>${getStatusBadge(o.status)}</div><div class="oc-title">${o.product||'-'}</div><div class="oc-detail">${o.effect||''} · ${o.target||''} ${o.quantity?'· '+N(o.quantity)+'개':''}</div>${renderStatusTimeline(o.status)}${matSection}${prodDate}${cancelBtn}</div>`;
-        }
-        return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div><span style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:var(--tl);color:var(--t)">맞춤형</span>${getStatusBadge(o.status)}</div><div class="oc-title">${o.description||'-'}</div><div class="oc-detail">${o.formula||'-'} · ${o.volume||'-'}ml × ${N(o.quantity||0)}개 · ${o.container||'-'}${o.scent?' · 향: '+o.scent:''}</div>${renderStatusTimeline(o.status)}${matSection}${prodDate}${cancelBtn}</div>`;
-      }).join('');
+      window._dashOrders = orders;
+      document.getElementById('dashOrderList').innerHTML = renderOrderGroups(orders);
     }
   } catch(e) { console.error('Dashboard load error:', e); document.getElementById('dashOrderList').innerHTML = `<div style="color:#dc2626;font-size:12px">데이터 로드 실패: ${e.message}</div>`; }
 }
@@ -2356,28 +2567,7 @@ async function showStudentOrders(uid, name, brand) {
     if (orders.length === 0) {
       html += `<div style="text-align:center;padding:2rem;color:var(--g6)">발주 내역이 없습니다</div>`;
     } else {
-      html += orders.map(o => {
-        const date = o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleDateString('ko-KR') : '-';
-        const mainStages = ORDER_STAGES.filter(s => s.id !== 'cancel_requested' && s.id !== 'cancelled');
-        const currentIdx = mainStages.findIndex(s => s.id === o.status);
-        const nextStage = currentIdx >= 0 && currentIdx < mainStages.length-1 ? mainStages[currentIdx+1] : null;
-        const prevStage = currentIdx > 0 ? mainStages[currentIdx-1] : null;
-        const safeArgs = `'${o.id}','${uid}','${name.replace(/'/g,"\\'")}','${brand.replace(/'/g,"\\'")}'`;
-        let actions = '';
-        if (o.status === 'cancel_requested') {
-          actions = `<div style="margin-top:10px;padding:10px 14px;background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:var(--r);font-size:12px;color:#92400E;font-weight:600">⚠ 교육생이 취소를 요청했습니다<div class="status-actions" style="margin-top:8px"><button class="status-btn prev" onclick="approveCancelOrder(${safeArgs})">취소 승인</button><button class="status-btn next" onclick="rejectCancelOrder(${safeArgs})">취소 거절</button></div></div>`;
-        } else if (o.status === 'cancelled') {
-          actions = `<div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#F3F4F6;border-radius:var(--rsm)"><span style="font-size:12px;color:#9CA3AF;font-weight:600">취소된 발주</span><button class="btn-sm" onclick="deleteOrder('${o.id}','${uid}','${name.replace(/'/g,"\\'")}','${brand.replace(/'/g,"\\'")}')" style="color:#DC2626;border-color:#FCA5A5;font-size:10px;padding:4px 10px">영구 삭제</button></div>`;
-        } else {
-          actions = '<div class="status-actions">';
-          if (prevStage) actions += `<button class="status-btn prev" onclick="updateOrderStatus(${safeArgs},'${prevStage.id}')">← ${prevStage.label}</button>`;
-          if (nextStage) actions += `<button class="status-btn next" onclick="updateOrderStatus(${safeArgs},'${nextStage.id}')">→ ${nextStage.label}</button>`;
-          actions += '</div>';
-        }
-        const matSection = renderMaterialChecklist(o, true, uid, name, brand);
-        const prodDate = o.productionStartDate ? `<div style="margin-top:8px;background:var(--bl);border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:var(--bd)">🏭 생산일정: <strong>${o.productionStartDate}</strong></div>` : '';
-        return `<div class="order-card"><div class="oc-header"><div class="oc-date">${date}</div>${getStatusBadge(o.status)}</div><div class="oc-title">${o.description||'-'}</div><div class="oc-detail">${o.formula} · ${o.volume}ml × ${N(o.quantity)}개 · ${o.container}<br>향: ${o.scent||'미선택'} · 원료: ${o.extracts?o.extracts.join(', '):'없음'}</div>${renderStatusTimeline(o.status)}${matSection}${prodDate}${actions}</div>`;
-      }).join('');
+      html += renderOrderGroups(orders, true, uid, name, brand);
     }
 
     // 대화 내역 섹션
@@ -2771,6 +2961,113 @@ async function updateInquiryBadge() {
 // ════════════════════════════════════════════════════════════
 //  🧭  NAVIGATION
 // ════════════════════════════════════════════════════════════
+// ════ REORDER (재발주) ════
+let _reorderSource = null;
+
+function openReorderModal(orderId) {
+  const orders = window._dashOrders || [];
+  const o = orders.find(x => x.id === orderId);
+  if (!o) { alert('주문 정보를 찾을 수 없습니다.'); return; }
+  _reorderSource = o;
+
+  const round = (o.productionRound || 1) + 1;
+  let summaryHtml = '';
+
+  if (o.type === 'dev_request') {
+    summaryHtml = `
+      <div class="reorder-summary">
+        <div style="font-size:11px;font-weight:700;color:var(--t);margin-bottom:8px">이전 발주 내용 <span class="round-badge">${o.productionRound||1}차 → ${round}차 생산</span></div>
+        <div class="reorder-row"><span class="rk">유형</span><span class="rv">독점개발</span></div>
+        <div class="reorder-row"><span class="rk">개발 제품</span><span class="rv">${o.product||'-'}</span></div>
+        <div class="reorder-row"><span class="rk">효능/효과</span><span class="rv">${o.effect||'-'}</span></div>
+        <div class="reorder-row"><span class="rk">타겟</span><span class="rv">${o.target||'-'}</span></div>
+        <div class="reorder-row"><span class="rk">향/색상</span><span class="rv">${o.scentColor||'-'}</span></div>
+        <div class="reorder-row"><span class="rk">이전 수량</span><span class="rv">${o.quantity?N(o.quantity)+'개':'-'}</span></div>
+      </div>`;
+    document.getElementById('reorderQuantity').min = 1000;
+    document.getElementById('reorderQuantity').step = 1000;
+    document.getElementById('reorderQuantity').value = o.quantity || 1000;
+    document.getElementById('reorderMoqNotice').textContent = '최소 1,000개 / 1,000개 단위';
+  } else {
+    summaryHtml = `
+      <div class="reorder-summary">
+        <div style="font-size:11px;font-weight:700;color:var(--t);margin-bottom:8px">이전 발주 내용 <span class="round-badge">${o.productionRound||1}차 → ${round}차 생산</span></div>
+        <div class="reorder-row"><span class="rk">유형</span><span class="rv">맞춤형</span></div>
+        <div class="reorder-row"><span class="rk">제형</span><span class="rv">${o.formula||'-'}</span></div>
+        <div class="reorder-row"><span class="rk">용기</span><span class="rv">${o.container||'-'}</span></div>
+        <div class="reorder-row"><span class="rk">용량</span><span class="rv">${o.volume?o.volume+'ml':'-'}</span></div>
+        <div class="reorder-row"><span class="rk">향</span><span class="rv">${o.scent||'무향'}</span></div>
+        <div class="reorder-row"><span class="rk">원료</span><span class="rv">${o.extracts?o.extracts.join(', '):'없음'}</span></div>
+        <div class="reorder-row"><span class="rk">이전 수량</span><span class="rv">${N(o.quantity||0)}개</span></div>
+      </div>`;
+    const moq = (o.volume === 30) ? 1000 : (o.volume === 50) ? 500 : 300;
+    document.getElementById('reorderQuantity').min = moq;
+    document.getElementById('reorderQuantity').step = 100;
+    document.getElementById('reorderQuantity').value = o.quantity || moq;
+    document.getElementById('reorderMoqNotice').textContent = `최소 ${N(moq)}개 / 100개 단위`;
+  }
+
+  document.getElementById('reorderSummary').innerHTML = summaryHtml;
+  document.getElementById('reorderNote').value = '';
+  document.getElementById('reorderModal').classList.add('open');
+}
+
+function closeReorderModal() {
+  document.getElementById('reorderModal').classList.remove('open');
+  _reorderSource = null;
+}
+
+async function submitReorder() {
+  if (!_reorderSource || !currentUser) return;
+  const o = _reorderSource;
+  const quantity = Number(document.getElementById('reorderQuantity').value);
+  const note = document.getElementById('reorderNote').value.trim();
+  const round = (o.productionRound || 1) + 1;
+  const originalId = o.originalOrderId || o.id;
+
+  if (!quantity || quantity < Number(document.getElementById('reorderQuantity').min)) {
+    alert('수량을 확인해주세요.'); return;
+  }
+
+  try {
+    const newOrder = {
+      userId: currentUser.uid,
+      userEmail: currentUser.email,
+      userName: currentUserData.name,
+      userBrand: currentUserData.brand,
+      userPhone: currentUserData.phone,
+      quantity,
+      status: 'ordered',
+      productionRound: round,
+      originalOrderId: originalId,
+      reorderNote: note,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (o.type === 'dev_request') {
+      Object.assign(newOrder, {
+        type: 'dev_request',
+        product: o.product || '', detail: o.detail || '', ingredients: o.ingredients || '',
+        target: o.target || '', scentColor: o.scentColor || '', effect: o.effect || '',
+        container: o.container || '', note: note || o.note || ''
+      });
+    } else {
+      Object.assign(newOrder, {
+        type: 'custom',
+        description: o.description || '', formula: o.formula || '', volume: o.volume || 100,
+        container: o.container || '', scent: o.scent || '', extracts: o.extracts || [],
+        functions: o.functions || [], bodyPart: o.bodyPart || '',
+        unitCost: o.unitCost || 0, extraCost: o.extraCost || 0
+      });
+    }
+
+    await db.collection('orders').add(newOrder);
+    alert(`${round}차 재발주 발주가 제출되었습니다.`);
+    closeReorderModal();
+    showDashboard();
+  } catch(e) { alert('제출 실패: ' + e.message); }
+}
+
 function openOrderTypeModal() {
   document.getElementById('orderTypeModal').classList.add('open');
 }
@@ -2847,7 +3144,7 @@ async function submitDevRequest() {
       product, detail, ingredients, target, scentColor, effect, container,
       quantity: quantity ? Number(quantity) : null,
       note,
-      status: 'submitted',
+      status: 'ordered',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     alert('독점개발 의뢰서가 제출되었습니다.\n연구팀에서 검토 후 연락드리겠습니다.');
@@ -2907,7 +3204,7 @@ const STAGE_GUIDES = {
     title: '출고가 완료되었습니다',
     items: [
       '제품이 발송되었습니다.',
-      '재생산은 보통 4주 소요, 500~1000개 이상 주문 가능합니다.',
+      '재발주은 보통 4주 소요, 500~1000개 이상 주문 가능합니다.',
       '새 제품 발주도 언제든 가능합니다.',
     ]
   },
@@ -2917,9 +3214,9 @@ const FAQ_LIST = [
   { q: '발주 절차가 어떻게 되나요?', a: '발주접수 → 샘플발송 → 부자재 입고 → 생산일정 → 생산완료 → 출고완료 순서로 진행됩니다.' },
   { q: '비용은 얼마인가요?', a: '300개 기준 약 300만원 미만입니다. (단상자, 라벨지, 용기 모두 포함)\n개당 단가는 약 10,000원 이하이며, 견적서 확인 후 50% 선입금 → 생산완료 후 잔금 결제입니다.' },
   { q: '샘플은 언제 오나요?', a: '샘플링 기간은 보통 3~4주 소요됩니다.\n개발의뢰서 제출 → 샘플링 → 피드백 → 수정샘플링 → 확정 순서입니다.' },
-  { q: '용기 인쇄는 어떻게 하나요?', a: '실크인쇄는 1000개부터 가능합니다. 300개 생산 후 나머지는 보관해두셨다가 재생산 시 사용하세요.\n첫 생산 시에는 스티커 인쇄로 300개 소량 진행을 추천드립니다. (리뉴얼 가능성 때문)' },
+  { q: '용기 인쇄는 어떻게 하나요?', a: '실크인쇄는 1000개부터 가능합니다. 300개 생산 후 나머지는 보관해두셨다가 재발주 시 사용하세요.\n첫 생산 시에는 스티커 인쇄로 300개 소량 진행을 추천드립니다. (리뉴얼 가능성 때문)' },
   { q: '기능성 화장품이란?', a: '주름기능성, 미백기능성, 자외선차단기능성, 탈모완화기능성이 있습니다.\n기능성 1개 추가 시 40,000원, 2개 추가 시 65,000원입니다.\n주름기능성과 미백기능성만 중복 선택 가능합니다.' },
-  { q: '재생산은 어떻게 하나요?', a: '재생산은 약 4주 소요되며, 보통 500~1000개 이상 주문합니다.\n새 발주를 통해 주문해주세요.' },
+  { q: '재발주은 어떻게 하나요?', a: '재발주은 약 4주 소요되며, 보통 500~1000개 이상 주문합니다.\n새 발주를 통해 주문해주세요.' },
   { q: '발주를 취소하고 싶어요', a: '대시보드에서 해당 발주의 "취소 요청" 버튼을 눌러주세요.\n관리자 승인 후 최종 취소됩니다.' },
 ];
 
