@@ -250,7 +250,7 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
 .delegate-card.active .dc-check { background:var(--t); border-color:var(--t); color:#fff; }
 
 /* ─── SELECTION GRIDS ─── */
-.formula-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:.75rem; }
+.formula-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:.75rem; }
 @media(max-width:520px) { .formula-grid { grid-template-columns:repeat(3,1fr); } }
 .body-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:.75rem; }
 .container-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(105px,1fr)); gap:8px; margin-bottom:.75rem; }
@@ -1017,13 +1017,16 @@ const FORMULA_CATEGORIES = [
     { id: 'toner-a', name: '산뜻한 토너',  heavy: false },
     { id: 'toner-b', name: '보습 토너',    heavy: false },
   ]},
+  { id: 'tonic',    name: '토닉',        icon: 'img-tonic', subs: [
+    { id: 'tonic-a', name: '스프레이 타입',  heavy: false },
+  ]},
   { id: 'lotion',   name: '로션',        icon: '🧴', subs: [
-    { id: 'lotion-a', name: '수분 로션',   heavy: false },
-    { id: 'lotion-b', name: '영양 로션',   heavy: true  },
+    { id: 'lotion-a', name: '산뜻한',   heavy: false },
+    { id: 'lotion-b', name: '촉촉한',   heavy: true  },
   ]},
   { id: 'serum',    name: '세럼/앰플',   icon: 'svg-serum', subs: [
-    { id: 'serum-a', name: '점도 낮음 (묽은)',  heavy: false },
-    { id: 'serum-b', name: '점도 높음 (걸쭉)',  heavy: false },
+    { id: 'serum-a', name: '산뜻한',  heavy: false },
+    { id: 'serum-b', name: '쫀쫀한',  heavy: false },
   ]},
   { id: 'mist',     name: '미스트',      icon: 'svg-spray', subs: [
     { id: 'mist-a', name: '산뜻한',        heavy: false },
@@ -1061,7 +1064,8 @@ const FORMULA_SVGS = {
   'svg-spray': `<svg viewBox="0 0 40 40" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><rect x="12" y="14" width="14" height="22" rx="3" fill="none"/><rect x="16" y="8" width="6" height="6" rx="1" fill="none"/><path d="M22 11h3"/><path d="M27 7l2-2M27 11h3M27 15l2 2" stroke-width="2"/></svg>`,
   'svg-cleanser': `<svg viewBox="0 0 40 40" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><rect x="11" y="14" width="16" height="22" rx="3" fill="none"/><rect x="15" y="8" width="8" height="6" rx="1" fill="none"/><path d="M19 5v3"/><path d="M19 5c0-1.5 1-2.5 2.5-2.5S24 3.5 24 5v1h-2V5"/><rect x="16" y="20" width="6" height="5" rx="1" fill="none" stroke-width="1.8"/><line x1="17.5" y1="22" x2="20.5" y2="22" stroke-width="1.5"/><line x1="17.5" y1="24" x2="20.5" y2="24" stroke-width="1.5"/></svg>`,
   'c-bottle': `<svg viewBox="0 0 40 52" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:28px"><path d="M14 22c0-3 3-6 3-8v-2h6v2c0 2 3 5 3 8v20a3 3 0 01-3 3h-6a3 3 0 01-3-3z"/><rect x="17" y="10" width="6" height="2" rx="1"/><line x1="17" y1="28" x2="17" y2="38" stroke-width="1.2" opacity=".3"/></svg>`,
-  'svg-airless-pump': `<svg viewBox="0 0 40 52" fill="none" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:32px"><rect x="13" y="20" width="14" height="24" rx="3" fill="#f0f4f8" stroke="#9CA3AF" stroke-width="1.5"/><rect x="15" y="14" width="10" height="6" rx="1.5" fill="#e5e7eb" stroke="#9CA3AF" stroke-width="1.5"/><rect x="17" y="10" width="6" height="4" rx="1" fill="#e5e7eb" stroke="#9CA3AF" stroke-width="1.5"/><path d="M17 10l-3-4h4" fill="#e5e7eb" stroke="#9CA3AF" stroke-width="1.2"/><line x1="16" y1="28" x2="16" y2="38" stroke="#d1d5db" stroke-width="1" opacity=".5"/></svg>`
+  'svg-airless-pump': `<svg viewBox="0 0 40 52" fill="none" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:32px"><rect x="13" y="20" width="14" height="24" rx="3" fill="#f0f4f8" stroke="#9CA3AF" stroke-width="1.5"/><rect x="15" y="14" width="10" height="6" rx="1.5" fill="#e5e7eb" stroke="#9CA3AF" stroke-width="1.5"/><rect x="17" y="10" width="6" height="4" rx="1" fill="#e5e7eb" stroke="#9CA3AF" stroke-width="1.5"/><path d="M17 10l-3-4h4" fill="#e5e7eb" stroke="#9CA3AF" stroke-width="1.2"/><line x1="16" y1="28" x2="16" y2="38" stroke="#d1d5db" stroke-width="1" opacity=".5"/></svg>`,
+  'img-tonic': `<svg viewBox="0 0 40 52" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:34px"><rect x="13" y="22" width="14" height="22" rx="3"/><rect x="16" y="16" width="8" height="6" rx="1"/><path d="M24 18h5l2-3M24 18h5l2 0"/><path d="M31 15l1.5-1M33 18h2M31 21l1.5 1" stroke-width="1.5"/></svg>`
 };
 function formulaIcon(icon) { return FORMULA_SVGS[icon] || icon; }
 
@@ -1106,7 +1110,91 @@ const CONTAINER_RULES = {
   'foam-b':  { allow: ['bubble','bottle'],                rec: 'bubble' },
   'foam-c':  { allow: ['pump','bottle'],                  rec: 'pump' },
   'gel-a':   { allow: ['pump','bottle','airless'],         rec: 'pump' },
+  'tonic-a': { allow: ['spray'],                           rec: 'spray' },
   'patch-a': { allow: ['airless'],                        rec: 'airless' },
+};
+
+const FORMULA_INGREDIENTS = {
+  'cleanser-a': {
+    kr: ["정제수", "소듐C14-16올레핀설포네이트", "라우라마이드디이에이", "글리세린", "폴리글리세릴-10미리스테이트", "코코-글루코사이드", "다이소듐코코암포다이아세테이트", "알란토인", "티트리잎오일", "카프릴릴글라이콜", "에틸헥실글리세린", "시트릭애씨드", "소듐클로라이드", "다이소듐이디티에이", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "리모넨"],
+    inci: ["Water", "Sodium C14-16 Olefin Sulfonate", "Lauramide DEA", "Glycerin", "Polyglyceryl-10 Myristate", "Coco-glucoside", "Disodium Cocoamphodiacetate", "Allantoin", "Melaleuca Alternifolia (Tea Tree) Leaf Oil", "Caprylyl Glycol", "Ethylhexylglycerin", "Citric Acid", "Sodium Chloride", "Disodium EDTA", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Limonene"],
+  },
+  'cleanser-b': {
+    kr: ["정제수", "라우릴하이드록시설테인", "소듐코코일글루타메이트", "글리세린", "폴리글리세릴-10미리스테이트", "코코-글루코사이드", "다이소듐코코암포다이아세테이트", "알란토인", "카프릴릴글라이콜", "에틸헥실글리세린", "티트리잎오일", "시트릭애씨드", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "다이소듐이디티에이"],
+    inci: ["Water", "Lauryl hydroxysultaine", "Sodium Cocoyl glutamate", "Glycerin", "Polyglyceryl-10 Myristate", "Coco-glucoside", "Disodium Cocoamphodiacetate", "Allantoin", "Caprylyl Glycol", "Ethylhexylglycerin", "Melaleuca Alternifolia (Tea Tree) Leaf Oil", "Citric Acid", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Disodium EDTA"],
+  },
+  'cream-a': {
+    kr: ["정제수", "글리세린", "부틸렌글라이콜", "카프릴릭/카프릭트라이글리세라이드", "스쿠알란", "나이아신아마이드", "세테아릴알코올", "1,2-헥산다이올", "아라키딜알코올", "판테놀", "호호바씨오일", "베헤닐알코올", "아라키딜글루코사이드", "글리세릴스테아레이트", "피이지-100스테아레이트", "알란토인", "다이메티콘", "하이드로제네이티드레시틴", "카프릴릴글라이콜", "폴리아크릴레이트-13", "폴리아이소부텐", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "폴리아크릴레이트-13", "폴리아이소부텐", "아데노신", "라벤더오일", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "리날룰"],
+    inci: ["Water", "Glycerin", "Butylene Glycol", "Caprylic/Capric Triglyceride", "Squalane", "Niacinamide", "Cetearyl Alcohol", "1,2-Hexanediol", "Arachidyl Alcohol", "Panthenol", "Simmondsia Chinensis (Jojoba) Seed Oil", "Behenyl Alcohol", "Arachidyl Glucoside", "Glyceryl Stearate", "PEG-100 Stearate", "Allantoin", "Dimethicone", "Hydrogenated Lecithin", "Caprylyl Glycol", "Polyacrylate-13", "Polyisobutene", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Polyacrylate-13", "Polyisobutene", "Adenosine", "Lavandula Angustifolia (Lavender) Oil", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Linalool"],
+  },
+  'cream-b': {
+    kr: ["정제수", "스쿠알란", "카프릴릭/카프릭트라이글리세라이드", "부틸렌글라이콜", "글리세린", "나이아신아마이드", "세테아릴알코올", "폴리글리세릴-3메틸글루코오스다이스테아레이트", "1,2-헥산다이올", "스테아릭애씨드", "글리세릴스테아레이트", "피이지-100스테아레이트", "알란토인", "판테놀", "호호바씨오일", "다이메티콘", "하이드로제네이티드레시틴", "카프릴릴글라이콜", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "폴리아크릴레이트-13", "폴리아이소부텐", "아데노신", "라벤더오일", "리날룰", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Squalane", "Caprylic/Capric Triglyceride", "Butylene Glycol", "Glycerin", "Niacinamide", "Cetearyl Alcohol", "Polyglyceryl-3 Methylglucose Distearate", "1,2-Hexanediol", "Stearic Acid", "Glyceryl Stearate", "PEG-100 Stearate", "Allantoin", "Panthenol", "Simmondsia Chinensis (Jojoba) Seed Oil", "Dimethicone", "Hydrogenated Lecithin", "Caprylyl Glycol", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Polyacrylate-13", "Polyisobutene", "Adenosine", "Lavandula Angustifolia (Lavender) Oil", "Linalool", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+  },
+  'foam-a': {
+    kr: ["정제수", "소듐코코일이세티오네이트", "라우릴하이드록시설테인", "소듐C14-16올레핀설포네이트", "라우릴글루코사이드", "라우라마이드디이에이", "글리세린", "다이소듐코코암포다이아세테이트", "알란토인", "라벤더오일", "다이소듐이디티에이", "카프릴릴글라이콜", "에틸헥실글리세린", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "시트릭애씨드", "소듐클로라이드", "리날룰"],
+    inci: ["Water", "Sodium Cocoyl Isethionate", "Lauryl hydroxysultaine", "Sodium C14-16 Olefin Sulfonate", "Lauryl Glucoside", "Lauramide DEA", "Glycerin", "Disodium Cocoamphodiacetate", "Allantoin", "Lavandula Angustifolia (Lavender) Oil", "Disodium EDTA", "Caprylyl Glycol", "Ethylhexylglycerin", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Citric Acid", "Sodium Chloride", "Linalool"],
+  },
+  'foam-c': {
+    kr: ["정제수", "라우릴하이드록시설테인", "글리세린", "라우릴글루코사이드", "아크릴레이트코폴리머", "다이소듐코코암포다이아세테이트", "트로메타민", "라벤더오일", "알란토인", "다이소듐이디티에이", "카프릴릴글라이콜", "에틸헥실글리세린", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "리날룰"],
+    inci: ["Water", "Lauryl hydroxysultaine", "Glycerin", "Lauryl Glucoside", "Acrylates Copolymer", "Disodium Cocoamphodiacetate", "Tromethamine", "Lavandula Angustifolia (Lavender) Oil", "Allantoin", "Disodium EDTA", "Caprylyl Glycol", "Ethylhexylglycerin", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Linalool"],
+  },
+  'gel-a': {
+    kr: ["정제수", "부틸렌글라이콜", "글리세린", "하이드록시에틸우레아", "자일리톨", "1,2-헥산다이올", "판테놀", "알란토인", "카보머", "트로메타민", "하이드록시에틸셀룰로오스", "비스-피이지-18메틸에터다이메틸실레인", "카프릴릴글라이콜", "티트리잎오일", "C12-14알케스-12", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Butylene Glycol", "Glycerin", "Hydroxyethyl Urea", "Xylitol", "1,2-Hexanediol", "Panthenol", "Allantoin", "Carbomer", "Tromethamine", "Hydroxyethylcellulose", "Bis-PEG-18 Methyl Ether Dimethyl Silane", "Caprylyl Glycol", "Melaleuca Alternifolia (Tea Tree) Leaf Oil", "C12-14 Alketh-12", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+  },
+  'lotion-a': {
+    kr: ["정제수", "글리세린", "부틸렌글라이콜", "스쿠알란", "카프릴릴메티콘", "카프릴릭/카프릭트라이글리세라이드", "세틸에틸헥사노에이트", "1,2-헥산다이올", "아라키딜알코올", "스테아릭애씨드", "C14-22알코올", "판테놀", "베헤닐알코올", "아라키딜글루코사이드", "에리스리톨", "C12-20알킬글루코사이드", "알란토인", "호호바씨오일", "하이드로제네이티드레시틴", "카프릴릴글라이콜", "폴리아크릴레이트-13", "폴리아이소부텐", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Glycerin", "Butylene Glycol", "Squalane", "Caprylyl Methicone", "Caprylic/Capric Triglyceride", "Cetyl Ethylhexanoate", "1,2-Hexanediol", "Arachidyl Alcohol", "Stearic Acid", "C14-22 Alcohols", "Panthenol", "Behenyl Alcohol", "Arachidyl Glucoside", "Erythritol", "C12-20 Alkyl Glucoside", "Allantoin", "Simmondsia Chinensis (Jojoba) Seed Oil", "Hydrogenated Lecithin", "Caprylyl Glycol", "Polyacrylate-13", "Polyisobutene", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+  },
+  'lotion-b': {
+    kr: ["정제수", "글리세린", "부틸렌글라이콜", "카프릴릭/카프릭트라이글리세라이드", "스쿠알란", "카프릴릴메티콘", "폴리글리세릴-3메틸글루코오스다이스테아레이트", "1,2-헥산다이올", "자일리톨", "아라키딜알코올", "세테아릴올리베이트", "솔비탄올리베이트", "베헤닐알코올", "아라키딜글루코사이드", "알란토인", "판테놀", "호호바씨오일", "하이드로제네이티드레시틴", "카프릴릴글라이콜", "암모늄아크릴로일다이메틸타우레이트/브이피코폴리머", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "라벤더오일", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "리날룰"],
+    inci: ["Water", "Glycerin", "Butylene Glycol", "Caprylic/Capric Triglyceride", "Squalane", "Caprylyl Methicone", "Polyglyceryl-3 Methylglucose Distearate", "1,2-Hexanediol", "Xylitol", "Arachidyl Alcohol", "Cetearyl Olivate", "Sorbitan Olivate", "Behenyl Alcohol", "Arachidyl Glucoside", "Allantoin", "Panthenol", "Simmondsia Chinensis (Jojoba) Seed Oil", "Hydrogenated Lecithin", "Caprylyl Glycol", "Ammonium Acryloyldimethyltaurate/VP Copolymer", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lavandula Angustifolia (Lavender) Oil", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Linalool"],
+  },
+  'mist-a': {
+    kr: ["정제수", "프로판다이올", "글리세린", "1,2-헥산다이올", "자일리톨", "나이아신아마이드", "우레아", "글리세릴글루코사이드", "알란토인", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "인도멀구슬나무잎추출물", "인도멀구슬나무꽃추출물", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Propanediol", "Glycerin", "1,2-Hexanediol", "Xylitol", "Niacinamide", "Urea", "Glyceryl Glucoside", "Allantoin", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Melia Azadirachta Leaf Extract", "Melia Azadirachta Flower Extract", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+  },
+  'mist-b': {
+    kr: ["정제수", "네오펜틸글라이콜다이헵타노에이트", "프로판다이올", "부틸렌글라이콜", "카프릴릭/카프릭트라이글리세라이드", "1,2-헥산다이올", "호호바씨오일", "토코페릴아세테이트", "라벤더오일", "자일리톨", "다이포타슘글리시리제이트", "알란토인", "카프릴릴글라이콜", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "시트릭애씨드", "소듐시트레이트", "리날룰"],
+    inci: ["Water", "Neopentyl Glycol Diheptanoate", "Propanediol", "Butylene Glycol", "Caprylic/Capric Triglyceride", "1,2-Hexanediol", "Simmondsia Chinensis (Jojoba) Seed Oil", "Tocopheryl Acetate", "Lavandula Angustifolia (Lavender) Oil", "Xylitol", "Dipotassium Glycyrrhizate", "Allantoin", "Caprylyl Glycol", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Citric Acid", "Sodium Citrate", "Linalool"],
+  },
+  'mist-c': {
+    kr: ["정제수", "글리세린", "부틸렌글라이콜", "다이프로필렌글라이콜", "스쿠알란", "1,2-헥산다이올", "자일리톨", "호호바씨오일", "토코페릴아세테이트", "판테놀", "알란토인", "카프릴릴글라이콜", "라벤더오일", "폴리글리세릴-10스테아레이트", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "리날룰"],
+    inci: ["Water", "Glycerin", "Butylene Glycol", "Dipropylene Glycol", "Squalane", "1,2-Hexanediol", "Xylitol", "Simmondsia Chinensis (Jojoba) Seed Oil", "Tocopheryl Acetate", "Panthenol", "Allantoin", "Caprylyl Glycol", "Lavandula Angustifolia (Lavender) Oil", "Polyglyceryl-10 Stearate", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Linalool"],
+  },
+  'patch-a': {
+    kr: ["정제수", "에탄올", "폴리비닐알코올", "나이아신아마이드", "부틸렌글라이콜", "1,2-헥산다이올", "자일리톨", "엑토인", "판테놀", "알란토인", "카프릴릴글라이콜", "하이드록시에틸아크릴레이트/소듐아크릴로일다이메틸타우레이트코폴리머", "아데노신", "티트리잎오일", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Alcohol", "Polyvinyl Alcohol", "Niacinamide", "Butylene Glycol", "1,2-Hexanediol", "Xylitol", "Ectoin", "Panthenol", "Allantoin", "Caprylyl Glycol", "Hydroxyethyl Acrylate/Sodium Acryloyldimethyl Taurate Copolymer", "Adenosine", "Melaleuca Alternifolia (Tea Tree) Leaf Oil", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+  },
+  'serum-a': {
+    kr: ["정제수", "부틸렌글라이콜", "글리세린", "약모밀추출물", "자일리톨", "1,2-헥산다이올", "베타인", "엑토인", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "알란토인", "판테놀", "다이포타슘글리시리제이트", "카보머", "알지닌", "하이드록시에틸아크릴레이트/소듐아크릴로일다이메틸타우레이트코폴리머", "카프릴릴글라이콜", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Butylene Glycol", "Glycerin", "Houttuynia Cordata Extract", "Xylitol", "1,2-Hexanediol", "Betaine", "Ectoin", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Allantoin", "Panthenol", "Dipotassium Glycyrrhizate", "Carbomer", "Arginine", "Hydroxyethyl Acrylate/Sodium Acryloyldimethyl Taurate Copolymer", "Caprylyl Glycol", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+  },
+  'serum-b': {
+    kr: ["정제수", "프로판다이올", "부틸렌글라이콜", "하이드록시에틸우레아", "1,2-헥산다이올", "자일리톨", "글리세릴글루코사이드", "판테놀", "알란토인", "폴리아크릴레이트크로스폴리머-6", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Propanediol", "Butylene Glycol", "Hydroxyethyl Urea", "1,2-Hexanediol", "Xylitol", "Glyceryl Glucoside", "Panthenol", "Allantoin", "Polyacrylate Crosspolymer-6", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+  },
+  'shampoo-a': {
+    kr: ["정제수", "소듐C14-16올레핀설포네이트", "소듐코코일글루타메이트", "폴리글리세릴-10미리스테이트", "글리세린", "부틸렌글라이콜", "라우라마이드디이에이", "알란토인", "라벤더오일", "카프릴릴글라이콜", "에틸헥실글리세린", "구아하이드록시프로필트리모늄클로라이드", "시트릭애씨드", "다이소듐이디티에이", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "리날룰"],
+    inci: ["Water", "Sodium C14-16 Olefin Sulfonate", "Sodium Cocoyl glutamate", "Polyglyceryl-10 Myristate", "Glycerin", "Butylene Glycol", "Lauramide DEA", "Allantoin", "Lavandula Angustifolia (Lavender) Oil", "Caprylyl Glycol", "Ethylhexylglycerin", "Guar Hydroxypropyl Trimonium Chloride", "Citric Acid", "Disodium EDTA", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Linalool"],
+  },
+  'shampoo-b': {
+    kr: ["정제수", "소듐C14-16올레핀설포네이트", "라우라마이드디이에이", "부틸렌글라이콜", "글리세린", "폴리글리세릴-10미리스테이트", "코코-글루코사이드", "다이소듐코코암포다이아세테이트", "알란토인", "라벤더오일", "카프릴릴글라이콜", "에틸헥실글리세린", "구아하이드록시프로필트리모늄클로라이드", "시트릭애씨드", "다이소듐이디티에이", "소듐클로라이드", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "리날룰"],
+    inci: ["Water", "Sodium C14-16 Olefin Sulfonate", "Lauramide DEA", "Butylene Glycol", "Glycerin", "Polyglyceryl-10 Myristate", "Coco-glucoside", "Disodium Cocoamphodiacetate", "Allantoin", "Lavandula Angustifolia (Lavender) Oil", "Caprylyl Glycol", "Ethylhexylglycerin", "Guar Hydroxypropyl Trimonium Chloride", "Citric Acid", "Disodium EDTA", "Sodium Chloride", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Linalool"],
+  },
+  'toner-a': {
+    kr: ["정제수", "프로판다이올", "글리세린", "1,2-헥산다이올", "하이드록시에틸우레아", "자일리톨", "베타인", "글리세릴글루코사이드", "판테놀", "알란토인", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Propanediol", "Glycerin", "1,2-Hexanediol", "Hydroxyethyl Urea", "Xylitol", "Betaine", "Glyceryl Glucoside", "Panthenol", "Allantoin", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+  },
+  'toner-b': {
+    kr: ["정제수", "프로판다이올", "부틸렌글라이콜", "자일리톨", "1,2-헥산다이올", "베타인", "소듐하이알루로네이트", "판테놀", "알란토인", "카보머", "알지닌", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Propanediol", "Butylene Glycol", "Xylitol", "1,2-Hexanediol", "Betaine", "Sodium Hyaluronate", "Panthenol", "Allantoin", "Carbomer", "Arginine", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+  },
+  'tonic-a': {
+    kr: ["정제수", "에탄올", "부틸렌글라이콜", "펜틸렌글라이콜", "자일리톨", "1,2-헥산다이올", "판테놀", "나이아신아마이드", "살리실릭애씨드", "트로메타민", "알란토인", "징크피씨에이", "멘톨", "다이포타슘글리시리제이트", "로즈마리잎오일", "카프릴릴글라이콜", "C12-14알케스-12", "하이드롤라이즈드글라이코사미노글리칸", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Alcohol", "Butylene Glycol", "Pentylene Glycol", "Xylitol", "1,2-Hexanediol", "Panthenol", "Niacinamide", "Salicylic Acid", "Tromethamine", "Allantoin", "Zinc PCA", "Menthol", "Dipotassium Glycyrrhizate", "Rosmarinus Officinalis (Rosemary) Leaf Oil", "Caprylyl Glycol", "C12-14 Alketh-12", "Hydrolyzed Glycosaminoglycans", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+  },
 };
 
 const VOLUMES     = [30, 50, 100, 150, 200, 300];
@@ -1191,27 +1279,16 @@ const DEFAULT_EXTRACTS = [
   { id:68, name:'알파-알부틴',        category:'첨가원료', price:1600, tags:['미백','색소','톤업','기미','잡티','자외선','얼굴','항산화'], inci:'', detail:{ eng:'Alpha-Arbutin', effects:['미백: 티로시나제 억제로 멜라닌 생성 차단, 식약처 인정 미백 원료','잡티·색소 완화: 기미·잡티 케어, 고른 피부 톤','피부 자극 낮음: 베타-알부틴보다 안정적, 민감성 피부도 활용 가능'], positions:['미백·광채 컨셉 (세럼, 에센스, 크림)','민감성 미백 라인 (저자극 미백 토너, 에센스)','기능성 화장품 (미백 기능성 전 제형)'] } },
 ];
 
-// ═══ 제형별 기본 전성분 (하위 성분 한글명) ═══
-const BASE_INGREDIENTS = {
-  'serum-a': [
-    '정제수','부틸렌글라이콜','글리세린','약모밀추출물','자일리톨','1,2-헥산다이올','베타인','엑토인',
-    '하이드롤라이즈드글라이코사미노글리칸','소듐하이알루로네이트','소듐하이알루로네이트크로스폴리머',
-    '하이드롤라이즈드하이알루로닉애씨드','하이드록시프로필트라이모늄하이알루로네이트','하이알루로닉애씨드',
-    '소듐아세틸레이티드하이알루로네이트','아시아티코사이드','마데카소사이드','마데카식애씨드','아시아틱애씨드',
-    '세라마이드엔에스','세라마이드엔피','세라마이드에이에스','세라마이드에이피','세라마이드이오피',
-    '알란토인','판테놀','다이포타슘글리시리제이트','카보머','알지닌',
-    '하이드록시에틸아크릴레이트/소듐아크릴로일다이메틸타우레이트코폴리머','카프릴릴글라이콜',
-    '락토바실러스/콩발효추출물','흰버드나무껍질추출물','육계나무껍질추출물','오레가노잎추출물',
-    '편백잎추출물','황금추출물','쇠비름추출물','대왕송잎추출물','당느릅나무뿌리추출물',
-    '달맞이꽃추출물','칡뿌리추출물'
-  ],
-  // 나중에 다른 제형 추가: 'serum-b': [...], 'cream-a': [...], ...
-};
+// ═══ 제형별 기본 전성분 — FORMULA_INGREDIENTS 에서 kr 배열 참조 ═══
+function getBaseIngredients(formulaId) {
+  const fi = FORMULA_INGREDIENTS[formulaId];
+  return fi ? fi.kr : [];
+}
 
 // 추출물의 하위 성분이 전부 기본 전성분에 포함되는지 체크
 function isFullyInBase(extract, formulaId) {
-  const base = BASE_INGREDIENTS[formulaId];
-  if (!base) return false;
+  const base = getBaseIngredients(formulaId);
+  if (!base || base.length === 0) return false;
   // inci가 없는 단일 추출물 → 이름 자체로 체크
   if (!extract.inci) return base.includes(extract.name);
   // 복합 추출물 → 하위 성분 전부 포함되어야 함
@@ -1493,8 +1570,8 @@ function selectScent(name, price) {
 }
 
 function buildFullIngredientsList() {
-  const base = BASE_INGREDIENTS[STATE.formula];
-  if (!base) return '';
+  const base = getBaseIngredients(STATE.formula);
+  if (!base || base.length === 0) return '';
   // 기본 전성분
   const allIngredients = [...base];
   // 선택한 추출물의 하위 성분 추가 (기본 전성분에 없는 것만)
@@ -1851,7 +1928,32 @@ function getStep2Guide() {
   if (!formula) {
     return `<div class="gp-section"><div class="gp-section-title">${selCat.name} 선택</div><div class="gp-text"><strong>${selCat.name}</strong> 카테고리의 세부 제형(텍스처)을 선택해주세요.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">안내</div><div class="gp-text">세부 제형에 따라 적합한 용기가 달라집니다.</div></div>${videoHtml}`;
   }
-  return `<div class="gp-section"><div class="gp-section-title">제형 선택 완료</div><div class="gp-text"><strong>${formula.name}</strong>이(가) 선택되었습니다.<br><br>다음 단계에서 이 제형에 적합한 용기를 선택할 수 있습니다.</div></div>${videoHtml}`;
+  const formulaGuide = {
+    'cream-a': '묽고 부드러운 텍스처로 빠르게 흡수되는 타입입니다.<br>끈적임 없이 가볍게 마무리됩니다.',
+    'cream-b': '점도 높고 밀도 있는 텍스처로 보습감이 오래 유지되는 타입입니다.<br>흡수 후 보호막이 형성되며 쫀쫀하게 마무리됩니다.',
+    'toner-a': '물처럼 가볍게 흐르는 텍스처로 빠르게 흡수되는 타입입니다.<br>끈적임 없이 산뜻하게 마무리됩니다.',
+    'toner-b': '약간의 점도가 느껴지는 텍스처로 촉촉함이 유지되는 타입입니다.<br>피부에 수분감을 남기며 촉촉하게 마무리됩니다.',
+    'lotion-a': '가볍고 부드럽게 발리는 텍스처로 빠르게 흡수되는 타입입니다.<br>끈적임 없이 산뜻하게 마무리됩니다.',
+    'lotion-b': '부드럽게 발리면서 수분감이 느껴지는 텍스처로 촉촉함이 유지되는 타입입니다.<br>피부에 수분감을 남기며 촉촉하게 마무리됩니다.',
+    'serum-a': '가볍고 부드럽게 퍼지는 텍스처로 빠르게 흡수되는 타입입니다.<br>끈적임 없이 산뜻하게 마무리됩니다.',
+    'serum-b': '점도감이 느껴지며 피부에 밀착되는 텍스처로 유지력이 있는 타입입니다.<br>피부에 밀착되며 쫀쫀하게 마무리됩니다.',
+    'mist-a': '가볍고 미세하게 분사되는 텍스처로 빠르게 흡수되는 타입입니다.<br>끈적임 없이 산뜻하게 마무리됩니다.',
+    'mist-b': '오일과 수분층이 분리된 타입으로 흔들어 사용하는 텍스처입니다.<br>분사 시 보습감과 윤기를 함께 더해 촉촉하게 마무리됩니다.',
+    'mist-c': '부드럽고 밀도 있는 분사 텍스처로 피부에 보습막을 형성하는 타입입니다.<br>건조함을 잡아주며 촉촉하고 보호감 있게 마무리됩니다.',
+    'shampoo-a': '풍성한 거품 형태로 바로 사용 가능한 타입입니다.<br>손에서 거품을 낼 필요 없이 부드럽게 세정되며 가볍게 마무리됩니다.',
+    'shampoo-b': '점성이 있는 액상 텍스처로 물과 함께 거품을 내어 사용하는 타입입니다.<br>세정력과 사용감을 조절하기 쉬우며 깔끔하게 마무리됩니다.',
+    'cleanser-a': '점성이 있는 액상 텍스처로 물과 함께 거품을 내어 사용하는 타입입니다.<br>세정력과 사용감을 조절하기 쉬우며 깔끔하게 마무리됩니다.',
+    'cleanser-b': '풍성한 거품 형태로 바로 사용 가능한 타입입니다.<br>손에서 거품을 낼 필요 없이 부드럽게 세정되며 가볍게 마무리됩니다.',
+    'foam-a': '투명하고 부드러운 젤 텍스처로 피부에 자극 없이 세정되는 타입입니다.<br>물과 만나 부드럽게 롤링되며 산뜻하게 마무리됩니다.',
+    'foam-b': '풍성한 거품 형태로 바로 사용 가능한 타입입니다.<br>손에서 거품을 낼 필요 없이 부드럽게 세정되며 가볍게 마무리됩니다.',
+    'foam-c': '젤 형태로 발리다가 물과 만나 거품으로 변하는 텍스처입니다.<br>부드러운 롤링과 세정을 동시에 느낄 수 있으며 깔끔하게 마무리됩니다.',
+    'gel-a': '가볍고 촉촉하게 발리는 젤 텍스처로 피부에 빠르게 흡수되는 타입입니다.<br>끈적임 없이 산뜻하면서도 수분감 있게 마무리됩니다.',
+    'patch-a': '얇게 펴 바른 후 시간이 지나면서 막이 형성되는 타입입니다.<br>건조 후 피부에 밀착되며 떼어내는 방식으로 깔끔하게 마무리됩니다.',
+    'tonic-a': '미세하게 분사되는 액상 텍스처로 두피에 고르게 도포되는 타입입니다.<br>가볍게 퍼지며 산뜻하게 마무리됩니다.',
+  };
+  const guideText = formulaGuide[formula.id] || '';
+  const descHtml = guideText ? `<br><br>${guideText}` : '';
+  return `<div class="gp-section"><div class="gp-section-title">제형 선택 완료</div><div class="gp-text"><strong>${formula.name}</strong> 제형이 선택되었습니다.${descHtml}<br><br>다음 단계에서 이 제형에 적합한 용기를 선택할 수 있습니다.</div></div>${videoHtml}`;
 }
 
 function getStep3Guide() {
@@ -1885,21 +1987,20 @@ function getScentGuide() {
   const scent = STATE.selectedScent;
   const recs = typeof getScentRecommendations === 'function' ? getScentRecommendations() : {};
   const isRec = scent && recs[scent] > 0;
+  const fid = STATE.formulaId;
+  const ings = fid ? FORMULA_INGREDIENTS[fid] : null;
+  const ingsHtml = ings ? `<div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">기본 전성분 (${ings.kr.length}종)</div><div class="gp-text" style="font-size:12px;line-height:1.6;color:#6b7280">${ings.kr.join(', ')}<br><br><span style="font-size:11px;color:#9ca3af">※ 전성분 표기 순서는 실제 함량 비율에 따라 변경될 수 있습니다.</span></div></div>` : '';
 
   if (!scent) {
-    // 미선택 상태: 에센셜 오일 설명 → 1가지 선택 → 무향 안내
-    return `<div class="gp-section"><div class="gp-section-title">에센셜 오일이란?</div><div class="gp-text">식물에서 추출한 천연 향 원료로, 향 외에도 항균·진정·혈행 촉진 등 기능성 효과가 있습니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">향 선택 안내</div><div class="gp-text"><ul><li>향은 <strong>1가지만</strong> 선택할 수 있습니다.</li><li>향료·에센셜 오일을 넣지 않을 경우 <strong>무향</strong>을 선택하세요.</li></ul></div></div>`;
+    return `<div class="gp-section"><div class="gp-section-title">에센셜 오일이란?</div><div class="gp-text">식물에서 추출한 천연 향 원료로, 향 외에도 항균·진정·혈행 촉진 등 기능성 효과가 있습니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">향 선택 안내</div><div class="gp-text"><ul><li>향은 <strong>1가지만</strong> 선택할 수 있습니다.</li><li>향료·에센셜 오일을 넣지 않을 경우 <strong>무향</strong>을 선택하세요.</li></ul></div></div>${ingsHtml}`;
   }
   if (scent === '무향') {
-    // 무향 선택: 자체 향 안내
-    return `<div class="gp-section"><div class="gp-section-title">무향 선택</div><div class="gp-text">무향 선택 시에도 원료 자체의 특성 향이 있을 수 있습니다.<br><br>이는 에센셜 오일이나 향료를 첨가하지 않은 상태이며, <strong>원료 고유의 자연스러운 향</strong>입니다.</div></div>`;
+    return `<div class="gp-section"><div class="gp-section-title">무향 선택</div><div class="gp-text">무향 선택 시에도 원료 자체의 특성 향이 있을 수 있습니다.<br><br>이는 에센셜 오일이나 향료를 첨가하지 않은 상태이며, <strong>원료 고유의 자연스러운 향</strong>입니다.</div></div>${ingsHtml}`;
   }
   if (isRec) {
-    // 추천 뱃지 항목 선택: 추천 설명 + 1가지 제한
-    return `<div class="gp-section"><div class="gp-section-title">추천 향 선택</div><div class="gp-text"><strong>${scent}</strong>은(는) 입력하신 개발 목표에 기능적으로 적합한 향입니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">안내</div><div class="gp-text"><ul><li>향은 <strong>1가지만</strong> 선택할 수 있습니다.</li><li>변경을 원하시면 다른 향을 선택하세요.</li></ul></div></div>`;
+    return `<div class="gp-section"><div class="gp-section-title">추천 향 선택</div><div class="gp-text"><strong>${scent}</strong>은(는) 입력하신 개발 목표에 기능적으로 적합한 향입니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">안내</div><div class="gp-text"><ul><li>향은 <strong>1가지만</strong> 선택할 수 있습니다.</li><li>변경을 원하시면 다른 향을 선택하세요.</li></ul></div></div>${ingsHtml}`;
   }
-  // 일반 에센셜 오일 선택: 1가지 제한 + 무향 전환 안내
-  return `<div class="gp-section"><div class="gp-section-title">향 선택 완료</div><div class="gp-text"><strong>${scent}</strong>이(가) 선택되었습니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">안내</div><div class="gp-text"><ul><li>향은 <strong>1가지만</strong> 선택할 수 있습니다.</li><li>향을 넣지 않으려면 <strong>무향</strong>을 선택하세요.</li></ul></div></div>`;
+  return `<div class="gp-section"><div class="gp-section-title">향 선택 완료</div><div class="gp-text"><strong>${scent}</strong>이(가) 선택되었습니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">안내</div><div class="gp-text"><ul><li>향은 <strong>1가지만</strong> 선택할 수 있습니다.</li><li>향을 넣지 않으려면 <strong>무향</strong>을 선택하세요.</li></ul></div></div>${ingsHtml}`;
 }
 
 function updateGuidePanel(step) {
