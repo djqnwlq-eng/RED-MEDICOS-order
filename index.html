@@ -202,6 +202,8 @@ select:focus, input[type="number"]:focus { outline:none; border-color:var(--t); 
 
 /* ─── CHIPS ─── */
 .chips { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:.75rem; }
+input[type=range] { -webkit-appearance:none; height:4px; background:#e5e7eb; border-radius:2px; outline:none; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--t); cursor:pointer; }
 .chip {
   padding:6px 13px; border-radius:20px; border:1px solid var(--ge);
   font-size:12px; cursor:pointer; color:var(--g6); background:#fff;
@@ -1336,7 +1338,7 @@ const STATE = {
 // ════════════════════════════════════════════════════════════
 const MOQ_MAP = { 30: 1000, 50: 500 };
 const getMOQ  = v => MOQ_MAP[v] || 300;
-const getExtTotal = () => Object.values(STATE.selExtracts).reduce((a, b) => a + b, 0);
+const getExtTotal = () => Object.values(STATE.selExtracts).reduce((a, v) => a + Math.round(v.price * v.pct * 10) / 10, 0);
 
 // 제형별 원가 (원/kg, 1000ml 기준)
 const FORMULA_COST_PER_KG = {
@@ -1592,7 +1594,7 @@ function selectScent(name, price) {
   STATE.selectedScent = name;
   if (STATE.selExtracts) {
     extracts.filter(e => e.category === '에센셜오일').forEach(e => { delete STATE.selExtracts[e.name]; });
-    if (name !== '무향' && price > 0) STATE.selExtracts[name] = price;
+    if (name !== '무향' && price > 0) STATE.selExtracts[name] = { price, pct: 0.1 };
   }
   document.getElementById('stepContent').innerHTML = buildStepScent();
   updateGuidePanel(6);
@@ -1679,8 +1681,9 @@ function buildStep3(aiLoading=false) {
     <div class="card"><div class="card-title">컨셉성분 선택</div><div class="card-sub">제품 컨셉에 맞는 핵심 성분을 선택하거나, 제조 전문가에게 맡길 수 있습니다</div>
       <div class="delegate-card" onclick="toggleDelegate()"><div class="dc-icon">👨‍🔬</div><div class="dc-text"><div class="dc-title">컨셉성분 선택을 제조 전문가에게 맡길게요</div><div class="dc-sub">입력하신 개발 목표와 제형을 바탕으로<br>제조 연구팀이 최적의 원료를 직접 배합해드립니다</div></div><div class="dc-check"></div></div>
       <div id="extractSelectArea"><div class="section-tag"><span style="font-size:10px;font-weight:800;padding:2px 7px;background:var(--tl);color:var(--tmd);border-radius:10px">✦ AI 추천 성분</span></div><div id="aiSection">${aiSection}</div><div class="section-tag">전체 성분 리스트</div><div class="chips">${allChips}</div></div>
+      ${buildPctSliders()}
     </div>
-    <div class="price-bar"><div><div class="pb-label">선택한 성분 ${selKeys.length}개</div><div class="pb-sub" id="selectedList">${selKeys.length?selKeys.join(', '):'성분 미선택'}</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가</div><div class="pb-price" id="priceDisplay">${N(getUnitCost())}원</div></div></div>
+    <div class="price-bar"><div><div class="pb-label">선택한 성분 ${selKeys.length}개</div><div class="pb-sub" id="selectedList">${selKeys.length?selKeys.map(k=>{const v=STATE.selExtracts[k];return k+'('+v.pct+'%)';}).join(', '):'성분 미선택'}</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가</div><div class="pb-price" id="priceDisplay">${N(Math.round(getUnitCost()))}원</div></div></div>
     <div style="background:#fef9f0;border:0.5px solid #f0dcc0;border-radius:var(--rsm);padding:8px 13px;margin-top:6px;font-size:11px;color:#9a7b4f;line-height:1.5">※ 최종 원가는 원료 수급·배합 비율에 따라 변동될 수 있습니다.</div>
     <div class="btn-row"><button class="btn" onclick="goToStep(4)">← 이전</button><button class="btn primary" onclick="goToStep(6)">다음 단계 →</button></div>`;
 }
@@ -1845,6 +1848,29 @@ function selectContainer(id) {
   updateGuidePanel(3);
 }
 
+function buildPctSliders() {
+  const keys = Object.keys(STATE.selExtracts);
+  if (keys.length === 0) return '';
+  let html = `<div style="margin-top:14px;padding:14px 16px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:var(--r)">
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px">함량 설정</div>
+    <div style="font-size:11px;color:#6b7280;margin-bottom:12px;line-height:1.6">기본 함량은 <strong>0.1%</strong>로 설정되어 있으며, 대부분의 제형에서 효과적인 배합 비율입니다.<br>제품 컨셉에 따라 함량을 높이면 해당 성분의 특성이 더 강조되며, 가격도 비례하여 변동됩니다.<br>원하시는 컨셉과 예산에 맞게 자유롭게 조절해주세요.</div>`;
+  keys.forEach((name, idx) => {
+    const v = STATE.selExtracts[name];
+    const safeName = name.replace(/'/g, "\\'");
+    const calcCost = Math.round(v.price * v.pct);
+    html += `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #e9ecef">
+      <div style="min-width:120px;font-size:12px;font-weight:600;color:#1F2937">${name}</div>
+      <input type="range" min="1" max="10" step="1" value="${Math.round(v.pct * 10)}"
+        oninput="updateExtractPct('${safeName}',this.value/10)"
+        style="flex:1;accent-color:var(--t);height:4px">
+      <div style="min-width:40px;text-align:center;font-size:12px;font-weight:700;color:var(--t)" id="pctL${idx}">${v.pct}%</div>
+      <div style="min-width:55px;text-align:right;font-size:11px;color:#6b7280" id="pctC${idx}">${N(calcCost)}원</div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
 function toggleDelegate() {
   STATE.delegateExtracts = !STATE.delegateExtracts;
   if (STATE.delegateExtracts) STATE.selExtracts = {};
@@ -1860,7 +1886,7 @@ function toggleExtract(name, price) {
     if (ext && ext.creamOnly && !STATE.formula?.startsWith('cream')) {
       alert('하이드롤라이즈드해면(리들샷)은 크림 제형에 한정하여 첨가 가능합니다.'); return;
     }
-    STATE.selExtracts[name] = price;
+    STATE.selExtracts[name] = { price, pct: 0.1 };
   }
   const isSel = STATE.selExtracts[name] !== undefined;
   document.querySelectorAll(`.chip[data-name="${name}"]`).forEach(chip => chip.classList.toggle('sel', isSel));
@@ -1870,10 +1896,43 @@ function toggleExtract(name, price) {
     chip.style.opacity = isFull ? '0.35' : '';
     chip.style.pointerEvents = isFull ? 'none' : '';
   });
-  const pd = document.getElementById('priceDisplay'); if (pd) pd.textContent = N(getUnitCost()) + '원';
-  const sl = document.getElementById('selectedList'); if (sl) sl.textContent = keys.length ? keys.join(', ') : '원료 미선택';
-  const pl = document.querySelector('.pb-label'); if (pl && !STATE.delegateExtracts) pl.textContent = '선택한 성분 ' + keys.length + '개';
+  // 슬라이더 영역 갱신
+  const slidersArea = document.querySelector('#extractSelectArea > div:last-child');
+  if (slidersArea && slidersArea.querySelector('input[type=range]')) {
+    slidersArea.outerHTML = buildPctSliders();
+  } else {
+    const area = document.getElementById('extractSelectArea');
+    if (area && Object.keys(STATE.selExtracts).length > 0) area.insertAdjacentHTML('beforeend', buildPctSliders());
+  }
+  updateExtractSummary();
   updateGuidePanel(5);
+}
+
+function updateExtractPct(name, pct) {
+  if (!STATE.selExtracts[name]) return;
+  pct = Math.round(parseFloat(pct) * 10) / 10;
+  STATE.selExtracts[name].pct = pct;
+  const idx = Object.keys(STATE.selExtracts).indexOf(name);
+  const label = document.getElementById('pctL' + idx);
+  if (label) label.textContent = pct + '%';
+  const costEl = document.getElementById('pctC' + idx);
+  if (costEl) costEl.textContent = N(Math.round(STATE.selExtracts[name].price * pct)) + '원';
+  updateExtractSummary();
+}
+
+function updateExtractSummary() {
+  const keys = Object.keys(STATE.selExtracts);
+  const pd = document.getElementById('priceDisplay'); if (pd) pd.textContent = N(Math.round(getUnitCost())) + '원';
+  const sl = document.getElementById('selectedList');
+  if (sl) {
+    if (keys.length) {
+      sl.innerHTML = keys.map(k => {
+        const v = STATE.selExtracts[k];
+        return `${k}(${v.pct}%)`;
+      }).join(', ');
+    } else sl.textContent = '원료 미선택';
+  }
+  const pl = document.querySelector('.pb-label'); if (pl && !STATE.delegateExtracts) pl.textContent = '선택한 성분 ' + keys.length + '개';
 }
 
 function showExtractDetail(name) {
@@ -2144,8 +2203,9 @@ async function submitOrder() {
     bodyPart:    STATE.bodyPart,
     formula:     formula ? `${formula.name} (${formula.desc})` : '-',
     scent:       STATE.delegateExtracts ? '제조 전문가 위임' : (STATE.selectedScent || '미선택'),
-    extracts:    STATE.delegateExtracts ? ['제조 전문가 위임'] : selKeys,
-    extractCost: getExtTotal(),
+    extracts:    STATE.delegateExtracts ? ['제조 전문가 위임'] : selKeys.map(k => `${k}(${STATE.selExtracts[k].pct}%)`),
+    extractDetails: STATE.delegateExtracts ? null : Object.fromEntries(selKeys.map(k => [k, STATE.selExtracts[k]])),
+    extractCost: Math.round(getExtTotal()),
     unitCost:    getUnitCost(),
     volume:      STATE.volume,
     quantity:    STATE.quantity,
