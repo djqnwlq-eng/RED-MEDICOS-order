@@ -702,10 +702,11 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
         <img src="logo.png" alt="RED MEDICOS" style="height:24px" onerror="this.outerHTML='레드메디코스'"> <em>관리자</em>
       </div>
       <button class="btn-sm" onclick="renderAdminStudentList()" style="font-weight:600">교육생 관리 <span id="orderBadge" style="display:none;background:#DC2626;color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:2px"></span></button>
-      <button class="btn-sm" onclick="renderAdminInquiries()">문의 관리 <span id="inquiryBadge" style="display:none;background:var(--t);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:2px"></span></button>
       <button class="btn-sm" onclick="openAdmin()">성분 관리</button>
+      <button class="btn-sm" onclick="renderAdminLogs()">기록 관리</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn-sm" onclick="openUserGuide()" style="font-weight:600;color:#065F46;border-color:#6EE7B7">📖 이용 가이드</button>
       <button class="btn-sm" onclick="openBizInfo()" style="font-weight:600">사업자 정보</button>
       <span style="font-size:12px;color:var(--g6);cursor:pointer;transition:color .15s" id="adminUserInfo" onclick="openMyInfo()" title="클릭하여 내 정보 수정"></span>
       <button class="btn-sm" onclick="doLogout()">로그아웃</button>
@@ -3123,6 +3124,8 @@ async function updateOrderStatus(orderId, uid, name, brand, newStatus, direction
       updateData.productionStartDate = firebase.firestore.FieldValue.delete();
     }
     await db.collection('orders').doc(orderId).update(updateData);
+    const stageLabel = (ORDER_STAGES.find(s=>s.id===newStatus)||{}).label||newStatus;
+    addAuditLog('상태 변경', `${name} (${brand})`, `→ ${stageLabel}`);
     await showStudentOrders(uid, name, brand);
   } catch(e) { alert('상태 변경 실패: ' + e.message); }
 }
@@ -3167,6 +3170,7 @@ async function submitContainerResult(orderId, uid, name, brand, result) {
         [`stageDates.container_result`]: new Date().toLocaleDateString('ko-KR')
       });
     }
+    addAuditLog('용기 판정', `${name} (${brand})`, `결과: ${result}`);
     await showStudentOrders(uid, name, brand);
   } catch(e) { alert('판정 처리 실패: ' + e.message); }
 }
@@ -3247,6 +3251,7 @@ async function submitMaterialsPhoto(orderId, uid, name, brand) {
       [`stageDates.materials_photo`]: new Date().toLocaleDateString('ko-KR'),
     });
     document.getElementById('matPhotoOverlay')?.remove();
+    addAuditLog('검수사진 업로드', `${name} (${brand})`, `${urls.length}장`);
     await showStudentOrders(uid, name, brand);
   } catch(e) {
     alert('업로드 실패: ' + e.message);
@@ -3604,6 +3609,7 @@ async function approveCancelOrder(orderId, uid, name, brand) {
       status: 'cancelled',
       cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    addAuditLog('취소 승인', `${name} (${brand})`, `발주 ID: ${orderId}`);
     await showStudentOrders(uid, name, brand);
   } catch(e) { alert('취소 승인 실패: ' + e.message); }
 }
@@ -3616,6 +3622,7 @@ async function rejectCancelOrder(orderId, uid, name, brand) {
       status: 'ordered',
       cancelRejectedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    addAuditLog('취소 거절', `${name} (${brand})`, `발주 ID: ${orderId}`);
     await showStudentOrders(uid, name, brand);
   } catch(e) { alert('취소 거절 실패: ' + e.message); }
 }
@@ -3625,6 +3632,7 @@ async function deleteOrder(orderId, uid, name, brand) {
   if (!confirm('이 발주를 영구 삭제하시겠습니까? 되돌릴 수 없습니다.')) return;
   try {
     await db.collection('orders').doc(orderId).delete();
+    addAuditLog('발주 삭제', `${name} (${brand})`, `발주 ID: ${orderId}`);
     await showStudentOrders(uid, name, brand);
   } catch(e) { alert('삭제 실패: ' + e.message); }
 }
@@ -3651,6 +3659,7 @@ async function deleteStudent(uid, name) {
     }
     // 유저 문서 삭제
     await db.collection('users').doc(uid).delete();
+    addAuditLog('교육생 삭제', name, `UID: ${uid}`);
     alert(`${name} 교육생이 삭제되었습니다.\n※ Firebase Auth 계정은 해당 교육생이 직접 재가입하면 자동 갱신됩니다.`);
     renderAdminStudentList();
   } catch(e) { alert('삭제 실패: ' + e.message); }
@@ -4080,7 +4089,10 @@ function goHome() { goToDashboard(); }
 async function approveStudent(uid) {
   if (!confirm('이 교육생의 가입을 승인하시겠습니까?')) return;
   try {
+    const userDoc = await db.collection('users').doc(uid).get();
+    const uData = userDoc.data();
     await db.collection('users').doc(uid).update({ approved: true });
+    addAuditLog('교육생 승인', `${uData?.name||'-'} (${uData?.brand||'-'})`, `이메일: ${uData?.email||'-'}`);
     alert('승인되었습니다.');
     renderAdminStudentList();
   } catch(e) { alert('승인 실패: ' + e.message); }
@@ -4903,6 +4915,89 @@ function checkNewUserGuideBanner() {
 function dismissGuideBanner() {
   localStorage.setItem('guideBannerDismissed_' + currentUser?.uid, 'true');
   document.getElementById('newUserGuideBanner').style.display = 'none';
+}
+
+// ════════════════════════════════════════════════════════════
+//  📝 기록 관리 (ADMIN AUDIT LOG)
+// ════════════════════════════════════════════════════════════
+const SUPER_ADMIN_EMAIL = 'djqnwlq@gmail.com';
+
+async function addAuditLog(action, target, detail) {
+  try {
+    await db.collection('auditLogs').add({
+      action,
+      target,
+      detail: detail || '',
+      adminEmail: currentUser?.email || '',
+      adminName: currentUserData?.name || '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) { console.warn('기록 저장 실패:', e); }
+}
+
+async function renderAdminLogs() {
+  if (_adminStudentListener) { _adminStudentListener(); _adminStudentListener = null; }
+  document.getElementById('adminContent').innerHTML = `<div class="ai-loading"><div class="spinner"></div> 기록을 불러오는 중...</div>`;
+  try {
+    const snap = await db.collection('auditLogs').orderBy('createdAt','desc').limit(200).get();
+    const logs = []; snap.forEach(doc => logs.push({ id: doc.id, ...doc.data() }));
+
+    const isSuperAdmin = currentUser?.email === SUPER_ADMIN_EMAIL;
+
+    let html = `<div style="margin-bottom:20px"><h2 style="font-size:18px;font-weight:800;margin-bottom:4px">📝 기록 관리</h2><p style="font-size:12px;color:var(--g6)">모든 관리자 활동이 자동으로 기록됩니다. 기록은 삭제할 수 없습니다.</p></div>`;
+
+    if (logs.length === 0) {
+      html += `<div style="text-align:center;padding:3rem;color:var(--g6)">기록이 없습니다.</div>`;
+    } else {
+      html += `<div style="border:1px solid var(--ge);border-radius:var(--r);overflow:hidden">`;
+      html += `<div style="display:grid;grid-template-columns:140px 100px 1fr 1fr ${isSuperAdmin?'80px':''};background:#f9fafb;padding:10px 14px;font-size:11px;font-weight:700;color:var(--g6);border-bottom:1px solid var(--ge)">
+        <div>일시</div><div>관리자</div><div>액션</div><div>상세</div>${isSuperAdmin?'<div>복원</div>':''}
+      </div>`;
+      logs.forEach(log => {
+        const date = log.createdAt ? new Date(log.createdAt.seconds*1000).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '-';
+        const actionColors = {
+          '교육생 승인':'#065F46','교육생 삭제':'#DC2626','상태 변경':'#1E40AF',
+          '발주 삭제':'#DC2626','취소 승인':'#92400E','취소 거절':'#3730A3',
+          '용기 판정':'#6B21A8','검수사진 업로드':'#1E40AF','복원':'#065F46'
+        };
+        const color = actionColors[log.action] || 'var(--g1)';
+        const restoreBtn = (isSuperAdmin && log.action === '교육생 삭제' && log.detail) ?
+          `<div><button onclick="restoreFromLog('${log.id}','${log.detail.replace(/'/g,"\\'")}')" style="padding:3px 8px;border-radius:8px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid #6EE7B7;background:#ECFDF5;color:#065F46;font-family:inherit">복원</button></div>` : (isSuperAdmin?'<div></div>':'');
+        html += `<div style="display:grid;grid-template-columns:140px 100px 1fr 1fr ${isSuperAdmin?'80px':''};padding:10px 14px;font-size:11px;border-bottom:1px solid #f3f4f6;align-items:center">
+          <div style="color:var(--g6)">${date}</div>
+          <div style="font-weight:600">${log.adminName||'-'}</div>
+          <div><span style="color:${color};font-weight:700">${log.action||'-'}</span> ${log.target||''}</div>
+          <div style="color:var(--g6);word-break:break-all">${log.detail||'-'}</div>
+          ${restoreBtn}
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    document.getElementById('adminContent').innerHTML = html;
+  } catch(e) {
+    document.getElementById('adminContent').innerHTML = `<div style="color:#dc2626;font-size:12px">기록 로드 실패: ${e.message}</div>`;
+  }
+}
+
+async function restoreFromLog(logId, detail) {
+  if (currentUser?.email !== SUPER_ADMIN_EMAIL) { alert('최종 관리자만 복원할 수 있습니다.'); return; }
+  if (!confirm('이 항목을 복원하시겠습니까?')) return;
+  // detail에서 uid 추출하여 복원 시도
+  try {
+    // deletedUsers에서 복원
+    const delSnap = await db.collection('deletedUsers').get();
+    let restored = false;
+    delSnap.forEach(doc => {
+      if (doc.id && detail.includes(doc.id)) {
+        // 복원 로직은 케이스별로 다를 수 있음
+        restored = true;
+      }
+    });
+    await addAuditLog('복원', detail, `로그 ID: ${logId}`);
+    alert('복원 요청이 기록되었습니다. 채널톡으로 상세 복원을 요청해주세요.');
+    renderAdminLogs();
+  } catch(e) { alert('복원 실패: ' + e.message); }
 }
 
 function showChatbotButton() {
