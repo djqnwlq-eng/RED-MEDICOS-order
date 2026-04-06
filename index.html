@@ -70,17 +70,24 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--gf); color: va
 /* ─── STATUS TIMELINE ─── */
 .status-timeline { display:flex; align-items:flex-start; padding:8px 0; }
 .st-step { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; }
-.st-step:not(:last-child)::after { content:''; position:absolute; top:11px; left:50%; width:100%; height:2px; background:var(--ge); z-index:0; }
-.st-step.done:not(:last-child)::after { background:var(--tm); }
-.st-dot { width:22px; height:22px; border-radius:50%; border:2px solid var(--ge); background:#fff; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; position:relative; z-index:1; transition:all .3s; color:var(--ge); }
-.st-dot.done { background:var(--t); border-color:var(--t); color:#fff; }
-.st-dot.current { background:#fff; border-color:var(--am); color:var(--am); box-shadow:0 0 0 4px rgba(239,159,39,.15); }
-@keyframes pulse { 0%,100%{box-shadow:0 0 0 4px rgba(239,159,39,.15)} 50%{box-shadow:0 0 0 8px rgba(239,159,39,.08)} }
+.st-step:not(:last-child)::after { content:''; position:absolute; top:9px; left:50%; width:100%; height:2px; background:var(--ge); z-index:0; }
+.st-step.done:not(:last-child)::after { background:#E8B4B8; }
+.st-dot { width:18px; height:18px; border-radius:50%; border:2px solid var(--ge); background:#fff; display:flex; align-items:center; justify-content:center; font-size:7px; font-weight:700; position:relative; z-index:1; transition:all .3s; color:var(--ge); }
+.st-dot.done { background:#E8B4B8; border-color:#E8B4B8; color:#fff; width:16px; height:16px; font-size:6px; }
+.st-dot.current { background:#059669; border-color:#059669; color:#fff; box-shadow:0 0 0 4px rgba(5,150,105,.25); }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 4px rgba(5,150,105,.25)} 50%{box-shadow:0 0 0 10px rgba(5,150,105,.1)} }
+@keyframes addressPulse { 0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.3);border-color:#F59E0B} 50%{box-shadow:0 0 12px 4px rgba(245,158,11,.15);border-color:#D97706} }
 .st-dot.current { animation:pulse 2s infinite; }
-.st-label { font-size:8.5px; color:#c8cad0; text-align:center; margin-top:4px; line-height:1.2; white-space:nowrap; }
-.st-label.done { color:var(--tmd); font-weight:600; }
-.st-label.current { color:var(--am); font-weight:700; }
+.st-label { font-size:7px; color:#c8cad0; text-align:center; margin-top:3px; line-height:1.2; word-break:keep-all; }
+.st-label.done { color:#C4A0A5; font-weight:500; }
+.st-label.current { color:#059669; font-weight:700; }
 
+/* ─── PURCHASE ORDER FORM ─── */
+.po-field { margin-bottom:10px; }
+.po-field label { display:block; font-size:11px; font-weight:700; color:var(--g6); margin-bottom:3px; }
+.po-field input, .po-field select { width:100%; padding:10px 12px; border:1px solid var(--ge); border-radius:var(--rsm); font-size:13px; font-family:inherit; box-sizing:border-box; }
+.po-check { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--g1); padding:6px 12px; background:#f9fafb; border-radius:8px; cursor:pointer; }
+.po-check input { accent-color:var(--t); }
 /* ─── ADMIN STUDENT CARDS ─── */
 .admin-student-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
 @media(max-width:900px) { .admin-student-grid { grid-template-columns:repeat(3,1fr); } }
@@ -660,12 +667,23 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
       <img src="logo.png" alt="RED MEDICOS" style="height:24px" onerror="this.outerHTML='레드메디코스'"> <em>발주 플랫폼</em>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn-sm" onclick="openUserGuide()" style="font-weight:600;color:#065F46;border-color:#6EE7B7">📖 이용 가이드</button>
       <button class="btn-sm" onclick="openBizInfo()" style="font-weight:600">사업자 정보</button>
       <span style="font-size:12px;color:var(--g6);cursor:pointer;transition:color .15s" id="dashUserInfo" onclick="openMyInfo()" title="클릭하여 내 정보 수정"></span>
       <button class="btn-sm" onclick="doLogout()">로그아웃</button>
     </div>
   </div>
   <div class="dash-content">
+    <div id="newUserGuideBanner" style="display:none;margin-bottom:16px;padding:16px;background:linear-gradient(135deg,#FFF7ED,#FEF3C7);border:2px solid #F59E0B;border-radius:12px;animation:addressPulse 2s ease-in-out infinite">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:28px">📖</span>
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#92400E">이용 가이드를 꼭 읽어주세요!</div>
+          <div style="font-size:12px;color:#92400E;margin-top:2px">처음 이용하시는 분은 상단의 <strong>📖 이용 가이드</strong>를 먼저 확인해주세요.</div>
+        </div>
+        <button onclick="dismissGuideBanner()" style="margin-left:auto;background:none;border:none;font-size:18px;cursor:pointer;color:#92400E">✕</button>
+      </div>
+    </div>
     <div class="dash-welcome" id="dashWelcome"></div>
     <div class="dash-stats" id="dashStats"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -736,9 +754,15 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
     </div>
     <button class="cb-close" onclick="toggleChatbot()">✕</button>
   </div>
+  <div id="cbTabs" style="display:none;border-bottom:1px solid #e5e7eb;background:#fff">
+    <div style="display:flex">
+      <button class="cb-tab active" data-tab="guide" onclick="switchChatTab('guide')" style="flex:1;padding:10px 0;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;color:#DC2626;border-bottom:2px solid #DC2626;font-family:inherit">📋 발주 가이드</button>
+      <button class="cb-tab" data-tab="faq" onclick="switchChatTab('faq')" style="flex:1;padding:10px 0;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;color:#9CA3AF;border-bottom:2px solid transparent;font-family:inherit">❓ 자주 묻는 질문</button>
+    </div>
+  </div>
   <div class="cb-messages" id="cbMessages"></div>
   <div class="cb-input-area">
-    <input type="text" id="cbInput" placeholder="관리자에게 직접 문의하기..." onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing)sendDirectInquiry()">
+    <input type="text" id="cbInput" placeholder="궁금한 점을 입력해주세요..." onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing)sendDirectInquiry()">
     <button onclick="sendDirectInquiry()" id="cbSendBtn">➤</button>
   </div>
 </div>
@@ -772,7 +796,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
       <div class="biz-section-title">세금계산서 발행 안내</div>
       <div style="font-size:12px;color:var(--g6);line-height:1.7">
         세금계산서 발행을 원하시면 사업자등록증 사본과 함께<br>
-        <strong>redmedicos@naver.com</strong>로 요청해주세요.<br>
+        <strong>채널톡</strong>으로 문의해주세요.<br>
         입금 확인 후 익월 10일 이내 발행됩니다.
       </div>
     </div>
@@ -958,6 +982,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script src="env.js"></script>
 <script>
 // ════════════════════════════════════════════════════════════
@@ -977,6 +1002,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
+const storage = firebase.storage();
 
 // ════════════════════════════════════════════════════════════
 //  ⚙  CONFIG
@@ -998,14 +1024,23 @@ const CONFIG = {
 //  📊  ORDER STATUS STAGES
 // ════════════════════════════════════════════════════════════
 const ORDER_STAGES = [
-  { id: 'ordered',     label: '발주접수' },
-  { id: 'sample_sent', label: '샘플발송' },
-  { id: 'materials',   label: '부자재 입고' },
-  { id: 'production',  label: '생산일정' },
-  { id: 'completed',   label: '생산완료' },
-  { id: 'shipped',     label: '출고완료' },
+  { id: 'ordered',          label: '의뢰서 제출' },
+  { id: 'accepted',         label: '접수 완료' },
+  { id: 'sample_sent',      label: '샘플 출고' },
+  { id: 'confirmed',        label: '확정' },
+  { id: 'container_sent',   label: '용기 발송' },
+  { id: 'container_received', label: '용기 입고' },
+  { id: 'container_result', label: '용기 적합' },
+  { id: 'docs_sent',        label: '문안/견적 발송' },
+  { id: 'docs_reviewed',   label: '문안 검수 완료' },
+  { id: 'po_submitted',     label: '발주 접수' },
+  { id: 'po_confirmed',     label: '발주 확인' },
+  { id: 'materials',        label: '부자재 입고' },
+  { id: 'materials_photo',  label: '검수사진' },
+  { id: 'production',       label: '생산일정' },
+  { id: 'shipped',          label: '출고 완료' },
   { id: 'cancel_requested', label: '취소요청' },
-  { id: 'cancelled',   label: '취소완료' },
+  { id: 'cancelled',        label: '취소완료' },
 ];
 
 const MATERIAL_ITEMS = [
@@ -1031,8 +1066,8 @@ const FORMULA_CATEGORIES = [
     { id: 'tonic-a', name: '스프레이 타입',  heavy: false },
   ]},
   { id: 'lotion',   name: '로션',        icon: '🧴', subs: [
-    { id: 'lotion-a', name: '산뜻한',   heavy: false },
-    { id: 'lotion-b', name: '촉촉한',   heavy: true  },
+    { id: 'lotion-a', name: '얼굴용',   heavy: false },
+    { id: 'lotion-b', name: '바디용',   heavy: true  },
   ]},
   { id: 'serum',    name: '세럼/앰플',   icon: 'svg-serum', subs: [
     { id: 'serum-a', name: '산뜻한',  heavy: false },
@@ -1134,12 +1169,12 @@ const FORMULA_INGREDIENTS = {
     inci: ["Water", "Lauryl hydroxysultaine", "Sodium Cocoyl glutamate", "Glycerin", "Polyglyceryl-10 Myristate", "Coco-glucoside", "Disodium Cocoamphodiacetate", "Allantoin", "Caprylyl Glycol", "Ethylhexylglycerin", "Melaleuca Alternifolia (Tea Tree) Leaf Oil", "Citric Acid", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Disodium EDTA"],
   },
   'cream-a': {
-    kr: ["정제수", "글리세린", "부틸렌글라이콜", "카프릴릭/카프릭트라이글리세라이드", "스쿠알란", "나이아신아마이드", "세테아릴알코올", "1,2-헥산다이올", "아라키딜알코올", "판테놀", "호호바씨오일", "베헤닐알코올", "아라키딜글루코사이드", "글리세릴스테아레이트", "피이지-100스테아레이트", "알란토인", "다이메티콘", "하이드로제네이티드레시틴", "카프릴릴글라이콜", "폴리아크릴레이트-13", "폴리아이소부텐", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "폴리아크릴레이트-13", "폴리아이소부텐", "아데노신", "라벤더오일", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "리날룰"],
-    inci: ["Water", "Glycerin", "Butylene Glycol", "Caprylic/Capric Triglyceride", "Squalane", "Niacinamide", "Cetearyl Alcohol", "1,2-Hexanediol", "Arachidyl Alcohol", "Panthenol", "Simmondsia Chinensis (Jojoba) Seed Oil", "Behenyl Alcohol", "Arachidyl Glucoside", "Glyceryl Stearate", "PEG-100 Stearate", "Allantoin", "Dimethicone", "Hydrogenated Lecithin", "Caprylyl Glycol", "Polyacrylate-13", "Polyisobutene", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Polyacrylate-13", "Polyisobutene", "Adenosine", "Lavandula Angustifolia (Lavender) Oil", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Linalool"],
+    kr: ["정제수", "글리세린", "부틸렌글라이콜", "카프릴릭/카프릭트라이글리세라이드", "스쿠알란", "세테아릴알코올", "1,2-헥산다이올", "아라키딜알코올", "판테놀", "호호바씨오일", "베헤닐알코올", "아라키딜글루코사이드", "글리세릴스테아레이트", "피이지-100스테아레이트", "알란토인", "다이메티콘", "하이드로제네이티드레시틴", "카프릴릴글라이콜", "폴리아크릴레이트-13", "폴리아이소부텐", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "폴리아크릴레이트-13", "폴리아이소부텐", "라벤더오일", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "리날룰"],
+    inci: ["Water", "Glycerin", "Butylene Glycol", "Caprylic/Capric Triglyceride", "Squalane", "Cetearyl Alcohol", "1,2-Hexanediol", "Arachidyl Alcohol", "Panthenol", "Simmondsia Chinensis (Jojoba) Seed Oil", "Behenyl Alcohol", "Arachidyl Glucoside", "Glyceryl Stearate", "PEG-100 Stearate", "Allantoin", "Dimethicone", "Hydrogenated Lecithin", "Caprylyl Glycol", "Polyacrylate-13", "Polyisobutene", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Polyacrylate-13", "Polyisobutene", "Lavandula Angustifolia (Lavender) Oil", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Linalool"],
   },
   'cream-b': {
-    kr: ["정제수", "스쿠알란", "카프릴릭/카프릭트라이글리세라이드", "부틸렌글라이콜", "글리세린", "나이아신아마이드", "세테아릴알코올", "폴리글리세릴-3메틸글루코오스다이스테아레이트", "1,2-헥산다이올", "스테아릭애씨드", "글리세릴스테아레이트", "피이지-100스테아레이트", "알란토인", "판테놀", "호호바씨오일", "다이메티콘", "하이드로제네이티드레시틴", "카프릴릴글라이콜", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "폴리아크릴레이트-13", "폴리아이소부텐", "아데노신", "라벤더오일", "리날룰", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
-    inci: ["Water", "Squalane", "Caprylic/Capric Triglyceride", "Butylene Glycol", "Glycerin", "Niacinamide", "Cetearyl Alcohol", "Polyglyceryl-3 Methylglucose Distearate", "1,2-Hexanediol", "Stearic Acid", "Glyceryl Stearate", "PEG-100 Stearate", "Allantoin", "Panthenol", "Simmondsia Chinensis (Jojoba) Seed Oil", "Dimethicone", "Hydrogenated Lecithin", "Caprylyl Glycol", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Polyacrylate-13", "Polyisobutene", "Adenosine", "Lavandula Angustifolia (Lavender) Oil", "Linalool", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+    kr: ["정제수", "스쿠알란", "카프릴릭/카프릭트라이글리세라이드", "부틸렌글라이콜", "글리세린", "세테아릴알코올", "폴리글리세릴-3메틸글루코오스다이스테아레이트", "1,2-헥산다이올", "스테아릭애씨드", "글리세릴스테아레이트", "피이지-100스테아레이트", "알란토인", "판테놀", "호호바씨오일", "다이메티콘", "하이드로제네이티드레시틴", "카프릴릴글라이콜", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "폴리아크릴레이트-13", "폴리아이소부텐", "라벤더오일", "리날룰", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Squalane", "Caprylic/Capric Triglyceride", "Butylene Glycol", "Glycerin", "Cetearyl Alcohol", "Polyglyceryl-3 Methylglucose Distearate", "1,2-Hexanediol", "Stearic Acid", "Glyceryl Stearate", "PEG-100 Stearate", "Allantoin", "Panthenol", "Simmondsia Chinensis (Jojoba) Seed Oil", "Dimethicone", "Hydrogenated Lecithin", "Caprylyl Glycol", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Polyacrylate-13", "Polyisobutene", "Lavandula Angustifolia (Lavender) Oil", "Linalool", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
   },
   'foam-a': {
     kr: ["정제수", "소듐코코일이세티오네이트", "라우릴하이드록시설테인", "소듐C14-16올레핀설포네이트", "라우릴글루코사이드", "라우라마이드디이에이", "글리세린", "다이소듐코코암포다이아세테이트", "알란토인", "라벤더오일", "다이소듐이디티에이", "카프릴릴글라이콜", "에틸헥실글리세린", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "시트릭애씨드", "소듐클로라이드", "리날룰"],
@@ -1162,8 +1197,8 @@ const FORMULA_INGREDIENTS = {
     inci: ["Water", "Glycerin", "Butylene Glycol", "Caprylic/Capric Triglyceride", "Squalane", "Caprylyl Methicone", "Polyglyceryl-3 Methylglucose Distearate", "1,2-Hexanediol", "Xylitol", "Arachidyl Alcohol", "Cetearyl Olivate", "Sorbitan Olivate", "Behenyl Alcohol", "Arachidyl Glucoside", "Allantoin", "Panthenol", "Simmondsia Chinensis (Jojoba) Seed Oil", "Hydrogenated Lecithin", "Caprylyl Glycol", "Ammonium Acryloyldimethyltaurate/VP Copolymer", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lavandula Angustifolia (Lavender) Oil", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Linalool"],
   },
   'mist-a': {
-    kr: ["정제수", "프로판다이올", "글리세린", "1,2-헥산다이올", "자일리톨", "나이아신아마이드", "우레아", "글리세릴글루코사이드", "알란토인", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "인도멀구슬나무잎추출물", "인도멀구슬나무꽃추출물", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
-    inci: ["Water", "Propanediol", "Glycerin", "1,2-Hexanediol", "Xylitol", "Niacinamide", "Urea", "Glyceryl Glucoside", "Allantoin", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Melia Azadirachta Leaf Extract", "Melia Azadirachta Flower Extract", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+    kr: ["정제수", "프로판다이올", "글리세린", "1,2-헥산다이올", "자일리톨", "우레아", "글리세릴글루코사이드", "알란토인", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "인도멀구슬나무잎추출물", "인도멀구슬나무꽃추출물", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Propanediol", "Glycerin", "1,2-Hexanediol", "Xylitol", "Urea", "Glyceryl Glucoside", "Allantoin", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Melia Azadirachta Leaf Extract", "Melia Azadirachta Flower Extract", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
   },
   'mist-b': {
     kr: ["정제수", "네오펜틸글라이콜다이헵타노에이트", "프로판다이올", "부틸렌글라이콜", "카프릴릭/카프릭트라이글리세라이드", "1,2-헥산다이올", "호호바씨오일", "토코페릴아세테이트", "라벤더오일", "자일리톨", "다이포타슘글리시리제이트", "알란토인", "카프릴릴글라이콜", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "시트릭애씨드", "소듐시트레이트", "리날룰"],
@@ -1174,8 +1209,8 @@ const FORMULA_INGREDIENTS = {
     inci: ["Water", "Glycerin", "Butylene Glycol", "Dipropylene Glycol", "Squalane", "1,2-Hexanediol", "Xylitol", "Simmondsia Chinensis (Jojoba) Seed Oil", "Tocopheryl Acetate", "Panthenol", "Allantoin", "Caprylyl Glycol", "Lavandula Angustifolia (Lavender) Oil", "Polyglyceryl-10 Stearate", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Linalool"],
   },
   'patch-a': {
-    kr: ["정제수", "에탄올", "폴리비닐알코올", "나이아신아마이드", "부틸렌글라이콜", "1,2-헥산다이올", "자일리톨", "엑토인", "판테놀", "알란토인", "카프릴릴글라이콜", "하이드록시에틸아크릴레이트/소듐아크릴로일다이메틸타우레이트코폴리머", "아데노신", "티트리잎오일", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
-    inci: ["Water", "Alcohol", "Polyvinyl Alcohol", "Niacinamide", "Butylene Glycol", "1,2-Hexanediol", "Xylitol", "Ectoin", "Panthenol", "Allantoin", "Caprylyl Glycol", "Hydroxyethyl Acrylate/Sodium Acryloyldimethyl Taurate Copolymer", "Adenosine", "Melaleuca Alternifolia (Tea Tree) Leaf Oil", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+    kr: ["정제수", "에탄올", "폴리비닐알코올", "부틸렌글라이콜", "1,2-헥산다이올", "자일리톨", "엑토인", "판테놀", "알란토인", "카프릴릴글라이콜", "하이드록시에틸아크릴레이트/소듐아크릴로일다이메틸타우레이트코폴리머", "티트리잎오일", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Alcohol", "Polyvinyl Alcohol", "Butylene Glycol", "1,2-Hexanediol", "Xylitol", "Ectoin", "Panthenol", "Allantoin", "Caprylyl Glycol", "Hydroxyethyl Acrylate/Sodium Acryloyldimethyl Taurate Copolymer", "Melaleuca Alternifolia (Tea Tree) Leaf Oil", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
   },
   'serum-a': {
     kr: ["정제수", "부틸렌글라이콜", "글리세린", "약모밀추출물", "자일리톨", "1,2-헥산다이올", "베타인", "엑토인", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "알란토인", "판테놀", "다이포타슘글리시리제이트", "카보머", "알지닌", "하이드록시에틸아크릴레이트/소듐아크릴로일다이메틸타우레이트코폴리머", "카프릴릴글라이콜", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
@@ -1202,8 +1237,8 @@ const FORMULA_INGREDIENTS = {
     inci: ["Water", "Propanediol", "Butylene Glycol", "Xylitol", "1,2-Hexanediol", "Betaine", "Sodium Hyaluronate", "Panthenol", "Allantoin", "Carbomer", "Arginine", "Hydrolyzed Glycosaminoglycans", "Sodium Hyaluronate Crosspolymer", "Hydrolyzed Hyaluronic Acid", "Hydroxypropyltrimonium Hyaluronate", "Hyaluronic Acid", "Sodium Acetylated Hyaluronate", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
   },
   'tonic-a': {
-    kr: ["정제수", "에탄올", "부틸렌글라이콜", "펜틸렌글라이콜", "자일리톨", "1,2-헥산다이올", "판테놀", "나이아신아마이드", "살리실릭애씨드", "트로메타민", "알란토인", "징크피씨에이", "멘톨", "다이포타슘글리시리제이트", "로즈마리잎오일", "카프릴릴글라이콜", "C12-14알케스-12", "하이드롤라이즈드글라이코사미노글리칸", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
-    inci: ["Water", "Alcohol", "Butylene Glycol", "Pentylene Glycol", "Xylitol", "1,2-Hexanediol", "Panthenol", "Niacinamide", "Salicylic Acid", "Tromethamine", "Allantoin", "Zinc PCA", "Menthol", "Dipotassium Glycyrrhizate", "Rosmarinus Officinalis (Rosemary) Leaf Oil", "Caprylyl Glycol", "C12-14 Alketh-12", "Hydrolyzed Glycosaminoglycans", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
+    kr: ["정제수", "에탄올", "부틸렌글라이콜", "펜틸렌글라이콜", "자일리톨", "1,2-헥산다이올", "판테놀", "살리실릭애씨드", "트로메타민", "알란토인", "징크피씨에이", "멘톨", "다이포타슘글리시리제이트", "로즈마리잎오일", "카프릴릴글라이콜", "C12-14알케스-12", "하이드롤라이즈드글라이코사미노글리칸", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
+    inci: ["Water", "Alcohol", "Butylene Glycol", "Pentylene Glycol", "Xylitol", "1,2-Hexanediol", "Panthenol", "Salicylic Acid", "Tromethamine", "Allantoin", "Zinc PCA", "Menthol", "Dipotassium Glycyrrhizate", "Rosmarinus Officinalis (Rosemary) Leaf Oil", "Caprylyl Glycol", "C12-14 Alketh-12", "Hydrolyzed Glycosaminoglycans", "Asiaticoside", "Madecassoside", "Madecassic Acid", "Asiatic Acid", "Ceramide NS", "Ceramide NP", "Ceramide AS", "Ceramide AP", "Ceramide EOP", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract"],
   },
 };
 
@@ -1219,18 +1254,18 @@ const FUNCTIONS   = ['주름기능성', '미백기능성', '자외선 차단 기
 
 const DEFAULT_EXTRACTS = [
   { id:0,  name:'무향',             category:'에센셜오일', price:0,    tags:[], inci:'' },
-  { id:1,  name:'티트리잎오일',     category:'에센셜오일', price:850,  tags:['항균','진정','여드름','트러블','지성','두피','피지조절','염증'], inci:'' },
-  { id:2,  name:'라벤더오일',       category:'에센셜오일', price:1100, tags:['진정','수면','릴렉스','민감성','홍조','보습','얼굴','바디'], inci:'' },
-  { id:3,  name:'로즈마리잎오일',   category:'에센셜오일', price:850,  tags:['항산화','혈행','두피','탈모','모공','지성','각질','탄력'], inci:'' },
-  { id:4,  name:'연필나무목부오일', category:'에센셜오일', price:650,  tags:['진정','우디','민감성','보습','릴렉스','바디','건성'], inci:'' },
-  { id:5,  name:'편백오일',         category:'에센셜오일', price:2850, tags:['항균','진정','피톤치드','트러블','아토피','민감성','두피','바디'], inci:'' },
-  { id:6,  name:'자몽껍질오일',     category:'에센셜오일', price:1200, tags:['피지','상쾌함','지성','톤업','셀룰라이트','바디','모공','시트러스'], inci:'' },
-  { id:7,  name:'로즈우드오일',     category:'에센셜오일', price:1150, tags:['보습','재생','플로럴','주름개선','건성','탄력','얼굴','민감성'], inci:'' },
-  { id:8,  name:'유칼립투스오일',   category:'에센셜오일', price:480,  tags:['항균','호흡','쿨링','두피','트러블','비듬','지성','상쾌함'], inci:'' },
-  { id:9,  name:'일랑일랑꽃오일',  category:'에센셜오일', price:1350, tags:['보습','릴렉스','플로럴','피지조절','복합성','탄력','바디','건성'], inci:'' },
-  { id:10, name:'베르가모트오일',   category:'에센셜오일', price:900,  tags:['진정','항균','시트러스','톤업','지성','트러블','모공','상쾌함'], inci:'' },
-  { id:11, name:'레몬오일',         category:'에센셜오일', price:800,  tags:['미백','상쾌함','시트러스','톤업','색소','각질','지성','모공'], inci:'' },
-  { id:12, name:'페퍼민트오일',     category:'에센셜오일', price:480,  tags:['쿨링','두피','상쾌함','가려움','비듬','지성','혈행','탈모'], inci:'' },
+  { id:1,  name:'티트리잎오일',     category:'에센셜오일', price:385,  tags:['항균','진정','여드름','트러블','지성','두피','피지조절','염증'], inci:'' },
+  { id:2,  name:'라벤더오일',       category:'에센셜오일', price:410,  tags:['진정','수면','릴렉스','민감성','홍조','보습','얼굴','바디'], inci:'' },
+  { id:3,  name:'로즈마리잎오일',   category:'에센셜오일', price:385,  tags:['항산화','혈행','두피','탈모','모공','지성','각질','탄력'], inci:'' },
+  { id:4,  name:'연필나무목부오일', category:'에센셜오일', price:365,  tags:['진정','우디','민감성','보습','릴렉스','바디','건성'], inci:'' },
+  { id:5,  name:'편백오일',         category:'에센셜오일', price:585,  tags:['항균','진정','피톤치드','트러블','아토피','민감성','두피','바디'], inci:'' },
+  { id:6,  name:'자몽껍질오일',     category:'에센셜오일', price:420,  tags:['피지','상쾌함','지성','톤업','셀룰라이트','바디','모공','시트러스'], inci:'' },
+  { id:7,  name:'로즈우드오일',     category:'에센셜오일', price:415,  tags:['보습','재생','플로럴','주름개선','건성','탄력','얼굴','민감성'], inci:'' },
+  { id:8,  name:'유칼립투스오일',   category:'에센셜오일', price:348,  tags:['항균','호흡','쿨링','두피','트러블','비듬','지성','상쾌함'], inci:'' },
+  { id:9,  name:'일랑일랑꽃오일',  category:'에센셜오일', price:435,  tags:['보습','릴렉스','플로럴','피지조절','복합성','탄력','바디','건성'], inci:'' },
+  { id:10, name:'베르가모트오일',   category:'에센셜오일', price:390,  tags:['진정','항균','시트러스','톤업','지성','트러블','모공','상쾌함'], inci:'' },
+  { id:11, name:'레몬오일',         category:'에센셜오일', price:380,  tags:['미백','상쾌함','시트러스','톤업','색소','각질','지성','모공'], inci:'' },
+  { id:12, name:'페퍼민트오일',     category:'에센셜오일', price:348,  tags:['쿨링','두피','상쾌함','가려움','비듬','지성','혈행','탈모'], inci:'' },
   { id:13, name:'병풀추출물',           category:'추출물', price:170,  tags:['진정','재생','민감성','상처','홍조','트러블','장벽','얼굴'], inci:'', detail:{ eng:'Centella Asiatica', effects:['피부 재생: 손상된 피부 세포 회복, 상처·흉터 완화','장벽 강화: 피부 보호막을 튼튼하게, 수분 손실 차단','항염·진정: 붉은기·트러블 완화, 예민한 피부 안정'], positions:['트러블·재생 컨셉 (에센스, 크림, 마스크팩)','민감성·아토피 피부 (토너, 세럼)','안티에이징 보조 (크림, 앰플)'] } },
   { id:14, name:'약모밀추출물',         category:'추출물', price:180,  tags:['진정','항염','민감성','홍조','가려움','아토피','트러블','얼굴'], inci:'', detail:{ eng:'Houttuynia Cordata', effects:['항균·항염: 트러블 원인균 억제, 여드름·아토피 케어','진정·쿨링: 열감·민감 반응 완화, 예민한 피부 결 안정','두피케어: 두피 노폐물 제거, 비듬·각질 완화'], positions:['트러블·민감성 피부 (토너, 에센스, 폼클렌저)','모공·지성 피부 (토너패드, 클레이팩)','두피케어 컨셉 (샴푸, 두피토닉)'] } },
   { id:15, name:'알로에베라잎즙',       category:'추출물', price:140,  tags:['진정','보습','쿨링','건성','상처','얼굴','바디','민감성'], inci:'', detail:{ eng:'Aloe Barbadensis Leaf Juice', effects:['즉각 진정: 자극·열감받은 피부를 빠르게 안정','수분 공급: 98% 수분 함량, 가볍고 산뜻한 보습','항산화·항균: 비타민A·C·E 풍부, 피부 산화 방어'], positions:['민감·지성·여름 피부 (수딩젤, 수분크림, 에센스)','자외선 후 진정 컨셉 (애프터선, 수딩팩)','모든 피부 베이스 원료 (토너, 미스트)'] } },
@@ -1292,7 +1327,11 @@ const DEFAULT_EXTRACTS = [
 // ═══ 제형별 기본 전성분 — FORMULA_INGREDIENTS 에서 kr 배열 참조 ═══
 function getBaseIngredients(formulaId) {
   const fi = FORMULA_INGREDIENTS[formulaId];
-  return fi ? fi.kr : [];
+  if (!fi) return [];
+  const base = [...fi.kr];
+  if (STATE.functions.includes('미백기능성') && !base.includes('나이아신아마이드')) base.push('나이아신아마이드');
+  if (STATE.functions.includes('주름기능성') && !base.includes('아데노신')) base.push('아데노신');
+  return base;
 }
 
 // 추출물의 하위 성분이 전부 기본 전성분에 포함되는지 체크
@@ -1306,7 +1345,7 @@ function isFullyInBase(extract, formulaId) {
   return subs.length > 0 && subs.every(s => base.includes(s));
 }
 
-const EXTRACT_VERSION = 11;
+const EXTRACT_VERSION = 13;
 const CAT_DISPLAY = {'에센셜오일':'에센셜 오일', '특허증활용가능':'특허증 활용가능'};
 function catLabel(c) { return CAT_DISPLAY[c] || c; }
 let extracts;
@@ -1503,9 +1542,9 @@ function buildStep1() {
       <div class="fn-group">${fnBtns}</div>
       <div id="fnCostNotice" style="display:${STATE.functions.length?'block':'none'}">
         <div class="notice info" style="margin-top:0;font-size:12px">
-          💰 기능성 추가 비용: <strong>1개 40,000원 / 2개 65,000원</strong><br>
+          💰 기능성 추가 비용: <strong>주름/미백 50,000원, 자외선차단/탈모완화 200,000원, 주름+미백 80,000원</strong><br>
           <span style="font-size:11px;color:var(--g6)">주름기능성과 미백기능성만 중복사용가능</span><br>
-          <span style="font-size:11px;color:var(--g6)">현재 ${STATE.functions.length}개 선택 → <strong style="color:var(--t)">${STATE.functions.length===0?'0':STATE.functions.length===1?'40,000':'65,000'}원</strong> 추가</span>
+          <span style="font-size:11px;color:var(--g6)">현재 ${STATE.functions.length}개 선택 → <strong style="color:var(--t)">${N(getFnCost())}원</strong> 추가</span>
         </div>
       </div>
     </div>
@@ -1565,24 +1604,7 @@ function getScentRecommendations() {
 }
 
 function buildScentSlider() {
-  const scent = STATE.selectedScent;
-  if (!scent || scent === '무향') return '';
-  const v = STATE.selExtracts[scent];
-  if (!v) return '';
-  const calcCost = Math.round(v.price * v.pct);
-  const safeName = scent.replace(/'/g, "\\'");
-  return `<div style="margin-top:14px;padding:14px 16px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:var(--r)">
-    <div style="font-size:13px;font-weight:700;margin-bottom:4px">향 함량 설정</div>
-    <div style="font-size:11px;color:#6b7280;margin-bottom:12px;line-height:1.6">기본 함량은 <strong>0.1%</strong>로 설정되어 있습니다. 카드에 표시된 가격은 <strong>1% 기준</strong>이며, 함량에 따라 비례 적용됩니다.</div>
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 0">
-      <div style="min-width:120px;font-size:12px;font-weight:600;color:#1F2937">${scent}</div>
-      <input type="range" min="1" max="10" step="1" value="${Math.round(v.pct * 10)}"
-        oninput="updateScentPct('${safeName}',this.value/10)"
-        style="flex:1;accent-color:var(--t);height:4px">
-      <div style="min-width:40px;text-align:center;font-size:12px;font-weight:700;color:var(--t)" id="scentPctLabel">${v.pct}%</div>
-      <div style="min-width:55px;text-align:right;font-size:11px;color:#6b7280" id="scentPctCost">${N(calcCost)}원</div>
-    </div>
-  </div>`;
+  return '';
 }
 
 function buildStepScent() {
@@ -1592,7 +1614,7 @@ function buildStepScent() {
     const isSelected = STATE.selectedScent === e.name;
     const isRec = recs[e.name] > 0;
     const safeName = e.name.replace(/'/g, "\\'");
-    const priceText = e.price > 0 ? `+${N(e.price)}원 <span style="font-size:9px;color:var(--g8)">(1%기준)</span>` : '무료';
+    const priceText = e.price > 0 ? `+${N(e.price)}원` : '무료';
     return `<div class="sel-card ${isSelected?'active':''}" onclick="selectScent('${safeName}',${e.price})" style="position:relative">
       <div class="sc-name">${e.name}</div>
       <div class="sc-desc" style="font-size:11px;color:var(--g6)">${priceText}</div>
@@ -1601,7 +1623,7 @@ function buildStepScent() {
     </div>`;
   }).join('');
   const selName = STATE.selectedScent || '미선택';
-  const scentPct = (STATE.selectedScent && STATE.selectedScent !== '무향' && STATE.selExtracts[STATE.selectedScent]) ? ` (${STATE.selExtracts[STATE.selectedScent].pct}%)` : '';
+  const scentPct = '';
   return `
     <div class="card"><div class="card-title">향 선택</div><div class="card-sub">에센셜 오일 중 <strong style="color:var(--t)">1가지</strong>만 선택할 수 있습니다. 향을 넣지 않으려면 <strong>무향</strong>을 선택하세요.</div>
       <div class="container-grid">${cards}</div>
@@ -1617,7 +1639,7 @@ function selectScent(name, price) {
   STATE.selectedScent = name;
   if (STATE.selExtracts) {
     extracts.filter(e => e.category === '에센셜오일').forEach(e => { delete STATE.selExtracts[e.name]; });
-    if (name !== '무향' && price > 0) STATE.selExtracts[name] = { price, pct: 0.1 };
+    if (name !== '무향' && price > 0) STATE.selExtracts[name] = { price, pct: 1 };
   }
   document.getElementById('stepContent').innerHTML = buildStepScent();
   updateGuidePanel(6);
@@ -1702,21 +1724,24 @@ function buildStep3(aiLoading=false) {
     const patentTooltip2 = isPatent ? `<span class="patent-hover-info">📋 특허출원 원료<br>상세페이지에 특허증 활용 가능</span>` : '';
     const tooltip = e.inci ? `<span class="inci-tooltip">${e.inci}</span>` : '';
     const safeName = e.name.replace(/'/g, "\\'");
-    return `<div class="chip ${STATE.selExtracts[e.name]!==undefined?'sel':''}" data-name="${e.name}" onclick="toggleExtract('${safeName}',${e.price})" onmouseover="showExtractDetail('${safeName}')" onmouseleave="updateGuidePanel(5)">${badge}${patentBadge2}${e.name}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${patentTooltip2}${tooltip}</div>`;
+    const fnLocked = (e.name === '나이아신아마이드' && !STATE.functions.includes('미백기능성')) || (e.name === '아데노신' && !STATE.functions.includes('주름기능성'));
+    const fnLabel = fnLocked ? `<span style="font-size:9px;color:#DC2626;margin-left:4px">🔒 기능성 선택 필요</span>` : '';
+    const lockStyle = fnLocked ? ' style="opacity:0.4;pointer-events:auto"' : '';
+    return `<div class="chip ${STATE.selExtracts[e.name]!==undefined?'sel':''}" data-name="${e.name}"${lockStyle} onclick="toggleExtract('${safeName}',${e.price})" onmouseover="showExtractDetail('${safeName}')" onmouseleave="updateGuidePanel(5)">${badge}${patentBadge2}${e.name}${fnLabel}&nbsp;<span style="color:var(--tm);font-size:10px">+${N(e.price)}원</span>${patentTooltip2}${tooltip}</div>`;
   }).join('');
   const selKeys = Object.keys(STATE.selExtracts);
   const isDel = STATE.delegateExtracts;
   if (isDel) {
     return `
     <div class="card"><div class="card-title">컨셉성분 선택</div><div class="card-sub">제품 컨셉에 맞는 핵심 성분을 선택하거나, 제조 전문가에게 맡길 수 있습니다</div>
-      <div class="delegate-card active" onclick="toggleDelegate()"><div class="dc-icon">👨‍🔬</div><div class="dc-text"><div class="dc-title">컨셉성분 선택을 제조 전문가에게 맡길게요</div><div class="dc-sub">입력하신 개발 목표와 제형을 바탕으로<br>제조 연구팀이 최적의 원료를 직접 배합해드립니다</div></div><div class="dc-check">✓</div></div>
+      <div class="delegate-card active" onclick="toggleDelegate()"><div class="dc-icon">👨‍🔬</div><div class="dc-text"><div class="dc-title">연구원 추천 배합</div><div class="dc-sub">입력하신 개발 목표와 제형을 바탕으로<br>제조 연구팀이 최적의 원료를 직접 배합해드립니다</div></div><div class="dc-check">✓</div></div>
     </div>
     <div class="price-bar"><div><div class="pb-label">컨셉성분: 제조 전문가 위임</div><div class="pb-sub" id="selectedList">제조 연구팀이 최적 원료를 배합합니다</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가</div><div class="pb-price" id="priceDisplay">-</div></div></div>
     <div class="btn-row"><button class="btn" onclick="goToStep(4)">← 이전</button><button class="btn primary" onclick="goToStep(6)">다음 단계 →</button></div>`;
   }
   return `
     <div class="card"><div class="card-title">컨셉성분 선택</div><div class="card-sub">제품 컨셉에 맞는 핵심 성분을 선택하거나, 제조 전문가에게 맡길 수 있습니다</div>
-      <div class="delegate-card" onclick="toggleDelegate()"><div class="dc-icon">👨‍🔬</div><div class="dc-text"><div class="dc-title">컨셉성분 선택을 제조 전문가에게 맡길게요</div><div class="dc-sub">입력하신 개발 목표와 제형을 바탕으로<br>제조 연구팀이 최적의 원료를 직접 배합해드립니다</div></div><div class="dc-check"></div></div>
+      <div class="delegate-card" onclick="toggleDelegate()"><div class="dc-icon">👨‍🔬</div><div class="dc-text"><div class="dc-title">연구원 추천 배합</div><div class="dc-sub">입력하신 개발 목표와 제형을 바탕으로<br>제조 연구팀이 최적의 원료를 직접 배합해드립니다</div></div><div class="dc-check"></div></div>
       <div id="extractSelectArea"><div class="section-tag"><span style="font-size:10px;font-weight:800;padding:2px 7px;background:var(--tl);color:var(--tmd);border-radius:10px">✦ AI 추천 성분</span></div><div id="aiSection">${aiSection}</div><div class="section-tag">전체 성분 리스트</div><div class="chips">${allChips}</div></div>
       ${buildPctSliders()}
     </div>
@@ -1777,19 +1802,27 @@ function buildStep6() {
   const formula = getFormula(), container = getContainer();
   const hasFn = STATE.functions.length > 0;
   const selKeys = Object.keys(STATE.selExtracts);
+  const conceptKeys = selKeys.filter(k => !extracts.find(e => e.name === k && e.category === '에센셜오일'));
   return `
     <div class="card"><div class="card-title">최종 기획안 확인</div><div class="card-sub">내용을 확인 후 제출하시면 연구팀에 자동 발송됩니다</div>
       <div class="summary-row"><span class="sum-key">성함</span><span class="sum-val">${STATE.userName}</span></div>
       <div class="summary-row"><span class="sum-key">소속 / 기수</span><span class="sum-val">${STATE.userBrand}</span></div>
       <div class="summary-row"><span class="sum-key">전화번호</span><span class="sum-val">${STATE.userPhone}</span></div>
-      <div class="summary-row"><span class="sum-key">샘플 주소</span><span class="sum-val" style="font-size:12px">${STATE.userAddress}</span></div>
+      <div id="sampleAddressBox" style="margin:12px 0;padding:16px;background:linear-gradient(135deg,#FFF7ED,#FEF3C7);border:2px solid #F59E0B;border-radius:12px;animation:addressPulse 2s ease-in-out infinite">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:20px">📦</span>
+          <span style="font-size:14px;font-weight:800;color:#92400E">샘플 배송 주소</span>
+        </div>
+        <input type="text" id="sampleAddressInput" value="${STATE.userAddress||''}" placeholder="샘플을 받으실 주소를 정확히 입력해주세요" oninput="STATE.userAddress=this.value" style="width:100%;padding:12px 14px;border:2px solid #F59E0B;border-radius:8px;font-size:14px;font-weight:600;box-sizing:border-box;background:#fff">
+        <div style="margin-top:8px;font-size:12px;color:#92400E;line-height:1.6;font-weight:600">개발서 접수 후 샘플을 받으실 주소를 정확히 입력해주세요.<br>주소 오류 시 배송이 지연될 수 있습니다.</div>
+      </div>
       <div style="height:1px;background:var(--ge);margin:8px 0"></div>
       <div class="summary-row"><span class="sum-key">개발 목표</span><span class="sum-val" style="font-size:12px">${STATE.description||'-'}</span></div>
       <div class="summary-row"><span class="sum-key">기능성</span><span class="sum-val">${hasFn?STATE.functions.join(' + '):'해당 없음'}</span></div>
       <div class="summary-row"><span class="sum-key">사용 부위</span><span class="sum-val">${STATE.bodyPart||'-'}</span></div>
       <div class="summary-row"><span class="sum-key">제형</span><span class="sum-val">${formula?.name} (${formula?.desc})</span></div>
       <div class="summary-row"><span class="sum-key">향</span><span class="sum-val">${STATE.delegateExtracts?'🔬 제조 전문가 위임':(STATE.selectedScent||'미선택')}</span></div>
-      <div class="summary-row"><span class="sum-key">원료</span><span class="sum-val" style="font-size:12px">${STATE.delegateExtracts?'🔬 제조 전문가 위임':(selKeys.length?selKeys.join(', '):'없음')}</span></div>
+      <div class="summary-row"><span class="sum-key">원료</span><span class="sum-val" style="font-size:12px">${STATE.delegateExtracts?'🔬 제조 전문가 위임':(conceptKeys.length?conceptKeys.join(', '):'없음')}</span></div>
       <div class="summary-row"><span class="sum-key">용량 / 수량</span><span class="sum-val">${STATE.volume}ml / ${N(STATE.quantity)}개</span></div>
       <div class="summary-row"><span class="sum-key">용기</span><span class="sum-val">${container?.name||'-'}</span></div>
       <div class="summary-row" style="border-top:1px solid var(--ge);margin-top:4px;padding-top:12px"><span class="sum-key" style="font-weight:700;color:var(--g1)">예상 단가 (원가)</span><span class="sum-val" style="font-size:20px;color:var(--t)">${N(uc)}원</span></div>
@@ -1803,10 +1836,11 @@ function buildSuccess() {
   return `
     <div class="success-screen">
       <div class="success-icon">✅</div>
-      <h2 style="font-size:22px;font-weight:800;margin-bottom:8px">기획안이 전달되었습니다</h2>
+      <h2 style="font-size:22px;font-weight:800;margin-bottom:8px">개발의뢰서 제출이 완료되었습니다</h2>
       <p style="font-size:14px;color:var(--g6);line-height:1.7;margin-bottom:2rem">
-        담당 연구원이 확인 후 제품 개발에 착수합니다.<br>
-        대시보드에서 진행 현황을 실시간으로 확인할 수 있습니다.
+        연구소에서 내용 검토 후 순차적으로 개발이 진행됩니다.<br>
+        샘플링은 제출일 기준 약 2주 정도 소요됩니다.<br>
+        진행상황은 '나의현황'을 통해 실시간으로 확인하실 수 있습니다.
       </p>
       <button class="btn primary" onclick="goToDashboard()">대시보드로 돌아가기</button>
       <button class="btn" onclick="openOrderTypeModal()" style="margin-left:8px">+ 새 발주 시작</button>
@@ -1816,7 +1850,13 @@ function buildSuccess() {
 // ════════════════════════════════════════════════════════════
 //  🔘  EVENT HANDLERS
 // ════════════════════════════════════════════════════════════
-function getFnCost() { const n = STATE.functions.length; return n===0?0:n===1?40000:65000; }
+function getFnCost() {
+  const fns = STATE.functions;
+  if (fns.length === 0) return 0;
+  const SPECIAL = ['자외선 차단 기능성','탈모완화기능성'];
+  if (fns.length === 2) return 80000; // 주름+미백만 중복 가능
+  return SPECIAL.includes(fns[0]) ? 200000 : 50000;
+}
 
 function toggleFunction(fn, checked, el) {
   const COMBINABLE = ['주름기능성','미백기능성'];
@@ -1833,7 +1873,7 @@ function toggleFunction(fn, checked, el) {
   if (notice) {
     const n = STATE.functions.length, cost = getFnCost();
     notice.style.display = n ? 'block' : 'none';
-    notice.innerHTML = `<div class="notice info" style="margin-top:0;font-size:12px">💰 기능성 추가 비용: <strong>1개 40,000원 / 2개 65,000원</strong><br><span style="font-size:11px;color:var(--g6)">주름기능성과 미백기능성만 중복사용가능</span><br><span style="font-size:11px;color:var(--g6)">현재 ${n}개 선택 → <strong style="color:var(--t)">${N(cost)}원</strong> 추가</span></div>`;
+    notice.innerHTML = `<div class="notice info" style="margin-top:0;font-size:12px">💰 기능성 추가 비용: <strong>주름/미백 50,000원, 자외선차단/탈모완화 200,000원, 주름+미백 80,000원</strong><br><span style="font-size:11px;color:var(--g6)">주름기능성과 미백기능성만 중복사용가능</span><br><span style="font-size:11px;color:var(--g6)">현재 ${n}개 선택 → <strong style="color:var(--t)">${N(cost)}원</strong> 추가</span></div>`;
   }
   updateGuidePanel(1);
 }
@@ -1916,6 +1956,12 @@ function toggleDelegate() {
 }
 
 function toggleExtract(name, price) {
+  if (name === '나이아신아마이드' && !STATE.functions.includes('미백기능성') && STATE.selExtracts[name] === undefined) {
+    alert('나이아신아마이드는 기능성 원료입니다.\n미백 기능성을 선택해야 추가할 수 있습니다.'); return;
+  }
+  if (name === '아데노신' && !STATE.functions.includes('주름기능성') && STATE.selExtracts[name] === undefined) {
+    alert('아데노신은 기능성 원료입니다.\n주름 기능성을 선택해야 추가할 수 있습니다.'); return;
+  }
   if (STATE.selExtracts[name] !== undefined) delete STATE.selExtracts[name];
   else {
     if (Object.keys(STATE.selExtracts).length >= 5) { alert('컨셉 성분은 최대 5개까지 선택할 수 있습니다.'); return; }
@@ -2056,13 +2102,19 @@ async function goToStep(n) {
       '성분 선택이 어려우시면 <strong>"제조 전문가에게 맡기기"</strong>를 선택해주세요.',
     ]);
   }
+  // Step 7 진입 시 에센셜 오일 선택 안내 배너
+  if (n === 7 && STATE.selectedScent && STATE.selectedScent !== '무향') {
+    showStepBanner('에센셜 오일 안내', [
+      '에센셜 오일은 천연 원료 특성상, 향 이외에 안정화·보존을 위한 <strong>첨가 성분이 포함</strong>될 수 있습니다.',
+      '이에 따라 최종 제조 단가가 <strong>변동될 수 있으며</strong>, 정확한 단가는 배합 확정 후 안내드립니다.',
+    ]);
+  }
   // Step 6(향 선택): 해당 단계 진입 시 배너 표시
   if (n === 6 && !STATE.delegateExtracts) {
     showStepBanner('향 선택 안내', [
       '마지막 단계입니다. 제품에 넣을 향(에센셜 오일)을 선택합니다.',
       '에센셜 오일은 식물에서 추출한 천연 향 원료로, 향 외에도 <strong>항균·진정·혈행 촉진</strong> 등 기능성 효과가 있습니다.',
       '향은 <strong>1가지만</strong> 선택할 수 있으며, AI가 개발 목표에 적합한 향을 추천해드립니다.',
-      '각 성분은 <strong>최대 1%</strong>까지 배합 비율을 지정할 수 있으며, 표시된 가격은 1% 적용 시 기준 단가입니다.',
       '향료·에센셜 오일을 넣지 않을 경우 <strong>"무향"</strong>을 선택해주세요. 무향 선택 시에도 원료 자체의 특성 향이 있을 수 있습니다.',
       '표시되는 가격은 <strong>예상 단가</strong>이며, 최종 제조 단가는 달라질 수 있습니다.',
       '향을 선택하시면 <strong>최종 전성분</strong>을 확인하실 수 있습니다.',
@@ -2080,7 +2132,7 @@ function getStep1Guide() {
     return `<div class="gp-section"><div class="gp-section-title">작성 팁</div><div class="gp-text">원하는 효능, 타겟 고객, 피부 고민을 구체적으로 적을수록 AI가 더 정확한 원료를 추천합니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">기능성 화장품이란?</div><div class="gp-text"><ul><li>주름개선·미백·자외선차단 등 식약처 인증 기능성을 부여할 수 있습니다.</li><li>기능성 선택 시 패키지 및 상세페이지에 활용 가능</li><li><strong>씻어내는 제품</strong>(바디워시, 샴푸 등)에는 기능성이 실효성이 없거나 적용 불가합니다.</li></ul></div></div>`;
   }
   // 기능성 선택됨: 선택된 기능성 + 비용 + 제조 안내
-  const costText = fnCount === 1 ? '40,000원' : '65,000원';
+  const costText = N(getFnCost()) + '원';
   return `<div class="gp-section"><div class="gp-section-title">기능성 선택 완료</div><div class="gp-text">현재 <strong>${fnCount}개</strong> 기능성이 선택되었습니다.<br>추가 비용: <strong style="color:var(--t)">${costText}</strong></div></div>${factoryNotice}<div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">참고</div><div class="gp-text"><ul><li><strong>주름기능성과 미백기능성</strong>만 중복 선택이 가능합니다.</li><li><strong>씻어내는 제품</strong>에는 기능성이 실효성이 없거나 적용 불가합니다.</li></ul></div></div>`;
 }
 
@@ -2096,9 +2148,9 @@ function getStep2Guide() {
     'lotion-a': 'lotion-a.mp4', 'lotion-b': 'lotion-b.mp4',
     'serum-a': 'serum-a.mp4', 'serum-b': 'serum-b.mp4',
     'mist-a': 'mist-a.mp4', 'mist-b': 'mist-b.mp4', 'mist-c': 'mist-c.mp4',
-    'shampoo-a': 'shampoo-a.mp4', 'shampoo-b': 'shampoo-b.mp4',
-    'cleanser-a': 'cleanser-a.mp4', 'cleanser-b': 'cleanser-b.mp4',
-    'foam-a': 'foam-a.mp4', 'foam-c': 'foam-c.mp4',
+    'shampoo-a': 'bubble-all.mp4', 'shampoo-b': 'shampoo-b.mp4',
+    'cleanser-a': 'cleanser-a.mp4', 'cleanser-b': 'bubble-all.mp4',
+    'foam-a': 'foam-a.mp4', 'foam-b': 'bubble-all.mp4', 'foam-c': 'foam-c.mp4',
     'gel-a': 'gel-a.mp4',
     'patch-a': 'patch-a.mp4',
   };
@@ -2222,6 +2274,15 @@ async function loadAIRecommendations() {
 //  📩  ORDER SUBMISSION (Firestore)
 // ════════════════════════════════════════════════════════════
 async function submitOrder() {
+  if (!STATE.userAddress || !STATE.userAddress.trim()) {
+    const box = document.getElementById('sampleAddressBox');
+    const input = document.getElementById('sampleAddressInput');
+    if (input) { input.style.border = '2px solid #DC2626'; input.focus(); }
+    if (box) box.scrollIntoView({ behavior:'smooth', block:'center' });
+    alert('샘플 배송 주소를 입력해주세요.');
+    return;
+  }
+  if (!confirm('제출 완료 후에는 수정이 불가합니다.\n입력하신 내용을 반드시 최종 확인 후 신중하게 제출해주시기 바랍니다.')) return;
   const formula = getFormula(), container = getContainer();
   const selKeys = Object.keys(STATE.selExtracts);
   const order = {
@@ -2230,14 +2291,14 @@ async function submitOrder() {
     userName:    currentUserData.name,
     userBrand:   currentUserData.brand,
     userPhone:   currentUserData.phone,
-    userAddress: currentUserData.address,
+    userAddress: STATE.userAddress || currentUserData.address || '',
     description: STATE.description,
     functions:   [...STATE.functions],
     bodyPart:    STATE.bodyPart,
     formula:     formula ? `${formula.name} (${formula.desc})` : '-',
     scent:       STATE.delegateExtracts ? '제조 전문가 위임' : (STATE.selectedScent || '미선택'),
-    extracts:    STATE.delegateExtracts ? ['제조 전문가 위임'] : selKeys.map(k => `${k}(${STATE.selExtracts[k].pct}%)`),
-    extractDetails: STATE.delegateExtracts ? null : Object.fromEntries(selKeys.map(k => [k, STATE.selExtracts[k]])),
+    extracts:    STATE.delegateExtracts ? ['제조 전문가 위임'] : selKeys.filter(k => !extracts.find(e => e.name === k && e.category === '에센셜오일')).map(k => `${k}(${STATE.selExtracts[k].pct}%)`),
+    extractDetails: STATE.delegateExtracts ? null : Object.fromEntries(selKeys.filter(k => !extracts.find(e => e.name === k && e.category === '에센셜오일')).map(k => [k, STATE.selExtracts[k]])),
     extractCost: Math.round(getExtTotal()),
     unitCost:    getUnitCost(),
     volume:      STATE.volume,
@@ -2254,6 +2315,7 @@ async function submitOrder() {
     if (CONFIG.GOOGLE_SHEETS_URL) sendToGoogleSheets(order);
     STATE.step = 8; renderProgress();
     document.getElementById('stepContent').innerHTML = buildSuccess();
+    openChatWithStageGuide('ordered');
   } catch (e) { alert('발주 제출 중 오류가 발생했습니다: ' + e.message); }
 }
 
@@ -2496,7 +2558,7 @@ function doLogout() { auth.signOut(); }
 // ════════════════════════════════════════════════════════════
 //  📊  STATUS TIMELINE RENDERER
 // ════════════════════════════════════════════════════════════
-function normalizeStatus(s) { return s === 'submitted' ? 'ordered' : (s || 'ordered'); }
+function normalizeStatus(s) { if (s === 'submitted') return 'ordered'; if (s === 'completed') return 'shipped'; return s || 'ordered'; }
 
 function groupOrders(orders) {
   const groups = {};
@@ -2532,7 +2594,9 @@ function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') 
     const detail = isDev
       ? `${first.effect||''} · ${first.target||''}`
       : `${first.formula||'-'} · ${first.volume||'-'}ml · ${first.container||'-'}${first.scent?' · 향: '+first.scent:''}`;
-    const orderDetailBtn = `<button onclick="event.stopPropagation();${isDev ? `showDevDetail('${first.id}')` : `showOrderDetail('${first.id}')`}" style="position:absolute;top:12px;right:12px;padding:5px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #FCA5A5;background:#FFF5F5;color:#DC2626;font-family:inherit">발주서 상세보기</button>`;
+    const hasPO = first.purchaseOrder;
+    const detailLabel = hasPO ? '발주서 상세보기' : '의뢰서 상세보기';
+    const orderDetailBtn = `<button onclick="event.stopPropagation();${isDev ? `showDevDetail('${first.id}')` : `showOrderDetail('${first.id}')`}" style="position:absolute;top:12px;right:12px;padding:5px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #FCA5A5;background:#FFF5F5;color:#DC2626;font-family:inherit">${detailLabel}</button>`;
 
     let roundsHtml = '';
     group.forEach((o, idx) => {
@@ -2549,7 +2613,7 @@ function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') 
           <div class="round-header">
             <span class="rh-round">${round}차</span><span class="rh-date">${date}</span><span class="rh-qty">${qty}</span>${statusBadge}<span style="font-size:10px;color:var(--g8);margin-left:auto">▼ 펼치기</span>
           </div>
-          <div class="round-expand" style="display:none;margin-top:10px">${renderStatusTimeline(o.status)}${renderRoundDetails(o, editable, uid, uname, ubrand)}</div>
+          <div class="round-expand" style="display:none;margin-top:10px">${renderStatusTimeline(o.status, o.stageDates, o.createdAt)}${renderRoundDetails(o, editable, uid, uname, ubrand)}</div>
         </div>`;
       } else {
         // 최신 차수: 펼친 상태
@@ -2559,8 +2623,25 @@ function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') 
           cancelBtn = `<div style="margin-top:10px;padding:8px 12px;background:#FEF3C7;border-radius:var(--rsm);font-size:12px;color:#92400E;font-weight:600">취소 요청이 접수되었습니다. 관리자 승인을 기다리고 있습니다.</div>`;
         } else if (o.status === 'cancelled') {
           cancelBtn = `<div style="margin-top:10px;padding:8px 12px;background:#F3F4F6;border-radius:var(--rsm);font-size:12px;color:#9CA3AF;font-weight:600">취소된 발주입니다.</div>`;
-        } else if (!editable && o.status !== 'shipped' && o.status !== 'completed') {
-          cancelBtn = `<div style="margin-top:10px;text-align:right"><button onclick="requestCancelOrder('${o.id}')" style="padding:5px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #FCA5A5;background:#FFF5F5;color:#DC2626;font-family:inherit">취소 요청</button></div>`;
+        } else if (!editable && o.status !== 'shipped') {
+          let studentActions = '';
+          if (o.status === 'sample_sent') {
+            studentActions = `<div style="margin-top:10px"><button onclick="confirmSample('${o.id}')" style="padding:8px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:var(--t);color:#fff;font-family:inherit">✓ 샘플 확정하기</button></div>`;
+          }
+          if (o.status === 'confirmed' && o.containerRetry) {
+            studentActions = `<div style="margin-top:10px;padding:10px 14px;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:var(--r);font-size:12px;color:#991B1B;font-weight:600">❌ 용기 테스트 부적합 — 새로운 용기를 다시 보내주세요</div><div style="margin-top:8px"><button onclick="confirmContainerSent()" style="padding:8px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:#1E40AF;color:#fff;font-family:inherit">📦 용기 재발송 완료</button></div>`;
+          } else if (o.status === 'confirmed') {
+            studentActions = `<div style="margin-top:10px"><button onclick="confirmContainerSent()" style="padding:8px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:#1E40AF;color:#fff;font-family:inherit">📦 용기 발송 완료</button></div>`;
+          }
+          if (o.status === 'docs_reviewed') {
+            studentActions = `<div style="margin-top:10px"><button onclick="openPurchaseOrderForm('${o.id}')" style="padding:8px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:var(--t);color:#fff;font-family:inherit">📝 발주서 작성하기</button></div>`;
+          }
+          if (o.status === 'materials_photo' && !o.materialsConfirmedBy) {
+            studentActions = `<div style="margin-top:10px"><button onclick="confirmMaterialsPhoto()" style="padding:8px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:var(--t);color:#fff;font-family:inherit">✓ 부자재 검수 확정</button></div>`;
+          } else if (o.status === 'materials_photo' && o.materialsConfirmedBy) {
+            studentActions = `<div style="margin-top:10px;padding:10px 14px;background:#D1FAE5;border:1px solid #6EE7B7;border-radius:var(--r);font-size:12px;color:#065F46;font-weight:600">✅ 검수 확정 완료 — 생산 일정은 관리자 배정 후 안내드립니다</div>`;
+          }
+          cancelBtn = studentActions + `<div style="margin-top:10px;text-align:right"><button onclick="requestCancelOrder('${o.id}')" style="padding:5px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #FCA5A5;background:#FFF5F5;color:#DC2626;font-family:inherit">취소 요청</button></div>`;
         }
         let adminActions = '';
         if (editable) {
@@ -2575,21 +2656,22 @@ function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') 
             adminActions = `<div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#F3F4F6;border-radius:var(--rsm)"><span style="font-size:12px;color:#9CA3AF;font-weight:600">취소된 발주</span><button class="btn-sm" onclick="deleteOrder(${safeArgs})" style="color:#DC2626;border-color:#FCA5A5;font-size:10px;padding:4px 10px">영구 삭제</button></div>`;
           } else {
             adminActions = '<div class="status-actions">';
-            if (prevStage) adminActions += `<button class="status-btn prev" onclick="updateOrderStatus(${safeArgs},'${prevStage.id}')">← ${prevStage.label}</button>`;
-            if (nextStage) adminActions += `<button class="status-btn next" onclick="updateOrderStatus(${safeArgs},'${nextStage.id}')">→ ${nextStage.label}</button>`;
+            if (prevStage) adminActions += `<button class="status-btn prev" onclick="updateOrderStatus(${safeArgs},'${prevStage.id}','prev')">← ${prevStage.label}</button>`;
+            if (nextStage) adminActions += `<button class="status-btn next" onclick="updateOrderStatus(${safeArgs},'${nextStage.id}','next')">→ ${nextStage.label}</button>`;
             adminActions += '</div>';
           }
           cancelBtn = adminActions;
         }
+        const chatGuideBtn = (!editable && o.status !== 'cancelled') ? `<button onclick="event.stopPropagation();switchToOrderGuide('${o.id}')" style="margin-left:6px;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;border:1.5px solid #6EE7B7;background:#ECFDF5;color:#065F46;font-family:inherit">📋 가이드 보기</button>` : '';
         roundsHtml += `<div class="order-round">
-          <div class="round-header"><span class="rh-round">${round}차</span><span class="rh-date">${date}</span><span class="rh-qty">${qty}</span>${statusBadge}</div>
-          <div style="margin-top:10px">${renderStatusTimeline(o.status)}${renderRoundDetails(o, editable, uid, uname, ubrand)}${cancelBtn}</div>
+          <div class="round-header"><span class="rh-round">${round}차</span><span class="rh-date">${date}</span><span class="rh-qty">${qty}</span>${statusBadge}${chatGuideBtn}</div>
+          <div style="margin-top:10px">${renderStatusTimeline(o.status, o.stageDates, o.createdAt)}${renderRoundDetails(o, editable, uid, uname, ubrand)}${cancelBtn}</div>
         </div>`;
       }
     });
 
     // 재발주 버튼: 최신 차수가 완료/출고일 때만
-    const canReorder = !editable && (latest.status === 'completed' || latest.status === 'shipped');
+    const canReorder = !editable && latest.status === 'shipped';
     const reorderBtn = canReorder ? `<div class="order-group-footer"><button onclick="openReorderModal('${latest.id}')" style="padding:6px 16px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #93C5FD;background:#EFF6FF;color:#1E40AF;font-family:inherit">🔄 재발주</button></div>` : '';
 
     // 제품명/브랜드명 — 그룹 내 모든 주문에서 가장 최신 값을 사용
@@ -2654,15 +2736,35 @@ async function saveProductInfo(origId, field) {
 }
 
 function renderRoundDetails(o, editable, uid, uname, ubrand) {
-  const matSection = (ORDER_STAGES.findIndex(s=>s.id===normalizeStatus(o.status)) >= ORDER_STAGES.findIndex(s=>s.id==='materials'))
+  const st = normalizeStatus(o.status);
+  const stIdx = ORDER_STAGES.findIndex(s => s.id === st);
+  const stageId = id => ORDER_STAGES.findIndex(s => s.id === id);
+
+  const matSection = (stIdx >= stageId('po_confirmed'))
     ? renderMaterialChecklist(o, editable, uid, uname, ubrand) : '';
-  const prodDate = o.productionStartDate ? `<div style="margin-top:8px;background:var(--bl);border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:var(--bd)">🏭 생산일정: <strong>${o.productionStartDate}</strong></div>` : '';
+  const prodDate = (o.productionStartDate && stIdx >= stageId('production')) ? `<div style="margin-top:8px;background:var(--bl);border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:var(--bd)">🏭 생산일정: <strong>${o.productionStartDate}</strong></div>` : '';
+
+  // 배송 주소 변경: 샘플 출고 전까지만 표시
+  const addrChanged = (o.addressChanged && stIdx <= stageId('sample_sent')) ? `<div style="margin-top:8px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:#DC2626;font-weight:600">📍 배송 주소 변경됨: <strong>${o.userAddress||'-'}</strong></div>` : '';
+
+  // 샘플 확정: 확정 단계에서만 표시
+  const studentConfirmed = (o.confirmedBy === 'student' && st === 'confirmed') ? `<div style="margin-top:8px;background:#D1FAE5;border:1px solid #6EE7B7;border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:#065F46;font-weight:600">✅ 교육생이 샘플을 확정했습니다</div>` : '';
+
+  // 용기 발송: 용기 발송~용기 입고 단계에서만 표시
+  const containerSentByStudent = (o.containerSentBy === 'student' && stIdx >= stageId('container_sent') && stIdx <= stageId('container_received')) ? `<div style="margin-top:8px;background:#DBEAFE;border:1px solid #93C5FD;border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:#1E40AF;font-weight:600">📦 교육생이 용기 발송을 완료했습니다</div>` : '';
+
+  // 용기 테스트 결과: 용기 적합 단계에서만 표시
+  const containerResult = (o.containerResult && st === 'container_result') ? `<div style="margin-top:8px;background:${o.containerResult==='적합'?'#D1FAE5':'#FEE2E2'};border:1px solid ${o.containerResult==='적합'?'#6EE7B7':'#FCA5A5'};border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:${o.containerResult==='적합'?'#065F46':'#991B1B'};font-weight:600">${o.containerResult==='적합'?'✅':'❌'} 용기 테스트: <strong>${o.containerResult}</strong></div>` : '';
+
+  const materialsConfirmed = (editable && o.materialsConfirmedBy === 'student' && st === 'materials_photo') ? `<div style="margin-top:8px;background:#D1FAE5;border:1px solid #6EE7B7;border-radius:var(--rsm);padding:8px 12px;font-size:12px;color:#065F46;font-weight:600">✅ 교육생이 부자재 검수를 확정했습니다 — 생산 일정을 배정해주세요</div>` : '';
   const note = o.reorderNote ? `<div style="margin-top:6px;font-size:11px;color:var(--g6)">📝 ${o.reorderNote}</div>` : '';
-  return `${matSection}${prodDate}${note}`;
+  return `${matSection}${prodDate}${addrChanged}${studentConfirmed}${containerSentByStudent}${containerResult}${materialsConfirmed}${note}`;
 }
 
-function renderStatusTimeline(currentStatus) {
+function renderStatusTimeline(currentStatus, stageDates, createdAt) {
   currentStatus = normalizeStatus(currentStatus);
+  const sd = stageDates || {};
+  const baseDate = createdAt?.seconds ? new Date(createdAt.seconds*1000).toLocaleDateString('ko-KR') : '';
   if (currentStatus === 'cancel_requested' || currentStatus === 'cancelled') {
     const label = currentStatus === 'cancelled' ? '취소완료' : '취소요청 (승인 대기)';
     const color = currentStatus === 'cancelled' ? '#9CA3AF' : '#92400E';
@@ -2670,14 +2772,22 @@ function renderStatusTimeline(currentStatus) {
   }
   const mainStages = ORDER_STAGES.filter(s => s.id !== 'cancel_requested' && s.id !== 'cancelled');
   const currentIdx = mainStages.findIndex(s => s.id === currentStatus);
-  return `<div class="status-timeline">${mainStages.map((stage, i) => {
-    const done = i <= currentIdx;
-    const isCurrent = i === currentIdx;
-    const stepClass = done && !isCurrent ? 'done' : '';
-    const dotClass = isCurrent ? 'current' : (done ? 'done' : '');
-    const labelClass = isCurrent ? 'current' : (done ? 'done' : '');
-    return `<div class="st-step ${stepClass}"><div class="st-dot ${dotClass}">${done?'✓':(i+1)}</div><div class="st-label ${labelClass}">${stage.label}</div></div>`;
-  }).join('')}</div>`;
+  const row1 = mainStages.slice(0, 8);
+  const row2 = mainStages.slice(8);
+  function renderRow(stages, offset) {
+    return stages.map((stage, i) => {
+      const gi = i + offset;
+      const done = gi <= currentIdx;
+      const isCurrent = gi === currentIdx;
+      const stepClass = done && !isCurrent ? 'done' : '';
+      const dotClass = isCurrent ? 'current' : (done ? 'done' : '');
+      const labelClass = isCurrent ? 'current' : (done ? 'done' : '');
+      const stageDate = sd[stage.id] || (done ? baseDate : '');
+      const dateStr = stageDate ? `<div style="font-size:6px;color:var(--g8);margin-top:1px">${stageDate}</div>` : '';
+      return `<div class="st-step ${stepClass}"><div class="st-dot ${dotClass}">${done?'✓':(gi+1)}</div><div class="st-label ${labelClass}">${stage.label}</div>${dateStr}</div>`;
+    }).join('');
+  }
+  return `<div class="status-timeline">${renderRow(row1, 0)}</div><div class="status-timeline" style="margin-top:4px">${renderRow(row2, 8)}</div>`;
 }
 
 // 부자재 체크리스트 렌더 (교육생: 읽기전용, 관리자: 클릭 가능)
@@ -2701,14 +2811,23 @@ function renderMaterialChecklist(order, editable = false, uid = '', name = '', b
 function getStatusBadge(status) {
   status = normalizeStatus(status);
   const colors = {
-    ordered:    {bg:'#FEE2E2',color:'#DC2626'},
-    sample_sent:{bg:'#FEF3C7',color:'#92400E'},
-    materials:  {bg:'#DBEAFE',color:'#1E40AF'},
-    production: {bg:'#E0E7FF',color:'#3730A3'},
-    completed:  {bg:'#D1FAE5',color:'#065F46'},
-    shipped:    {bg:'#D1FAE5',color:'#065F46'},
-    cancel_requested: {bg:'#FEF3C7',color:'#92400E'},
-    cancelled:  {bg:'#F3F4F6',color:'#9CA3AF'},
+    ordered:           {bg:'#FEE2E2',color:'#DC2626'},
+    accepted:          {bg:'#FCE7F3',color:'#BE185D'},
+    sample_sent:       {bg:'#FEF3C7',color:'#92400E'},
+    confirmed:         {bg:'#D1FAE5',color:'#065F46'},
+    container_sent:    {bg:'#DBEAFE',color:'#1E40AF'},
+    container_received:{bg:'#DBEAFE',color:'#1E40AF'},
+    container_result:  {bg:'#E0E7FF',color:'#3730A3'},
+    docs_sent:         {bg:'#FEF3C7',color:'#92400E'},
+    docs_reviewed:     {bg:'#D1FAE5',color:'#065F46'},
+    po_submitted:      {bg:'#FEE2E2',color:'#DC2626'},
+    po_confirmed:      {bg:'#FCE7F3',color:'#BE185D'},
+    materials:         {bg:'#DBEAFE',color:'#1E40AF'},
+    materials_photo:   {bg:'#E0E7FF',color:'#3730A3'},
+    production:        {bg:'#E0E7FF',color:'#3730A3'},
+    shipped:           {bg:'#D1FAE5',color:'#065F46'},
+    cancel_requested:  {bg:'#FEF3C7',color:'#92400E'},
+    cancelled:         {bg:'#F3F4F6',color:'#9CA3AF'},
   };
   const stage = ORDER_STAGES.find(s => s.id === status) || ORDER_STAGES[0];
   const c = colors[status] || colors.ordered;
@@ -2722,6 +2841,7 @@ async function showDashboard() {
   document.getElementById('dashboardScreen').style.display = 'block';
   document.getElementById('dashUserInfo').textContent = currentUserData.name + ' · ' + currentUserData.brand;
   document.getElementById('dashWelcome').textContent = currentUserData.name + '님, 안녕하세요';
+  checkNewUserGuideBanner();
 
   try {
     const snap = await db.collection('orders').where('userId','==',currentUser.uid).get();
@@ -2743,6 +2863,25 @@ async function showDashboard() {
     } else {
       window._dashOrders = orders;
       document.getElementById('dashOrderList').innerHTML = renderOrderGroups(orders);
+      // 대시보드 진입 시 챗봇 열기 + 가이드 갱신
+      setTimeout(async () => {
+        const panel = document.getElementById('chatbotPanel');
+        if (panel && !chatbotVisible) {
+          chatbotVisible = true;
+          panel.classList.add('open');
+          const badge = document.getElementById('cbBadge');
+          if (badge) badge.style.display = 'none';
+        }
+        // 가이드 탭이 열려있으면 갱신
+        const activeTab = document.querySelector('#cbTabs .cb-tab.active');
+        if (activeTab && activeTab.dataset.tab === 'guide') {
+          renderGuideTab();
+        } else {
+          chatMessages = [];
+          await loadGuideAndFAQ();
+        }
+        scrollChatBottom();
+      }, 300);
     }
   } catch(e) { console.error('Dashboard load error:', e); document.getElementById('dashOrderList').innerHTML = `<div style="color:#dc2626;font-size:12px">데이터 로드 실패: ${e.message}</div>`; }
 }
@@ -2763,6 +2902,7 @@ let _adminOrderCounts = {};
 let _adminChatCounts = {};
 
 async function renderAdminStudentList() {
+  if (_adminStudentListener) { _adminStudentListener(); _adminStudentListener = null; }
   document.getElementById('adminContent').innerHTML = `<div class="ai-loading"><div class="spinner"></div> 교육생 목록을 불러오는 중...</div>`;
   try {
     const snap = await db.collection('users').where('role','==','student').get();
@@ -2893,8 +3033,19 @@ function filterStudents() {
   document.getElementById('studentGrid').innerHTML = buildStudentCards(filtered);
 }
 
+let _adminStudentListener = null;
 async function showStudentOrders(uid, name, brand) {
+  // 기존 리스너 해제
+  if (_adminStudentListener) { _adminStudentListener(); _adminStudentListener = null; }
   document.getElementById('adminContent').innerHTML = `<div class="ai-loading"><div class="spinner"></div> 발주 내역을 불러오는 중...</div>`;
+  // 실시간 리스너 등록
+  let firstLoad = true;
+  _adminStudentListener = db.collection('orders').where('userId','==',uid).onSnapshot(snap => {
+    if (firstLoad) { firstLoad = false; return; }
+    // 변경 감지 시 알림 + 자동 새로고침
+    playOrderNotificationSound();
+    _showStudentOrdersRender(uid, name, brand);
+  });
   try {
     const snap = await db.collection('orders').where('userId','==',uid).get();
     const orders = []; snap.forEach(doc => orders.push({ id:doc.id, ...doc.data() }));
@@ -2917,6 +3068,16 @@ async function showStudentOrders(uid, name, brand) {
     document.getElementById('adminContent').innerHTML = html;
   } catch(e) { document.getElementById('adminContent').innerHTML = `<div style="color:#dc2626">오류: ${e.message}</div>`; }
 }
+async function _showStudentOrdersRender(uid, name, brand) {
+  try {
+    const snap = await db.collection('orders').where('userId','==',uid).get();
+    const orders = []; snap.forEach(doc => orders.push({ id:doc.id, ...doc.data() }));
+    orders.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+    let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px"><div style="display:flex;align-items:center;gap:12px"><button class="btn-sm" onclick="renderAdminStudentList()">← 목록</button><div><div style="font-size:18px;font-weight:700">${name}</div><div style="font-size:12px;color:var(--g6)">${brand} · 발주 ${orders.length}건</div></div></div><button class="btn-sm" onclick="deleteStudent('${uid}','${name.replace(/'/g,"\\'")}')" style="color:#DC2626;border-color:#FCA5A5">교육생 삭제</button></div>`;
+    html += orders.length ? renderOrderGroups(orders, true, uid, name, brand) : `<div style="text-align:center;padding:2rem;color:var(--g6)">발주 내역이 없습니다</div>`;
+    document.getElementById('adminContent').innerHTML = html;
+  } catch(e) {}
+}
 
 function filterStudentChats() {
   const q = (document.getElementById('chatSearchInput')?.value || '').toLowerCase().trim();
@@ -2933,15 +3094,166 @@ function filterStudentChats() {
   }).join('') : `<div style="text-align:center;padding:2rem;color:var(--g6)">검색 결과가 없습니다</div>`;
 }
 
-async function updateOrderStatus(orderId, uid, name, brand, newStatus) {
-  if (newStatus === 'production') {
-    showProductionDateModal(orderId, uid, name, brand);
-    return;
+async function updateOrderStatus(orderId, uid, name, brand, newStatus, direction) {
+  // 전진(next)일 때만 특수 모달 표시
+  if (direction !== 'prev') {
+    if (newStatus === 'production') {
+      showProductionDateModal(orderId, uid, name, brand);
+      return;
+    }
+    if (newStatus === 'container_result') {
+      showContainerResultModal(orderId, uid, name, brand);
+      return;
+    }
+    if (newStatus === 'materials_photo') {
+      showMaterialsPhotoModal(orderId, uid, name, brand);
+      return;
+    }
   }
   try {
-    await db.collection('orders').doc(orderId).update({ status: newStatus, statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    const updateData = { status: newStatus, statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    // 단계 완료 날짜 저장
+    updateData[`stageDates.${newStatus}`] = new Date().toLocaleDateString('ko-KR');
+    // 단계 변경 시 관련 필드 초기화
+    updateData.containerResult = firebase.firestore.FieldValue.delete();
+    updateData.containerRetry = firebase.firestore.FieldValue.delete();
+    updateData.materialsConfirmedBy = firebase.firestore.FieldValue.delete();
+    updateData.materialsConfirmedAt = firebase.firestore.FieldValue.delete();
+    if (direction === 'prev') {
+      updateData.productionStartDate = firebase.firestore.FieldValue.delete();
+    }
+    await db.collection('orders').doc(orderId).update(updateData);
     await showStudentOrders(uid, name, brand);
   } catch(e) { alert('상태 변경 실패: ' + e.message); }
+}
+
+function showContainerResultModal(orderId, uid, name, brand) {
+  const overlay = document.createElement('div');
+  overlay.id = 'containerResultOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;';
+  const safeArgs = `'${orderId}','${uid}','${name.replace(/'/g,"\\'")}','${brand.replace(/'/g,"\\'")}'`;
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:var(--rlg);padding:2rem 1.75rem;max-width:360px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.12)">
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:4px">용기 테스트 판정</h3>
+      <p style="font-size:12px;color:var(--g6);margin-bottom:1.25rem">용기 테스트 결과를 선택해주세요.</p>
+      <div style="display:flex;gap:10px">
+        <button onclick="submitContainerResult(${safeArgs},'적합')" style="flex:1;padding:14px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;border:2px solid #10B981;background:#D1FAE5;color:#065F46;font-family:inherit">✅ 적합</button>
+        <button onclick="submitContainerResult(${safeArgs},'부적합')" style="flex:1;padding:14px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;border:2px solid #EF4444;background:#FEE2E2;color:#991B1B;font-family:inherit">❌ 부적합</button>
+      </div>
+      <button onclick="document.getElementById('containerResultOverlay').remove()" style="width:100%;margin-top:10px;padding:10px;border:none;background:none;color:var(--g6);font-size:12px;cursor:pointer;font-family:inherit">취소</button>
+    </div>`;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+async function submitContainerResult(orderId, uid, name, brand, result) {
+  document.getElementById('containerResultOverlay')?.remove();
+  try {
+    if (result === '부적합') {
+      // 부적합: 용기 발송 단계로 되돌림 + 부적합 기록
+      await db.collection('orders').doc(orderId).update({
+        status: 'confirmed',
+        containerResult: result,
+        containerRetry: true,
+        statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    } else {
+      // 적합: 다음 단계로 진행
+      await db.collection('orders').doc(orderId).update({
+        status: 'container_result',
+        containerResult: result,
+        containerRetry: firebase.firestore.FieldValue.delete(),
+        statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        [`stageDates.container_result`]: new Date().toLocaleDateString('ko-KR')
+      });
+    }
+    await showStudentOrders(uid, name, brand);
+  } catch(e) { alert('판정 처리 실패: ' + e.message); }
+}
+
+// 검수사진 업로드 모달
+function showMaterialsPhotoModal(orderId, uid, name, brand) {
+  const overlay = document.createElement('div');
+  overlay.id = 'matPhotoOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:var(--rlg);padding:2rem 1.75rem;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.12)">
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:4px">📸 부자재 검수사진 업로드</h3>
+      <p style="font-size:12px;color:var(--g6);margin-bottom:1.25rem">검수사진을 선택해주세요. 여러 장 선택 가능합니다.<br>업로드 완료 시 교육생 챗봇에서 확인할 수 있습니다.</p>
+      <input type="file" id="matPhotoInput" multiple accept="image/*" style="width:100%;padding:10px;border:1.5px dashed var(--ge);border-radius:var(--rsm);font-size:13px;font-family:inherit;margin-bottom:8px;box-sizing:border-box">
+      <div id="matPhotoPreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+      <div id="matPhotoProgress" style="display:none;margin-bottom:12px;font-size:12px;color:var(--g6)">업로드 중...</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="document.getElementById('matPhotoOverlay').remove()" style="flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--ge);background:#fff;color:var(--g6);font-family:inherit">취소</button>
+        <button id="matPhotoSubmitBtn" onclick="submitMaterialsPhoto('${orderId}','${uid}','${name.replace(/'/g,"\\'")}','${brand.replace(/'/g,"\\'")}')" style="flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:var(--t);color:#fff;font-family:inherit">업로드 및 전송</button>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  // 미리보기
+  document.getElementById('matPhotoInput').addEventListener('change', function() {
+    const preview = document.getElementById('matPhotoPreview');
+    preview.innerHTML = '';
+    Array.from(this.files).forEach(f => {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(f);
+      img.style.cssText = 'width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--ge)';
+      preview.appendChild(img);
+    });
+  });
+}
+
+function compressImage(file, maxWidth = 1200, quality = 0.7) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > maxWidth) { h = h * maxWidth / w; w = maxWidth; }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(resolve, 'image/jpeg', quality);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function submitMaterialsPhoto(orderId, uid, name, brand) {
+  const files = document.getElementById('matPhotoInput')?.files;
+  if (!files || files.length === 0) { alert('사진을 선택해주세요.'); return; }
+  const progress = document.getElementById('matPhotoProgress');
+  const btn = document.getElementById('matPhotoSubmitBtn');
+  progress.style.display = 'block';
+  btn.disabled = true;
+  btn.textContent = '업로드 중...';
+  try {
+    const urls = [];
+    for (let i = 0; i < files.length; i++) {
+      progress.textContent = `압축 및 업로드 중... (${i+1}/${files.length})`;
+      const compressed = await compressImage(files[i]);
+      const ref = storage.ref(`inspection/${orderId}/${Date.now()}_${i}.jpg`);
+      await ref.put(compressed, { contentType: 'image/jpeg' });
+      const url = await ref.getDownloadURL();
+      urls.push(url);
+    }
+    await db.collection('orders').doc(orderId).update({
+      status: 'materials_photo',
+      inspectionPhotos: urls,
+      statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      [`stageDates.materials_photo`]: new Date().toLocaleDateString('ko-KR'),
+    });
+    document.getElementById('matPhotoOverlay')?.remove();
+    await showStudentOrders(uid, name, brand);
+  } catch(e) {
+    alert('업로드 실패: ' + e.message);
+    progress.style.display = 'none';
+    btn.disabled = false;
+    btn.textContent = '업로드 및 전송';
+  }
 }
 
 function showProductionDateModal(orderId, uid, name, brand) {
@@ -2968,6 +3280,279 @@ function showProductionDateModal(orderId, uid, name, brand) {
 function closeProductionDateModal() {
   const el = document.getElementById('prodDateOverlay');
   if (el) el.remove();
+}
+
+// 교육생 샘플 확정
+// 배송 주소 변경 요청 — 챗봇 내 입력 폼
+// 완제품 입고처 주소 입력
+function openDeliveryAddrInput() {
+  const msgEl = document.getElementById('cbMessages');
+  if (!msgEl) return;
+  const formHtml = `<div id="deliveryAddrBox" style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:14px;margin-top:8px">
+    <div style="font-size:13px;font-weight:700;color:#92400E;margin-bottom:8px">📦 완제품 입고처 주소 입력</div>
+    <input type="text" id="deliveryAddrInput" placeholder="완제품을 받으실 주소를 입력해주세요" style="width:100%;padding:10px 12px;border:1.5px solid #F59E0B;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:8px">
+    <button onclick="submitDeliveryAddr()" style="width:100%;padding:10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:#F59E0B;color:#fff;font-family:inherit">입력 완료</button>
+  </div>`;
+  const el = document.createElement('div');
+  el.className = 'cb-msg bot';
+  el.innerHTML = formHtml;
+  msgEl.appendChild(el);
+  scrollChatBottom();
+  setTimeout(() => document.getElementById('deliveryAddrInput')?.focus(), 100);
+}
+
+async function submitDeliveryAddr() {
+  const addr = document.getElementById('deliveryAddrInput')?.value?.trim();
+  if (!addr) { alert('주소를 입력해주세요.'); return; }
+  try {
+    const snap = await db.collection('orders').where('userId','==',currentUser.uid).get();
+    if (!snap.empty) {
+      const docs = snap.docs.sort((a,b) => (b.data().createdAt?.seconds||0) - (a.data().createdAt?.seconds||0));
+      const activeDoc = docs.find(d => normalizeStatus(d.data().status) === 'production');
+      if (activeDoc) {
+        await db.collection('orders').doc(activeDoc.id).update({ [`purchaseOrder.deliveryAddr`]: addr });
+      }
+    }
+    const box = document.getElementById('deliveryAddrBox');
+    if (box) {
+      box.style.background = '#D1FAE5';
+      box.style.borderColor = '#10B981';
+      box.innerHTML = `<div style="text-align:center;padding:8px"><div style="font-size:20px;margin-bottom:6px">✅</div><div style="font-size:13px;font-weight:700;color:#065F46">입고처 주소 입력 완료</div><div style="font-size:12px;color:#065F46;margin-top:4px">${addr}</div></div>`;
+    }
+  } catch(e) { addBotMessage('❌ 입력 실패: ' + e.message); }
+}
+
+function openAddressChangeRequest() {
+  const msgEl = document.getElementById('cbMessages');
+  if (!msgEl) return;
+  const formHtml = `<div id="addressChangeBox" style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:14px;margin-top:8px">
+    <div style="font-size:13px;font-weight:700;color:#92400E;margin-bottom:8px">📦 배송 주소 변경 요청</div>
+    <input type="text" id="newAddressInput" placeholder="변경할 주소를 입력해주세요" style="width:100%;padding:10px 12px;border:1.5px solid #F59E0B;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:8px">
+    <button onclick="submitAddressChange()" style="width:100%;padding:10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:#F59E0B;color:#fff;font-family:inherit">변경 요청 보내기</button>
+  </div>`;
+  const el = document.createElement('div');
+  el.className = 'cb-msg bot';
+  el.innerHTML = formHtml;
+  msgEl.appendChild(el);
+  scrollChatBottom();
+  setTimeout(() => document.getElementById('newAddressInput')?.focus(), 100);
+}
+
+async function submitAddressChange() {
+  const newAddr = document.getElementById('newAddressInput')?.value?.trim();
+  if (!newAddr) { alert('변경할 주소를 입력해주세요.'); return; }
+  try {
+    const snap = await db.collection('orders').where('userId','==',currentUser.uid).get();
+    if (!snap.empty) {
+      const docs = snap.docs.sort((a,b) => (b.data().createdAt?.seconds||0) - (a.data().createdAt?.seconds||0));
+      await db.collection('orders').doc(docs[0].id).update({
+        userAddress: newAddr,
+        addressChanged: true,
+        addressChangedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    // 입력 폼을 완료 메시지로 교체
+    const formBox = document.getElementById('addressChangeBox');
+    if (formBox) {
+      formBox.style.background = '#D1FAE5';
+      formBox.style.borderColor = '#10B981';
+      formBox.innerHTML = `<div style="text-align:center;padding:8px">
+        <div style="font-size:20px;margin-bottom:6px">✅</div>
+        <div style="font-size:13px;font-weight:700;color:#065F46">배송 주소 변경 완료</div>
+        <div style="font-size:12px;color:#065F46;margin-top:4px">${newAddr}</div>
+      </div>`;
+    }
+  } catch(e) { addBotMessage('❌ 주소 변경 요청 실패: ' + e.message); }
+}
+
+// 챗봇에서 발주서 작성 열기
+function openPurchaseOrderFormFromChat() {
+  db.collection('orders').where('userId','==',currentUser.uid).get().then(snap => {
+    const docs = []; snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+    docs.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+    const active = docs.find(d => normalizeStatus(d.status) === 'docs_reviewed');
+    if (active) openPurchaseOrderForm(active.id);
+    else alert('발주서 작성이 가능한 발주가 없습니다.');
+  });
+}
+
+// 발주서 작성 모달
+function openPurchaseOrderForm(orderId) {
+  const overlay = document.createElement('div');
+  overlay.id = 'poFormOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:20px 0;';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:540px;width:92%;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
+      <h3 style="font-size:18px;font-weight:800;margin-bottom:4px">📝 발주서 작성</h3>
+      <p style="font-size:12px;color:var(--g6);margin-bottom:20px">모든 항목을 정확히 입력해주세요. 제출 후 수정이 어렵습니다.</p>
+
+      <div style="font-size:13px;font-weight:700;color:#DC2626;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #DC2626">발주처 정보</div>
+      <div class="po-field"><label>상호 *</label><input type="text" id="po_company" placeholder="예: 주식회사 OOO"></div>
+      <div class="po-field"><label>사업자번호 *</label><input type="text" id="po_bizNo" placeholder="000-00-00000"></div>
+      <div class="po-field"><label>대표자 *</label><input type="text" id="po_ceo" value="${currentUserData?.name||''}"></div>
+      <div style="display:flex;gap:8px">
+        <div class="po-field" style="flex:1"><label>업태</label><input type="text" id="po_bizType" placeholder="예: 소매"></div>
+        <div class="po-field" style="flex:1"><label>종목</label><input type="text" id="po_bizItem" placeholder="예: 전자상거래"></div>
+      </div>
+      <div class="po-field"><label>사업장 주소 *</label><input type="text" id="po_bizAddr"></div>
+      <div style="display:flex;gap:8px">
+        <div class="po-field" style="flex:1"><label>전화</label><input type="text" id="po_tel" value="${currentUserData?.phone||''}"></div>
+        <div class="po-field" style="flex:1"><label>FAX</label><input type="text" id="po_fax"></div>
+      </div>
+
+      <div style="font-size:13px;font-weight:700;color:#DC2626;margin:20px 0 12px;padding-bottom:8px;border-bottom:2px solid #DC2626">발주 정보</div>
+      <div style="display:flex;gap:8px">
+        <div class="po-field" style="flex:1"><label>희망 납기일</label><input type="date" id="po_dueDate"></div>
+        <div class="po-field" style="flex:1"><label>부자재 예상입고일</label><input type="date" id="po_matDate"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div class="po-field" style="flex:1"><label>용량 *</label><input type="text" id="po_volume" placeholder="예: 100ml"></div>
+        <div class="po-field" style="flex:1"><label>단가 *</label><input type="text" id="po_unitPrice" placeholder="예: 10,000원"></div>
+        <div class="po-field" style="flex:1"><label>발주량(ea) *</label><input type="number" id="po_orderQty" placeholder="예: 300"></div>
+      </div>
+
+      <div style="font-size:13px;font-weight:700;color:#DC2626;margin:20px 0 12px;padding-bottom:8px;border-bottom:2px solid #DC2626">부자재 구성</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <label class="po-check"><input type="checkbox" id="po_mat_container" checked> 용기</label>
+        <label class="po-check"><input type="checkbox" id="po_mat_printed"> 인쇄용기</label>
+        <label class="po-check"><input type="checkbox" id="po_mat_label" checked> 라벨지</label>
+        <label class="po-check"><input type="checkbox" id="po_mat_box" checked> 단상자</label>
+        <label class="po-check"><input type="checkbox" id="po_mat_sticker"> 마감스티커 (개당 100원)</label>
+      </div>
+
+      <div style="font-size:13px;font-weight:700;color:#DC2626;margin:20px 0 12px;padding-bottom:8px;border-bottom:2px solid #DC2626">추가 정보</div>
+      <div class="po-field"><label>완제품 입고처 주소</label><input type="text" id="po_deliveryAddr"></div>
+      <div class="po-field"><label>요청사항</label><textarea id="po_note" rows="3" placeholder="출고 및 발주 시 요청사항을 입력해주세요" style="width:100%;padding:10px 12px;border:1px solid var(--ge);border-radius:var(--rsm);font-size:13px;font-family:inherit;box-sizing:border-box;resize:vertical"></textarea></div>
+
+      <div style="display:flex;gap:8px;margin-top:20px">
+        <button onclick="document.getElementById('poFormOverlay').remove()" style="flex:1;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:1px solid var(--ge);background:#fff;color:var(--g6);font-family:inherit">취소</button>
+        <button onclick="submitPurchaseOrder('${orderId}')" style="flex:1;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;border:none;background:var(--t);color:#fff;font-family:inherit">발주서 제출</button>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+async function submitPurchaseOrder(orderId) {
+  const company = document.getElementById('po_company')?.value?.trim();
+  const bizNo = document.getElementById('po_bizNo')?.value?.trim();
+  const ceo = document.getElementById('po_ceo')?.value?.trim();
+  const bizAddr = document.getElementById('po_bizAddr')?.value?.trim();
+  const volume = document.getElementById('po_volume')?.value?.trim();
+  const unitPrice = document.getElementById('po_unitPrice')?.value?.trim();
+  const orderQty = document.getElementById('po_orderQty')?.value?.trim();
+
+  if (!company || !bizNo || !ceo || !bizAddr || !volume || !unitPrice || !orderQty) {
+    alert('필수 항목(*)을 모두 입력해주세요.');
+    return;
+  }
+  if (!confirm('발주서를 제출하시겠습니까?\n제출 후 수정이 어렵습니다.')) return;
+
+  const po = {
+    company, bizNo, ceo,
+    bizType: document.getElementById('po_bizType')?.value?.trim() || '',
+    bizItem: document.getElementById('po_bizItem')?.value?.trim() || '',
+    bizAddr,
+    tel: document.getElementById('po_tel')?.value?.trim() || '',
+    fax: document.getElementById('po_fax')?.value?.trim() || '',
+    dueDate: document.getElementById('po_dueDate')?.value || '',
+    matDate: document.getElementById('po_matDate')?.value || '',
+    volume, unitPrice, orderQty,
+    materials: {
+      container: document.getElementById('po_mat_container')?.checked || false,
+      printed: document.getElementById('po_mat_printed')?.checked || false,
+      label: document.getElementById('po_mat_label')?.checked || false,
+      box: document.getElementById('po_mat_box')?.checked || false,
+      sticker: document.getElementById('po_mat_sticker')?.checked || false,
+    },
+    deliveryAddr: document.getElementById('po_deliveryAddr')?.value?.trim() || '',
+    note: document.getElementById('po_note')?.value?.trim() || '',
+    submittedAt: new Date().toISOString(),
+  };
+
+  try {
+    await db.collection('orders').doc(orderId).update({
+      purchaseOrder: po,
+      status: 'po_submitted',
+      statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      [`stageDates.po_submitted`]: new Date().toLocaleDateString('ko-KR'),
+    });
+    document.getElementById('poFormOverlay')?.remove();
+    openChatWithStageGuide('po_submitted');
+    await showDashboard();
+  } catch(e) { alert('발주서 제출 실패: ' + e.message); }
+}
+
+// 교육생 부자재 검수 확정
+async function confirmMaterialsPhoto() {
+  if (!confirm('부자재 검수사진을 확인하셨습니까?\n확정 시 생산 일정은 관리자가 배정합니다.')) return;
+  try {
+    const snap = await db.collection('orders').where('userId','==',currentUser.uid).get();
+    if (!snap.empty) {
+      const docs = snap.docs.sort((a,b) => (b.data().createdAt?.seconds||0) - (a.data().createdAt?.seconds||0));
+      const activeDoc = docs.find(d => normalizeStatus(d.data().status) === 'materials_photo');
+      if (activeDoc) {
+        await db.collection('orders').doc(activeDoc.id).update({
+          materialsConfirmedBy: 'student',
+          materialsConfirmedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        addBotMessage('✅ 부자재 검수가 확정되었습니다.\n생산 일정은 관리자가 확정 후 안내드리겠습니다.');
+        await showDashboard();
+      }
+    }
+  } catch(e) { alert('확정 실패: ' + e.message); }
+}
+
+// 교육생 용기 발송 완료
+async function confirmContainerSent() {
+  if (!confirm('용기를 발송하셨나요?\n발송 완료 후 용기 테스트가 진행됩니다.')) return;
+  try {
+    const snap = await db.collection('orders').where('userId','==',currentUser.uid).get();
+    if (!snap.empty) {
+      const docs = snap.docs.sort((a,b) => (b.data().createdAt?.seconds||0) - (a.data().createdAt?.seconds||0));
+      const activeDoc = docs.find(d => normalizeStatus(d.data().status) === 'confirmed');
+      if (activeDoc) {
+        await db.collection('orders').doc(activeDoc.id).update({
+          status: 'container_sent',
+          statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          [`stageDates.container_sent`]: new Date().toLocaleDateString('ko-KR'),
+          containerSentBy: 'student'
+        });
+        openChatWithStageGuide('container_sent');
+        await showDashboard();
+      }
+    }
+  } catch(e) { alert('용기 발송 처리 실패: ' + e.message); }
+}
+
+async function confirmSample(orderId) {
+  if (!confirm('샘플을 확정하시겠습니까?\n확정 후 용기 테스트 단계로 진행됩니다.')) return;
+  try {
+    await db.collection('orders').doc(orderId).update({
+      status: 'confirmed',
+      statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      [`stageDates.confirmed`]: new Date().toLocaleDateString('ko-KR'),
+      confirmedBy: 'student'
+    });
+    openChatWithStageGuide('confirmed');
+    await showDashboard();
+  } catch(e) { alert('확정 실패: ' + e.message); }
+}
+
+// 단계 변경 시 챗봇 열면서 안내 메시지 표시
+async function openChatWithStageGuide(stageId) {
+  const panel = document.getElementById('chatbotPanel');
+  if (!panel) return;
+  if (!chatbotVisible) {
+    chatbotVisible = true;
+    panel.classList.add('open');
+  }
+  const badge = document.getElementById('cbBadge');
+  if (badge) badge.style.display = 'none';
+  chatMessages = [];
+  _chatHasOrders = true;
+  document.getElementById('cbTabs').style.display = 'block';
+  switchChatTab('guide');
 }
 
 async function confirmProductionDate(orderId, uid, name, brand) {
@@ -3402,6 +3987,9 @@ async function submitReorder() {
 }
 
 function openOrderTypeModal() {
+  // 발주 작성 시 챗봇 닫기
+  const panel = document.getElementById('chatbotPanel');
+  if (panel && chatbotVisible) { chatbotVisible = false; panel.classList.remove('open'); }
   document.getElementById('orderTypeModal').classList.add('open');
 }
 function closeOrderTypeModal() {
@@ -3516,7 +4104,7 @@ async function showOrderDetail(orderId) {
     const doc = await db.collection('orders').doc(orderId).get();
     if (!doc.exists) { alert('발주서를 찾을 수 없습니다.'); return; }
     const o = doc.data();
-    const date = o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleDateString('ko-KR') : '-';
+    const date = o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleString('ko-KR', {year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '-';
     const selExtracts = o.extracts && o.extracts.length ? o.extracts.join(', ') : '-';
     const rows = [
       ['개발 목표', o.description||'-'],
@@ -3528,18 +4116,37 @@ async function showOrderDetail(orderId) {
       ['수량', o.quantity ? N(o.quantity)+'개' : '-'],
       ['컨셉 성분', (o.extracts && o.extracts[0] === '제조 전문가 위임') ? '제조 전문가 위임' : selExtracts],
       ['향', o.scent||'-'],
+      ['샘플 배송 주소', (o.userAddress||'-') + (o.addressChanged ? ' <span style="color:#DC2626;font-weight:700;font-size:11px">📍 주소 변경됨</span>' : '')],
       ['제출일', date],
     ];
+    // 발주서 정보
+    const po = o.purchaseOrder;
+    let poSection = '';
+    if (po) {
+      const poRows = [
+        ['상호', po.company||'-'], ['사업자번호', po.bizNo||'-'], ['대표자', po.ceo||'-'],
+        ['업태/종목', `${po.bizType||'-'} / ${po.bizItem||'-'}`], ['사업장 주소', po.bizAddr||'-'],
+        ['전화/FAX', `${po.tel||'-'} / ${po.fax||'-'}`],
+        ['용량', po.volume||'-'], ['단가', po.unitPrice||'-'], ['발주량', po.orderQty ? po.orderQty+'ea' : '-'],
+        ['희망 납기일', po.dueDate||'-'], ['부자재 예상입고일', po.matDate||'-'],
+        ['부자재 구성', [po.materials?.container?'용기':'', po.materials?.printed?'인쇄용기':'', po.materials?.label?'라벨지':'', po.materials?.box?'단상자':'', po.materials?.sticker?'마감스티커':''].filter(Boolean).join(', ')||'-'],
+        ['완제품 입고처', po.deliveryAddr||'-'],
+        ['요청사항', po.note||'-'],
+      ];
+      poSection = `<div style="margin-top:16px;padding-top:16px;border-top:2px solid #DC2626"><div style="font-size:14px;font-weight:800;color:#DC2626;margin-bottom:12px">📝 발주서 정보</div>${poRows.map(([k,v]) => `<div style="display:flex;border-bottom:1px solid #f3f4f6;padding:10px 0"><span style="min-width:110px;font-size:12px;font-weight:600;color:var(--g6)">${k}</span><span style="font-size:13px;color:#1F2937;word-break:break-all">${v}</span></div>`).join('')}</div>`;
+    }
+    const modalTitle = po ? '발주서 상세보기' : '의뢰서 상세보기';
     const html = `<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center" onclick="if(event.target===this)this.remove()">
       <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <h3 style="margin:0;font-size:18px">맞춤형 발주서</h3>
+          <h3 style="margin:0;font-size:18px">${modalTitle}</h3>
           <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--g8)">✕</button>
         </div>
         ${rows.map(([k,v]) => `<div style="display:flex;border-bottom:1px solid #f3f4f6;padding:10px 0">
           <span style="min-width:110px;font-size:12px;font-weight:600;color:var(--g6)">${k}</span>
           <span style="font-size:13px;color:#1F2937;word-break:break-all">${v}</span>
         </div>`).join('')}
+        ${poSection}
       </div>
     </div>`;
     document.body.insertAdjacentHTML('beforeend', html);
@@ -3587,29 +4194,110 @@ async function showDevDetail(orderId) {
 // ═══ 단계별 가이드 & FAQ ═══
 const STAGE_GUIDES = {
   'ordered': {
-    title: '발주가 접수되었습니다',
+    title: '개발의뢰서가 제출되었습니다',
     items: [
-      '연구팀에서 발주 내용을 검토합니다.',
-      '검토 후 샘플링이 시작됩니다. (보통 3~4주 소요)',
-      '개발의뢰서와 타겟제품을 공장으로 택배 발송해주세요.',
-      '궁금한 점은 아래 입력창으로 관리자에게 직접 문의하세요.',
+      '연구소에서 내용 검토 후 순차적으로 개발이 진행됩니다.',
+      '샘플링은 제출일 기준 약 2주 정도 소요됩니다.',
+      '진행상황은 \'나의현황\'을 통해 실시간으로 확인하실 수 있습니다.',
+      '연구소 접수 완료 시 차트에 \'접수완료\'로 표시됩니다.',
+    ]
+  },
+  'accepted': {
+    title: '개발의뢰서가 접수 완료되었습니다',
+    items: [
+      '대표님의 개발의뢰서는 정상적으로 접수 완료되었습니다.',
+      '개발은 약 2주 정도 소요되며, 샘플링 완료 후 출고 시 차트에 \'출고완료\'로 체크됩니다.',
+      '샘플은 의뢰서 작성 시 입력하신 주소로 발송됩니다. 주소를 다시 한번 확인해주세요.',
+      '주소 변경이 필요하신 경우 아래 버튼을 눌러 변경 요청해주세요.',
+      '<button onclick="openAddressChangeRequest()" style="margin-top:4px;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #F59E0B;background:#FEF3C7;color:#92400E;font-family:inherit">📦 배송 주소 변경 요청</button>',
+      '샘플링을 기다리시는 동안 용기, 브랜드명 및 제품명을 미리 기획해주시면 이후 진행이 더욱 원활합니다.',
     ]
   },
   'sample_sent': {
-    title: '샘플이 발송되었습니다',
+    title: '샘플이 출고되었습니다',
     items: [
-      '샘플을 받으시면 향, 질감, 발림성 등을 확인해주세요.',
-      '수정이 필요하면 관리자에게 피드백을 남겨주세요.',
-      '확정되면 용기 테스트가 진행됩니다.',
+      '출고 후 약 1~2일 내 수령 가능합니다.',
+      '샘플은 개발의뢰서 작성 시 입력하신 주소로 발송됩니다.',
+      '샘플 수령 후 사용감(발림성, 흡수력, 제형, 마무리감)을 확인하신 뒤 확정을 선택해주세요.',
+    ]
+  },
+  'confirmed': {
+    title: '샘플이 확정되었습니다',
+    items: [
+      '다음 단계인 용기 테스트 진행을 위해 동일 용기 5개를 보내주시기 바랍니다.',
+      '<a href="https://cafe.naver.com/tlzm1234/4667" target="_blank" style="color:#DC2626;font-weight:700">📎 용기테스트 안내 보기</a>',
+      '위 용기테스트 안내를 반드시 숙지하신 후, 사용하실 용기를 동일 규격 5개 보내주세요. 발송 완료 후 아래 버튼을 눌러주시면 다음 단계로 진행됩니다.',
+      '<button onclick="confirmContainerSent()" style="margin-top:4px;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:var(--t);color:#fff;font-family:inherit">📦 용기 발송 완료</button>',
+    ]
+  },
+  'container_sent': {
+    title: '용기가 발송되었습니다',
+    items: [
+      '용기 테스트는 입고일 기준 약 2일 정도 소요됩니다.',
+      '용기테스트 완료 후 판정 여부는 나의현황에서 확인 가능합니다.',
+    ]
+  },
+  'container_received': {
+    title: '용기가 입고 확인되었습니다',
+    items: [
+      '보내주신 용기가 정상적으로 입고 확인되었습니다.',
+      '용기 테스트는 입고일 기준 약 2일 정도 소요됩니다.',
+      '테스트 완료 후 판정 결과는 \'나의현황\'에서 확인하실 수 있습니다.',
+    ]
+  },
+  'container_result': {
+    title: '용기 테스트: 적합 판정',
+    items: [
+      '용기 테스트가 적합 판정을 받았습니다.',
+      '이제 용기에 입힐 디자인과 바코드를 준비하셔야 합니다. 채널톡으로 <strong>"문안요청"</strong>이라고 남겨주시면 안내드리겠습니다.',
+      '<a href="https://cafe.naver.com/tlzm1234/4668" target="_blank" style="color:#DC2626;font-weight:700">📎 문안/바코드 안내 보기</a>',
+    ]
+  },
+  'docs_sent': {
+    title: '문안/바코드/견적서 발송 완료',
+    items: [
+      '디자인이 확정되면 최종 문안 검수를 받으셔야 합니다.',
+      '채널톡에서 <strong>"검수 요청"</strong>이라고 남겨주시면 검수를 진행해드립니다.',
+      '검수 완료 후 다음 단계로 진행됩니다.',
+    ]
+  },
+  'docs_reviewed': {
+    title: '문안 검수가 완료되었습니다',
+    items: [
+      '문안 검수가 정상적으로 완료되었습니다.',
+      '다음 단계로 진행하려면 발주서를 작성해주세요.',
+      '<button onclick="openPurchaseOrderFormFromChat()" style="margin-top:4px;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:var(--t);color:#fff;font-family:inherit">📝 발주서 작성하기</button>',
+    ]
+  },
+  'po_submitted': {
+    title: '발주서가 접수되었습니다',
+    items: [
+      '발주서 접수가 정상적으로 완료되었습니다.',
+      '부자재 입고 현황은 \'나의현황\'에서 확인하실 수 있습니다.',
+      '완제품 생산 일정은 발주서 접수일 기준 약 4주 정도 소요됩니다.',
+    ]
+  },
+  'po_confirmed': {
+    title: '발주서 확인 완료',
+    items: [
+      '발주서 내용이 정상적으로 확인되었습니다.',
+      '부자재 발주를 진행해주세요. 부자재 입고 진행 현황은 나의현황 패널에서 실시간으로 확인하실 수 있습니다.',
     ]
   },
   'materials': {
-    title: '부자재 입고 단계입니다',
+    title: '부자재 입고가 진행 중입니다',
     items: [
-      '용기, 라벨지, 인쇄용기, 단상자를 준비해주세요.',
-      '각 부자재가 준비되면 체크리스트에서 체크해주세요.',
-      '디자인 완료 후 반드시 문안체크를 받으세요. (오타, 광고법)',
-      '바코드는 EPS 파일로 준비해주세요.',
+      '부자재가 순차적으로 입고되고 있습니다.',
+      '입고 현황은 나의현황 패널의 체크리스트에서 실시간으로 확인하실 수 있습니다.',
+      '모든 부자재 입고가 완료되면 검수사진을 전달드리겠습니다.',
+    ]
+  },
+  'materials_photo': {
+    title: '모든 부자재가 입고되었습니다',
+    items: [
+      '아래 업로드된 부자재 검수사진을 확인해주세요.',
+      '이상이 없으시면 확정을 눌러주세요. 이상이 있다면 채널톡으로 문의해주세요.',
+      '<button onclick="confirmMaterialsPhoto()" style="margin-top:4px;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:var(--t);color:#fff;font-family:inherit">✓ 부자재 검수 확정</button>',
     ]
   },
   'production': {
@@ -3620,31 +4308,19 @@ const STAGE_GUIDES = {
       '생산 완료 후 잔금을 결제하시게 됩니다.',
     ]
   },
-  'completed': {
-    title: '생산이 완료되었습니다',
-    items: [
-      '잔금 결제를 진행해주세요.',
-      '결제 확인 후 출고가 진행됩니다.',
-    ]
-  },
   'shipped': {
     title: '출고가 완료되었습니다',
     items: [
       '제품이 발송되었습니다.',
-      '재발주은 보통 4주 소요, 500~1000개 이상 주문 가능합니다.',
+      '재발주는 보통 4주 소요, 500~1000개 이상 주문 가능합니다.',
       '새 제품 발주도 언제든 가능합니다.',
     ]
   },
 };
 
 const FAQ_LIST = [
-  { q: '발주 절차가 어떻게 되나요?', a: '발주접수 → 샘플발송 → 부자재 입고 → 생산일정 → 생산완료 → 출고완료 순서로 진행됩니다.' },
-  { q: '비용은 얼마인가요?', a: '300개 기준 약 300만원 미만입니다. (단상자, 라벨지, 용기 모두 포함)\n개당 단가는 약 10,000원 이하이며, 견적서 확인 후 50% 선입금 → 생산완료 후 잔금 결제입니다.' },
-  { q: '샘플은 언제 오나요?', a: '샘플링 기간은 보통 3~4주 소요됩니다.\n개발의뢰서 제출 → 샘플링 → 피드백 → 수정샘플링 → 확정 순서입니다.' },
-  { q: '용기 인쇄는 어떻게 하나요?', a: '실크인쇄는 1000개부터 가능합니다. 300개 생산 후 나머지는 보관해두셨다가 재발주 시 사용하세요.\n첫 생산 시에는 스티커 인쇄로 300개 소량 진행을 추천드립니다. (리뉴얼 가능성 때문)' },
-  { q: '기능성 화장품이란?', a: '주름기능성, 미백기능성, 자외선차단기능성, 탈모완화기능성이 있습니다.\n기능성 1개 추가 시 40,000원, 2개 추가 시 65,000원입니다.\n주름기능성과 미백기능성만 중복 선택 가능합니다.' },
-  { q: '재발주은 어떻게 하나요?', a: '재발주은 약 4주 소요되며, 보통 500~1000개 이상 주문합니다.\n새 발주를 통해 주문해주세요.' },
-  { q: '발주를 취소하고 싶어요', a: '대시보드에서 해당 발주의 "취소 요청" 버튼을 눌러주세요.\n관리자 승인 후 최종 취소됩니다.' },
+  // 질문 추가 방법: { q: '질문 내용', a: '답변 내용' } 형식으로 추가
+  // 예시: { q: '배송은 얼마나 걸리나요?', a: '보통 1~2일 소요됩니다.' },
 ];
 
 let chatMessages = [];
@@ -3941,38 +4617,129 @@ async function toggleChatbot() {
   }
 }
 
-async function loadGuideAndFAQ() {
+let _chatHasOrders = false;
+
+function switchChatTab(tab) {
+  document.querySelectorAll('#cbTabs .cb-tab').forEach(t => {
+    const isActive = t.dataset.tab === tab;
+    t.style.color = isActive ? '#DC2626' : '#9CA3AF';
+    t.style.borderBottom = isActive ? '2px solid #DC2626' : '2px solid transparent';
+    t.classList.toggle('active', isActive);
+  });
+  if (tab === 'guide') renderGuideTab();
+  else renderFAQTab();
+}
+
+let _selectedGuideOrderId = null;
+
+function switchToOrderGuide(orderId) {
+  _selectedGuideOrderId = orderId;
+  // 챗봇 열기
+  const panel = document.getElementById('chatbotPanel');
+  if (panel && !chatbotVisible) { chatbotVisible = true; panel.classList.add('open'); }
+  const tabs = document.getElementById('cbTabs');
+  if (tabs) tabs.style.display = 'block';
+  switchChatTab('guide');
+}
+
+function renderGuideTab() {
   const msgEl = document.getElementById('cbMessages');
   msgEl.innerHTML = '';
+  if (!currentUser) return;
+  db.collection('orders').where('userId','==',currentUser.uid).get().then(snap => {
+    const orders = []; snap.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+    orders.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
 
-  // 1. 현재 발주 상태 기반 가이드
-  if (currentUser) {
-    try {
-      const snap = await db.collection('orders').where('userId','==',currentUser.uid).get();
-      const orders = []; snap.forEach(doc => orders.push(doc.data()));
-      orders.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
-      const active = orders.find(o => o.status !== 'shipped' && o.status !== 'cancelled');
-      if (active) {
-        const guide = STAGE_GUIDES[active.status];
-        if (guide) {
-          addBotMessage(`📋 <strong>${guide.title}</strong>\n\n${guide.items.map((item,i) => `${i+1}. ${item}`).join('\n')}`);
-        }
-      } else if (orders.length === 0) {
-        addBotMessage('안녕하세요, 대표님! 아직 발주 내역이 없습니다.\n위의 "+ 새 발주" 버튼을 눌러 첫 발주를 시작해보세요.');
-      } else {
-        addBotMessage('안녕하세요, 대표님! 모든 발주가 완료된 상태입니다.\n새 제품 발주가 필요하시면 대시보드에서 시작하세요.');
-      }
-    } catch(e) {
-      addBotMessage('안녕하세요! 궁금한 점이 있으시면 아래 자주 묻는 질문을 확인하시거나, 관리자에게 직접 문의해주세요.');
+    // 특정 발주가 선택되었으면 해당 발주 사용
+    let active = null;
+    if (_selectedGuideOrderId) {
+      active = orders.find(o => o.id === _selectedGuideOrderId);
+      _selectedGuideOrderId = null; // 사용 후 초기화
     }
-  }
 
-  // 2. FAQ 버튼 표시
-  const faqEl = document.createElement('div');
-  faqEl.className = 'cb-msg system';
-  faqEl.innerHTML = '<strong>자주 묻는 질문</strong>';
-  msgEl.appendChild(faqEl);
+    if (!active) {
+      // 최상단 발주가 출고 완료면 출고 완료 메시지 표시
+      const latest = orders[0];
+      if (latest && normalizeStatus(latest.status) === 'shipped') {
+        const label = latest.description || latest.product || '발주';
+        const el = document.createElement('div');
+        el.className = 'cb-msg bot';
+        el.innerHTML = `🎉 <strong>제품이 출고되었습니다!</strong><br><span style="font-size:11px;color:var(--g6)">제품: ${label}</span><br><br>1. 제품이 정상적으로 출고 완료되었습니다.<br>2. 재발주가 필요하시면 나의현황 패널 우측 하단의 <strong>재발주</strong> 버튼을 이용해주세요.<br>3. 새로운 제품 발주는 상단의 <strong>+ 새 발주</strong> 버튼을 눌러주세요.`;
+        msgEl.appendChild(el);
+        addSystemMessage('상세 문의는 채널톡을 이용해주세요.');
+        scrollChatBottom();
+        return;
+      }
+      active = orders.find(o => {
+        const st = normalizeStatus(o.status);
+        return st !== 'shipped' && st !== 'cancelled';
+      });
+    }
+    if (active) {
+      const st = normalizeStatus(active.status);
+      const label = active.description || active.product || '발주';
+      const stageObj = ORDER_STAGES.find(s => s.id === st);
+      const stageName = stageObj ? stageObj.label : st;
+      const el = document.createElement('div');
+      el.className = 'cb-msg bot';
 
+      // 용기 부적합으로 되돌아온 경우 전용 가이드
+      if (active.containerRetry && st === 'confirmed') {
+        el.innerHTML = `📋 <strong>용기 테스트 결과: 부적합</strong><br><span style="font-size:11px;color:var(--g6)">제품: ${label}</span><br><br>` +
+          `1. 보내주신 용기가 테스트 결과 <strong style="color:#DC2626">부적합</strong> 판정을 받았습니다.<br>` +
+          `2. 새로운 용기를 준비하신 후 동일 규격 5개를 다시 보내주세요.<br>` +
+          `3. <a href="https://cafe.naver.com/tlzm1234/4667" target="_blank" style="color:#DC2626;font-weight:700">📎 용기테스트 안내 보기</a><br>` +
+          `4. 용기 재발송 완료 후 아래 버튼을 눌러주시면 재테스트가 진행됩니다.<br>` +
+          `5. <button onclick="confirmContainerSent()" style="margin-top:4px;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:#1E40AF;color:#fff;font-family:inherit">📦 용기 재발송 완료</button>`;
+        msgEl.appendChild(el);
+      } else if (st === 'production' && active.productionStartDate) {
+        // 생산일정: 동적 메시지로 처리 (아래에서 표시)
+      } else {
+        const guide = STAGE_GUIDES[st];
+        if (guide) {
+          const items = guide.items.map(item => {
+            if (item.includes('openAddressChangeRequest') && active.addressChanged) {
+              return '<div style="display:inline-block;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;background:#D1FAE5;color:#065F46;border:1.5px solid #10B981">✅ 주소 변경 완료: ' + (active.userAddress||'') + '</div>';
+            }
+            return item;
+          });
+          el.innerHTML = `📋 <strong>${guide.title}</strong><br><span style="font-size:11px;color:var(--g6)">제품: ${label} · 현재 단계: ${stageName}</span><br><br>${items.map((item,i) => `${i+1}. ${item}`).join('<br>')}`;
+        } else {
+          el.innerHTML = `📋 <strong>${label}</strong><br>현재 단계: <strong>${stageName}</strong><br><br>진행 중입니다. 궁금한 점은 아래에서 문의해주세요.`;
+        }
+        msgEl.appendChild(el);
+      }
+      // 검수사진 표시
+      if (active.inspectionPhotos && active.inspectionPhotos.length > 0) {
+        const photoEl = document.createElement('div');
+        photoEl.className = 'cb-msg bot';
+        photoEl.innerHTML = `📸 <strong>부자재 검수사진</strong><br><br><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">${active.inspectionPhotos.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--ge)"></a>`).join('')}</div><br><span style="font-size:11px;color:var(--g6)">사진을 클릭하면 크게 볼 수 있습니다.</span>`;
+        msgEl.appendChild(photoEl);
+      }
+      // 생산일정 단계: 생산일자 + 입고처 안내
+      if (st === 'production' && active.productionStartDate) {
+        const prodEl = document.createElement('div');
+        prodEl.className = 'cb-msg bot';
+        const poAddr = active.purchaseOrder?.deliveryAddr?.trim();
+        const addrInfo = poAddr
+          ? `<br>4. 완제품 입고처: <strong>${poAddr}</strong> (발주서 기입)<br><span style="font-size:11px;color:var(--g6)">변경이 필요하면 채널톡으로 문의해주세요.</span>`
+          : `<br>4. 생산일정 하루 전까지 완제품 받을 주소(3PL)를 입력해주세요.<br><button onclick="openDeliveryAddrInput()" style="margin-top:6px;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #F59E0B;background:#FEF3C7;color:#92400E;font-family:inherit">📦 입고처 주소 입력</button>`;
+        prodEl.innerHTML = `📅 <strong>생산 일정: ${active.productionStartDate}</strong><br><br>1. 생산 일정이 확정되었습니다.<br>2. 견적서 확인 후 50% 선입금을 진행해주세요.<br>3. 생산 완료 후 잔금을 결제하시게 됩니다.${addrInfo}`;
+        msgEl.appendChild(prodEl);
+      }
+    } else {
+      addBotMessage('현재 진행 중인 발주가 없습니다.\n새 발주를 시작해보세요.');
+    }
+    addSystemMessage('상세 문의는 채널톡을 이용해주세요.');
+    scrollChatBottom();
+  }).catch(() => {
+    addBotMessage('가이드를 불러올 수 없습니다. 새로고침 후 다시 시도해주세요.');
+  });
+}
+
+function renderFAQTab() {
+  const msgEl = document.getElementById('cbMessages');
+  msgEl.innerHTML = '';
   FAQ_LIST.forEach((faq, i) => {
     const btn = document.createElement('div');
     btn.className = 'cb-faq-btn';
@@ -3980,10 +4747,162 @@ async function loadGuideAndFAQ() {
     btn.onclick = () => showFAQAnswer(i);
     msgEl.appendChild(btn);
   });
-
-  // 3. 안내
-  addSystemMessage('위 질문으로 해결되지 않으면, 아래 입력창에 직접 문의를 남겨주세요.');
+  addSystemMessage('위 질문으로 해결되지 않으면 채널톡으로 문의해주세요.');
   scrollChatBottom();
+}
+
+async function loadGuideAndFAQ() {
+  const msgEl = document.getElementById('cbMessages');
+  msgEl.innerHTML = '';
+  const tabs = document.getElementById('cbTabs');
+
+  // 발주가 있는지 확인
+  _chatHasOrders = false;
+  if (currentUser) {
+    try {
+      const snap = await db.collection('orders').where('userId','==',currentUser.uid).get();
+      const orders = []; snap.forEach(doc => orders.push(doc.data()));
+      const hasActive = orders.some(o => {
+        const st = normalizeStatus(o.status);
+        return st !== 'shipped' && st !== 'cancelled';
+      });
+      _chatHasOrders = hasActive;
+    } catch(e) {}
+  }
+
+  if (_chatHasOrders) {
+    // 발주가 있으면 탭 표시 + 가이드 탭 기본
+    tabs.style.display = 'block';
+    switchChatTab('guide');
+  } else {
+    // 발주 없으면 탭 숨기고 FAQ만
+    tabs.style.display = 'none';
+    renderFAQTab();
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  📖 이용 가이드
+// ════════════════════════════════════════════════════════════
+function openUserGuide() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `
+  <div style="background:#fff;border-radius:16px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;padding:32px 28px" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h2 style="margin:0;font-size:20px;font-weight:800">📖 RED MEDICOS 이용 가이드</h2>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--g8)">✕</button>
+    </div>
+
+    <div class="guide-section">
+      <h3>1. 발주 흐름 (전체 15단계)</h3>
+      <div style="background:#f9fafb;border-radius:8px;padding:12px;font-size:12px;line-height:2;color:var(--g1)">
+        의뢰서 제출 → 접수 완료 → 샘플 출고 → <strong>확정</strong> → 용기 발송 → 용기 입고 → 용기 적합 → 문안/견적 발송 → 문안 검수 완료 → 발주 접수 → 발주 확인 → 부자재 입고 → 검수사진 → 생산일정 → 출고 완료
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h3>2. 발주 유형 안내</h3>
+      <ul>
+        <li><strong>맞춤형 발주</strong>: 안내드리고 있는 성분 리스트와 제형 중에서 선택하여 발주하는 방식입니다.</li>
+        <li><strong>독점개발 의뢰</strong>: 기존 성분 리스트 외 별도의 성분을 추가하거나, 원하는 유형의 제형으로 개발하고 싶을 경우 독점개발 의뢰를 통해 발주해주세요.<br><strong style="color:#DC2626">※ 독점개발 의뢰 시 최소 수량은 1,000개입니다.</strong></li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <h3>3. 의뢰서 작성 순서 (맞춤형)</h3>
+      <ol>
+        <li><strong>목표 설정</strong> — 개발 목표, 기능성, 사용 부위 선택</li>
+        <li><strong>제품 유형</strong> — 크림, 토너, 로션 등 제형 선택</li>
+        <li><strong>용기</strong> — 제형에 맞는 용기 선택</li>
+        <li><strong>용량/수량</strong> — 용량(ml)과 최소 수량 설정</li>
+        <li><strong>원료</strong> — AI 추천 성분 또는 연구원 추천 배합 선택</li>
+        <li><strong>향 선택</strong> — 에센셜 오일 1가지 선택 (또는 무향)</li>
+        <li><strong>최종 제출</strong> — 샘플 배송 주소 입력 후 제출</li>
+      </ol>
+    </div>
+
+    <div class="guide-section">
+      <h3>4. 의뢰서 작성 시 유의사항</h3>
+      <ul>
+        <li><strong>기능성 화장품</strong>: 최대 2개까지 선택 가능하며, 주름기능성과 미백기능성만 중복 선택됩니다.</li>
+        <li><strong>기능성 비용</strong>: 주름/미백 각 50,000원, 자외선차단/탈모완화 각 200,000원, 주름+미백 동시 80,000원</li>
+        <li><strong>컨셉 성분</strong>: 최대 5개까지 선택 가능합니다.</li>
+        <li><strong>기능성 원료</strong>: 나이아신아마이드(미백)와 아데노신(주름)은 해당 기능성을 선택해야 추가할 수 있습니다.</li>
+        <li><strong>향 선택</strong>: 에센셜 오일은 <strong>1가지만</strong> 선택 가능합니다. 향을 넣지 않으려면 무향을 선택하세요.</li>
+        <li><strong>샘플 배송 주소</strong>: 정확히 입력해주세요. 주소 오류 시 배송이 지연될 수 있습니다.</li>
+        <li><strong>제출 후 수정 불가</strong>: 제출 전 반드시 내용을 최종 확인해주세요.</li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <h3>5. 교육생이 직접 해야 할 액션</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <tr style="background:#f3f4f6"><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">단계</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">액션</th></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">샘플 출고</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">샘플 수령 후 사용감 확인 → <strong>샘플 확정하기</strong> 클릭</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">확정</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">동일 용기 5개 발송 → <strong>용기 발송 완료</strong> 클릭</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">용기 적합</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">채널톡에서 <strong>"문안요청"</strong> 남기기</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">문안 검수 완료</td><td style="padding:8px;border-bottom:1px solid #f3f4f6"><strong>발주서 작성하기</strong> 클릭 → 발주서 양식 작성</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">검수사진</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">검수사진 확인 → <strong>부자재 검수 확정</strong> 클릭</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">생산일정</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">견적서 확인 후 50% 선입금 + 완제품 입고처 주소 입력</td></tr>
+      </table>
+    </div>
+
+    <div class="guide-section">
+      <h3>6. 발주서 작성 시 유의사항</h3>
+      <ul>
+        <li><strong>필수 항목</strong>: 상호, 사업자번호, 대표자, 사업장 주소, 용량, 단가, 발주량</li>
+        <li><strong>부자재 구성</strong>: 용기, 인쇄용기, 라벨지, 단상자, 마감스티커 중 해당 항목 체크</li>
+        <li><strong>마감스티커</strong>: 개봉방지 라벨이며, 개당 100원 (스티커 50원 + 부착비 50원)</li>
+        <li><strong>선입금</strong>: 발주서 제출일에 맞춰 견적서 금액의 50%를 입금해주세요.</li>
+        <li><strong>입금 계좌</strong>: 661301-04-315009 국민은행 주식회사 레드메디코스</li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <h3>7. 챗봇 도우미</h3>
+      <ul>
+        <li><strong>📋 가이드 보기 버튼</strong>: 각 발주 차수의 상태 뱃지 옆에 있는 버튼을 클릭하면, 해당 발주의 현재 단계에 맞는 안내를 챗봇에서 확인할 수 있습니다.</li>
+        <li><strong>발주 가이드 탭</strong>: 현재 진행 중인 발주의 단계별 안내를 확인할 수 있습니다.</li>
+        <li><strong>자주 묻는 질문 탭</strong>: 자주 묻는 질문과 답변을 확인할 수 있습니다.</li>
+        <li><strong>배송 주소 변경</strong>: 접수 완료 단계에서 챗봇을 통해 변경 가능합니다.</li>
+        <li><strong>상세 문의</strong>: 채널톡을 이용해주세요.</li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <h3>8. 기타 안내</h3>
+      <ul>
+        <li><strong>취소 요청</strong>: 나의현황 패널에서 "취소 요청" 버튼 → 관리자 승인 후 취소됩니다.</li>
+        <li><strong>재발주</strong>: 출고 완료 후 나의현황 패널 우측 하단 "재발주" 버튼을 이용해주세요.</li>
+        <li><strong>세금계산서</strong>: 사업자등록증 사본과 함께 채널톡으로 문의해주세요.</li>
+        <li><strong>용기 테스트 부적합 시</strong>: 새로운 용기를 동일 규격 5개 다시 보내주세요.</li>
+      </ul>
+    </div>
+
+    <div style="margin-top:24px;text-align:center">
+      <button onclick="this.closest('[style*=fixed]').remove()" class="btn primary" style="padding:12px 40px;font-size:14px">확인</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+// 가이드 스타일
+const guideStyle = document.createElement('style');
+guideStyle.textContent = '.guide-section{margin-bottom:20px}.guide-section h3{font-size:14px;font-weight:700;color:#DC2626;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #fee2e2}.guide-section ol,.guide-section ul{margin:0;padding-left:20px;font-size:12px;line-height:2;color:var(--g1)}.guide-section li{margin-bottom:2px}';
+document.head.appendChild(guideStyle);
+
+// 신규 가입 배너 표시/숨기기
+function checkNewUserGuideBanner() {
+  const banner = document.getElementById('newUserGuideBanner');
+  if (!banner) return;
+  const dismissed = localStorage.getItem('guideBannerDismissed_' + currentUser?.uid);
+  banner.style.display = dismissed ? 'none' : 'block';
+}
+function dismissGuideBanner() {
+  localStorage.setItem('guideBannerDismissed_' + currentUser?.uid, 'true');
+  document.getElementById('newUserGuideBanner').style.display = 'none';
 }
 
 function showChatbotButton() {
@@ -4057,28 +4976,8 @@ async function sendDirectInquiry() {
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
-  if (text.length < 5) {
-    addUserMessage(text);
-    addBotMessage('혹시 오타나 실수는 아닌지 확인해주세요. 다시 작성해주시면 정확하게 도움드리겠습니다!');
-    return;
-  }
-  if (!currentUser || !currentUserData) return;
   addUserMessage(text);
-  try {
-    await db.collection('inquiries').add({
-      userId: currentUser.uid,
-      userName: currentUserData.name,
-      userBrand: currentUserData.brand,
-      userEmail: currentUser.email,
-      question: text,
-      status: 'pending',
-      answer: '',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    addSystemMessage('관리자에게 문의가 전달되었습니다. 빠른 시일 내 답변드리겠습니다!');
-  } catch(e) {
-    addSystemMessage('문의 전달에 실패했습니다. 잠시 후 다시 시도해주세요.');
-  }
+  addBotMessage('이곳은 자동 답변 시스템입니다.\n상세 문의는 <strong>채널톡</strong>으로 문의해주세요.\n\n발주 가이드와 자주 묻는 질문은 상단 탭에서 확인하실 수 있습니다.');
 }
 
 // ════════════════════════════════════════════════════════════
