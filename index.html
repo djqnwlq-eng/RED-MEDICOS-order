@@ -758,7 +758,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
     <div class="biz-row"><span class="biz-key">사업장 주소</span><span class="biz-val" style="font-size:12px">전북특별자치도 남원시 시묘길 43-21, 205호(노암동)</span></div>
     <div class="biz-row"><span class="biz-key">개업연월일</span><span class="biz-val">2023년 06월 23일</span></div>
     <div class="biz-row"><span class="biz-key">전화번호</span><span class="biz-val">1551-6627</span></div>
-    <div class="biz-row"><span class="biz-key">이메일</span><span class="biz-val">info@redmedicos.co.kr</span></div>
+    <div class="biz-row"><span class="biz-key">이메일</span><span class="biz-val">redmedicos@naver.com</span></div>
     <div class="biz-section">
       <div class="biz-section-title">입금 계좌 정보</div>
       <div class="biz-row"><span class="biz-key">은행</span><span class="biz-val">KB 국민은행</span></div>
@@ -772,7 +772,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
       <div class="biz-section-title">세금계산서 발행 안내</div>
       <div style="font-size:12px;color:var(--g6);line-height:1.7">
         세금계산서 발행을 원하시면 사업자등록증 사본과 함께<br>
-        <strong>info@redmedicos.co.kr</strong>로 요청해주세요.<br>
+        <strong>redmedicos@naver.com</strong>로 요청해주세요.<br>
         입금 확인 후 익월 10일 이내 발행됩니다.
       </div>
     </div>
@@ -1285,7 +1285,7 @@ const DEFAULT_EXTRACTS = [
   { id:64, name:'아데노신',           category:'첨가원료', price:600, tags:['주름개선','탄력','재생','얼굴','눈가','보습','콜라겐','건성'], inci:'', detail:{ eng:'Adenosine', effects:['주름 개선: 식약처 인정 주름 개선 기능성 원료 ★','피부 탄력: 콜라겐·엘라스틴 생성 촉진','세포 활성: 피부 세포 에너지 대사 활성화'], positions:['주름 개선 컨셉 (세럼, 앰플, 크림 — 기능성 필수)','안티에이징 라인 (나이트크림, 아이크림)','기능성 화장품 (주름 개선 기능성 전 제형)'] } },
   { id:65, name:'트라넥사믹애씨드',   category:'첨가원료', price:1300, tags:['미백','색소','톤업','기미','잡티','항염','홍조','얼굴'], inci:'', detail:{ eng:'Tranexamic Acid', effects:['미백·잡티: 멜라닌 생성 경로 차단, 기미·잡티 집중 케어','피부 톤 균일화: 고른 피부 톤, 칙칙함 개선','항염 보조: 피부 염증성 색소 침착 완화'], positions:['기미·잡티 집중 케어 (세럼, 앰플, 스팟 에센스)','미백 고기능성 라인 (크림, 에센스)','기능성 화장품 (미백 기능성 세럼·크림)'] } },
   { id:66, name:'글루타티온',         category:'첨가원료', price:280, tags:['미백','항산화','색소','톤업','해독','기미','잡티','얼굴'], inci:'', detail:{ eng:'Glutathione', effects:['미백·광채: 멜라닌 생성 억제, 전신 화이트닝 이미지','강력 항산화: 세포 내 활성산소 제거, 피부 노화 방어','디톡스 이미지: 피부 맑기 개선, 생기 있는 안색'], positions:['미백·광채 컨셉 (세럼, 앰플, 크림)','안티에이징 라인 (나이트크림, 에센스)','고기능성 프리미엄 (집중케어 앰플)'] } },
-  { id:67, name:'하이드롤라이즈드해면(리들샷)', category:'첨가원료', price:7600, tags:['재생','흡수','침투','주름개선','탄력','얼굴','크림전용','피부결'], inci:'', creamOnly:true, detail:{ eng:'Hydrolyzed Sponge', effects:['경피 흡수 향상: 해양 해면 유래 미세 침상 구조, 피부 흡수 채널 생성','유효 성분 전달: 함께 사용하는 성분의 흡수율 극대화','피부 결 개선: 모공 케어, 피부 표면 질감 개선','⚠️ 크림 제형에 한정하여 첨가 가능'], positions:['흡수 강화 컨셉 (홈케어 니들링 세럼)','모공·피부결 컨셉 (집중케어 세럼)','고기능성 부스터 (다음 단계 성분 흡수 강화)'] } },
+  { id:67, name:'하이드롤라이즈드해면(리들샷)', category:'첨가원료', price:7600, tags:['재생','흡수','침투','주름개선','탄력','얼굴','크림전용','피부결'], inci:'', detail:{ eng:'Hydrolyzed Sponge', effects:['경피 흡수 향상: 해양 해면 유래 미세 침상 구조, 피부 흡수 채널 생성','유효 성분 전달: 함께 사용하는 성분의 흡수율 극대화','피부 결 개선: 모공 케어, 피부 표면 질감 개선'], positions:['흡수 강화 컨셉 (홈케어 니들링 세럼)','모공·피부결 컨셉 (집중케어 세럼)','고기능성 부스터 (다음 단계 성분 흡수 강화)'] } },
   { id:68, name:'알파-알부틴',        category:'첨가원료', price:1700, tags:['미백','색소','톤업','기미','잡티','자외선','얼굴','항산화'], inci:'', detail:{ eng:'Alpha-Arbutin', effects:['미백: 티로시나제 억제로 멜라닌 생성 차단, 식약처 인정 미백 원료','잡티·색소 완화: 기미·잡티 케어, 고른 피부 톤','피부 자극 낮음: 베타-알부틴보다 안정적, 민감성 피부도 활용 가능'], positions:['미백·광채 컨셉 (세럼, 에센스, 크림)','민감성 미백 라인 (저자극 미백 토너, 에센스)','기능성 화장품 (미백 기능성 전 제형)'] } },
 ];
 
@@ -1354,7 +1354,7 @@ const FORMULA_COST_PER_KG = {
   'gel-a': 2226,
   'patch-a': 4152,
 };
-const FORMULA_BASE_ADD = 4500; // 고정 추가 단가
+const FORMULA_BASE_ADD = 5000; // 고정 추가 단가
 function getBasePrice() {
   const costPerKg = FORMULA_COST_PER_KG[STATE.formula] || 0;
   const vol = parseInt(STATE.volume) || 100;
@@ -1564,6 +1564,27 @@ function getScentRecommendations() {
   return scentTags;
 }
 
+function buildScentSlider() {
+  const scent = STATE.selectedScent;
+  if (!scent || scent === '무향') return '';
+  const v = STATE.selExtracts[scent];
+  if (!v) return '';
+  const calcCost = Math.round(v.price * v.pct);
+  const safeName = scent.replace(/'/g, "\\'");
+  return `<div style="margin-top:14px;padding:14px 16px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:var(--r)">
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px">향 함량 설정</div>
+    <div style="font-size:11px;color:#6b7280;margin-bottom:12px;line-height:1.6">기본 함량은 <strong>0.1%</strong>로 설정되어 있습니다. 카드에 표시된 가격은 <strong>1% 기준</strong>이며, 함량에 따라 비례 적용됩니다.</div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0">
+      <div style="min-width:120px;font-size:12px;font-weight:600;color:#1F2937">${scent}</div>
+      <input type="range" min="1" max="10" step="1" value="${Math.round(v.pct * 10)}"
+        oninput="updateScentPct('${safeName}',this.value/10)"
+        style="flex:1;accent-color:var(--t);height:4px">
+      <div style="min-width:40px;text-align:center;font-size:12px;font-weight:700;color:var(--t)" id="scentPctLabel">${v.pct}%</div>
+      <div style="min-width:55px;text-align:right;font-size:11px;color:#6b7280" id="scentPctCost">${N(calcCost)}원</div>
+    </div>
+  </div>`;
+}
+
 function buildStepScent() {
   const oils = extracts.filter(e => e.category === '에센셜오일');
   const recs = getScentRecommendations();
@@ -1571,7 +1592,7 @@ function buildStepScent() {
     const isSelected = STATE.selectedScent === e.name;
     const isRec = recs[e.name] > 0;
     const safeName = e.name.replace(/'/g, "\\'");
-    const priceText = e.price > 0 ? `+${N(e.price)}원` : '무료';
+    const priceText = e.price > 0 ? `+${N(e.price)}원 <span style="font-size:9px;color:var(--g8)">(1%기준)</span>` : '무료';
     return `<div class="sel-card ${isSelected?'active':''}" onclick="selectScent('${safeName}',${e.price})" style="position:relative">
       <div class="sc-name">${e.name}</div>
       <div class="sc-desc" style="font-size:11px;color:var(--g6)">${priceText}</div>
@@ -1580,11 +1601,13 @@ function buildStepScent() {
     </div>`;
   }).join('');
   const selName = STATE.selectedScent || '미선택';
+  const scentPct = (STATE.selectedScent && STATE.selectedScent !== '무향' && STATE.selExtracts[STATE.selectedScent]) ? ` (${STATE.selExtracts[STATE.selectedScent].pct}%)` : '';
   return `
     <div class="card"><div class="card-title">향 선택</div><div class="card-sub">에센셜 오일 중 <strong style="color:var(--t)">1가지</strong>만 선택할 수 있습니다. 향을 넣지 않으려면 <strong>무향</strong>을 선택하세요.</div>
       <div class="container-grid">${cards}</div>
+      ${buildScentSlider()}
     </div>
-    <div class="price-bar"><div><div class="pb-label">선택한 향</div><div class="pb-sub">${selName}</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가</div><div class="pb-price">${N(getUnitCost())}원</div></div></div>
+    <div class="price-bar"><div><div class="pb-label">선택한 향</div><div class="pb-sub">${selName}${scentPct}</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가</div><div class="pb-price">${N(getUnitCost())}원</div></div></div>
     <div style="background:#fef9f0;border:0.5px solid #f0dcc0;border-radius:var(--rsm);padding:8px 13px;margin-top:6px;font-size:11px;color:#9a7b4f;line-height:1.5">※ 최종 원가는 원료 수급·배합 비율에 따라 변동될 수 있습니다.</div>
     <div class="btn-row"><button class="btn" onclick="goToStep(5)">← 이전</button><button class="btn primary" ${STATE.selectedScent!==null?'':'disabled'} onclick="goToStep(7)">다음 단계 →</button></div>`;
 }
@@ -1598,6 +1621,20 @@ function selectScent(name, price) {
   }
   document.getElementById('stepContent').innerHTML = buildStepScent();
   updateGuidePanel(6);
+}
+
+function updateScentPct(name, pct) {
+  if (!STATE.selExtracts[name]) return;
+  pct = Math.round(parseFloat(pct) * 10) / 10;
+  STATE.selExtracts[name].pct = pct;
+  const label = document.getElementById('scentPctLabel');
+  if (label) label.textContent = pct + '%';
+  const costEl = document.getElementById('scentPctCost');
+  if (costEl) costEl.textContent = N(Math.round(STATE.selExtracts[name].price * pct)) + '원';
+  const pb = document.querySelector('.pb-price');
+  if (pb) pb.textContent = N(getUnitCost()) + '원';
+  const pbSub = document.querySelector('.pb-sub');
+  if (pbSub) pbSub.textContent = name + ' (' + pct + '%)';
 }
 
 function buildFullIngredientsList() {
@@ -1882,10 +1919,6 @@ function toggleExtract(name, price) {
   if (STATE.selExtracts[name] !== undefined) delete STATE.selExtracts[name];
   else {
     if (Object.keys(STATE.selExtracts).length >= 5) { alert('컨셉 성분은 최대 5개까지 선택할 수 있습니다.'); return; }
-    const ext = extracts.find(x => x.name === name);
-    if (ext && ext.creamOnly && !STATE.formula?.startsWith('cream')) {
-      alert('하이드롤라이즈드해면(리들샷)은 크림 제형에 한정하여 첨가 가능합니다.'); return;
-    }
     STATE.selExtracts[name] = { price, pct: 0.1 };
   }
   const isSel = STATE.selExtracts[name] !== undefined;
