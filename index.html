@@ -1931,7 +1931,7 @@ function buildPctSliders() {
   if (keys.length === 0) return '';
   let html = `<div style="margin-top:14px;padding:14px 16px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:var(--r)">
     <div style="font-size:13px;font-weight:700;margin-bottom:4px">함량 설정</div>
-    <div style="font-size:11px;color:#6b7280;margin-bottom:12px;line-height:1.6">기본 함량은 <strong>0.1%</strong>로 설정되어 있으며, 대부분의 제형에서 효과적인 배합 비율입니다.<br>제품 컨셉에 따라 함량을 높이면 해당 성분의 특성이 더 강조되며, 가격도 비례하여 변동됩니다.<br>원하시는 컨셉과 예산에 맞게 자유롭게 조절해주세요.</div>`;
+    <div style="font-size:11px;color:#6b7280;margin-bottom:12px;line-height:1.6">기본 함량은 <strong>0.1%</strong>로 설정되어 있으며, 대부분의 제형에서 효과적인 배합 비율입니다.<br>제품 컨셉에 따라 함량을 높이면 해당 성분의 특성이 더 강조되며, 가격도 비례하여 변동됩니다.<br>원하시는 컨셉과 예산에 맞게 자유롭게 조절해주세요.<br>※ 원료 특성상 함량에 따라 제형이나 색상이 변할 수 있으며, 이 경우 연구진과의 협의 후 함량이 조정될 수 있습니다.</div>`;
   keys.forEach((name, idx) => {
     const v = STATE.selExtracts[name];
     const safeName = name.replace(/'/g, "\\'");
@@ -4836,11 +4836,19 @@ function openUserGuide() {
     </div>
 
     <div class="guide-section">
-      <h3>4. 의뢰서 작성 시 유의사항</h3>
+      <h3>4. 독점개발 의뢰 작성법</h3>
+      <ul>
+        <li>기존 성분·제형에 제한 없이, 원하는 제품의 콘셉트·성분·효능·용기 등을 자유롭게 작성해주세요. 연구팀이 의뢰 내용을 바탕으로 처음부터 맞춤 개발합니다.</li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <h3>5. 의뢰서 작성 시 유의사항</h3>
       <ul>
         <li><strong>기능성 화장품</strong>: 최대 2개까지 선택 가능하며, 주름기능성과 미백기능성만 중복 선택됩니다.</li>
         <li><strong>기능성 비용</strong>: 주름/미백 각 50,000원, 자외선차단/탈모완화 각 200,000원, 주름+미백 동시 80,000원</li>
         <li><strong>컨셉 성분</strong>: 최대 5개까지 선택 가능합니다.</li>
+        <li><strong>함량 설정</strong>: 원료 특성상 함량에 따라 제형이나 색상이 변할 수 있으며, 이 경우 연구진과의 협의 후 함량이 조정될 수 있습니다.</li>
         <li><strong>기능성 원료</strong>: 나이아신아마이드(미백)와 아데노신(주름)은 해당 기능성을 선택해야 추가할 수 있습니다.</li>
         <li><strong>향 선택</strong>: 에센셜 오일은 <strong>1가지만</strong> 선택 가능합니다. 향을 넣지 않으려면 무향을 선택하세요.</li>
         <li><strong>샘플 배송 주소</strong>: 정확히 입력해주세요. 주소 오류 시 배송이 지연될 수 있습니다.</li>
@@ -4849,7 +4857,7 @@ function openUserGuide() {
     </div>
 
     <div class="guide-section">
-      <h3>5. 교육생이 직접 해야 할 액션</h3>
+      <h3>6. 교육생이 직접 해야 할 액션</h3>
       <table style="width:100%;border-collapse:collapse;font-size:12px">
         <tr style="background:#f3f4f6"><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">단계</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">액션</th></tr>
         <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">샘플 출고</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">샘플 수령 후 사용감 확인 → <strong>샘플 확정하기</strong> 클릭</td></tr>
@@ -4862,7 +4870,7 @@ function openUserGuide() {
     </div>
 
     <div class="guide-section">
-      <h3>6. 발주서 작성 시 유의사항</h3>
+      <h3>7. 발주서 작성 시 유의사항</h3>
       <ul>
         <li><strong>필수 항목</strong>: 상호, 사업자번호, 대표자, 사업장 주소, 용량, 단가, 발주량</li>
         <li><strong>부자재 구성</strong>: 용기, 인쇄용기, 라벨지, 단상자, 마감스티커 중 해당 항목 체크</li>
@@ -4873,7 +4881,7 @@ function openUserGuide() {
     </div>
 
     <div class="guide-section">
-      <h3>7. 챗봇 도우미</h3>
+      <h3>8. 챗봇 도우미</h3>
       <ul>
         <li><strong>📋 가이드 보기 버튼</strong>: 각 발주 차수의 상태 뱃지 옆에 있는 버튼을 클릭하면, 해당 발주의 현재 단계에 맞는 안내를 챗봇에서 확인할 수 있습니다.</li>
         <li><strong>발주 가이드 탭</strong>: 현재 진행 중인 발주의 단계별 안내를 확인할 수 있습니다.</li>
@@ -4884,7 +4892,7 @@ function openUserGuide() {
     </div>
 
     <div class="guide-section">
-      <h3>8. 기타 안내</h3>
+      <h3>9. 기타 안내</h3>
       <ul>
         <li><strong>취소 요청</strong>: 나의현황 패널에서 "취소 요청" 버튼 → 관리자 승인 후 취소됩니다.</li>
         <li><strong>재발주</strong>: 출고 완료 후 나의현황 패널 우측 하단 "재발주" 버튼을 이용해주세요.</li>
