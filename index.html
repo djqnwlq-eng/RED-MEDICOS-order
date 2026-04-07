@@ -992,12 +992,12 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
 const _ENV = typeof ENV !== 'undefined' ? ENV : {};
 
 const firebaseConfig = {
-  apiKey:            _ENV.FIREBASE_API_KEY            || 'AIzaSyDA178U2S6a_oka-A1G8kMi0ZBI6w7O-Ms',
-  authDomain:        _ENV.FIREBASE_AUTH_DOMAIN        || 'red-medicos.firebaseapp.com',
-  projectId:         _ENV.FIREBASE_PROJECT_ID         || 'red-medicos',
-  storageBucket:     _ENV.FIREBASE_STORAGE_BUCKET     || 'red-medicos.firebasestorage.app',
-  messagingSenderId: _ENV.FIREBASE_MESSAGING_SENDER_ID|| '355478746871',
-  appId:             _ENV.FIREBASE_APP_ID             || '1:355478746871:web:7785e6e73a46f96d3d45f2',
+  apiKey:            _ENV.FIREBASE_API_KEY            || '',
+  authDomain:        _ENV.FIREBASE_AUTH_DOMAIN        || '',
+  projectId:         _ENV.FIREBASE_PROJECT_ID         || '',
+  storageBucket:     _ENV.FIREBASE_STORAGE_BUCKET     || '',
+  messagingSenderId: _ENV.FIREBASE_MESSAGING_SENDER_ID|| '',
+  appId:             _ENV.FIREBASE_APP_ID             || '',
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -1013,12 +1013,12 @@ const CONFIG = {
   TARGET_KG:    25,
   BASE_PRICE:   6000,
   SUBMIT_EMAIL: 'research@antigravity.co.kr',
-  GEMINI_API_KEY:     _ENV.GEMINI_API_KEY     || 'AIzaSyCtEBvEV7CXfNLqpBcACPHwc8F6BzVJN68',
+  GEMINI_API_KEY:     _ENV.GEMINI_API_KEY     || '',
   EMAILJS_PUBLIC_KEY: _ENV.EMAILJS_PUBLIC_KEY || '',
   EMAILJS_SERVICE_ID: _ENV.EMAILJS_SERVICE_ID || '',
   EMAILJS_TEMPLATE_ID:_ENV.EMAILJS_TEMPLATE_ID|| '',
   GOOGLE_SHEETS_URL:  _ENV.GOOGLE_SHEETS_URL  || '',
-  ADMIN_CODE:         _ENV.ADMIN_CODE         || 'red1234k',
+  ADMIN_CODE:         _ENV.ADMIN_CODE         || '',
 };
 
 // ════════════════════════════════════════════════════════════
