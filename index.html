@@ -5101,8 +5101,12 @@ auth.onAuthStateChanged(async (user) => {
       if (doc.exists) {
         currentUserData = doc.data();
       } else {
-        currentUserData = { email:user.email, name:user.email.split('@')[0], brand:'', phone:'', address:'', role:'student' };
-        await db.collection('users').doc(user.uid).set({ ...currentUserData, createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+        // Firestore 문서가 없으면 삭제된 사용자이므로 로그인 차단
+        await auth.signOut();
+        currentUser = null; currentUserData = null;
+        document.getElementById('loginScreen').style.display = 'flex';
+        alert('등록되지 않은 계정입니다. 관리자에게 문의하세요.');
+        return;
       }
       showChatbotButton();
       if (currentUserData.role === 'admin') showAdminScreen();
