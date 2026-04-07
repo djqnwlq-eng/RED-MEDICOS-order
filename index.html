@@ -850,13 +850,13 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
 <div id="orderTypeModal" onclick="if(event.target===event.currentTarget)closeOrderTypeModal()">
   <div class="order-type-panel">
     <button class="biz-close" onclick="closeOrderTypeModal()">✕</button>
-    <h3>발주 유형 선택</h3>
+    <h3>의뢰서 유형 선택</h3>
     <div class="ot-sub">어떤 방식으로 제품을 개발하시겠습니까?</div>
     <div class="order-type-cards">
       <div class="order-type-card" onclick="closeOrderTypeModal();startCustomOrder()">
         <div class="otc-icon">🧴</div>
-        <div class="otc-title">맞춤형 발주</div>
-        <div class="otc-desc">단계별로 제형·성분·용기·향을<br>직접 선택하여 발주합니다</div>
+        <div class="otc-title">맞춤형 의뢰서</div>
+        <div class="otc-desc">단계별로 제형·성분·용기·향을<br>직접 선택하여 의뢰합니다</div>
         <div class="otc-badge" style="background:var(--tl);color:var(--t)">셀프 구성</div>
       </div>
       <div class="order-type-card" onclick="closeOrderTypeModal();startDevRequest()">
@@ -1060,8 +1060,8 @@ const FORMULA_CATEGORIES = [
     { id: 'cream-b', name: '꾸덕한',       heavy: true  },
   ]},
   { id: 'toner',    name: '토너',        icon: 'c-bottle', subs: [
-    { id: 'toner-a', name: '산뜻한 토너',  heavy: false },
-    { id: 'toner-b', name: '보습 토너',    heavy: false },
+    { id: 'toner-a', name: '점도 가벼움',  heavy: false },
+    { id: 'toner-b', name: '점도 있음',    heavy: false },
   ]},
   { id: 'tonic',    name: '토닉',        icon: 'img-tonic', subs: [
     { id: 'tonic-a', name: '스프레이 타입',  heavy: false },
@@ -1367,7 +1367,7 @@ let currentUserData = null;
 
 const STATE = {
   apiKey: '', step: 1, description: '', functions: [], bodyPart: '',
-  formula: null, delegateExtracts: false, selExtracts: {}, aiRecs: [],
+  formula: null, delegateExtracts: false, extractModeSelected: false, selExtracts: {}, aiRecs: [],
   selectedScent: null,
   volume: 100, quantity: 300, container: null,
   userName: '', userBrand: '', userPhone: '', userAddress: '',
@@ -1538,12 +1538,13 @@ function buildStep1() {
     <div class="card">
       <div class="card-title">어떤 화장품을 만들고 싶으신가요?</div>
       <div class="card-sub">원하는 효능, 느낌, 고객군을 자유롭게 적어주세요.<br>AI가 내용을 분석해 맞춤 성분을 추천해드립니다.</div>
-      <textarea id="descInput" placeholder="예시 1) 고기능성 영양크림&#10;예시 2) 탄력 회복을 위한 고기능 영양크림을 만들고 싶어요.">${STATE.description}</textarea>
+      <textarea id="descInput" placeholder="예시 1) 가려움에 좋은 바디미스트를 만들고 싶어요&#10;예시 2) 탄력+보습크림을 만들고 싶어요">${STATE.description}</textarea>
       <div class="section-tag">기능성 화장품 (해당 시 체크)</div>
       <div class="fn-group">${fnBtns}</div>
       <div id="fnCostNotice" style="display:${STATE.functions.length?'block':'none'}">
         <div class="notice info" style="margin-top:0;font-size:12px">
-          💰 기능성 추가 비용: <strong>주름/미백 50,000원, 자외선차단/탈모완화 200,000원, 주름+미백 80,000원</strong><br>
+          💰 기능성 추가 비용: <strong>주름 50,000원, 미백 50,000원, 자외선차단/탈모완화 200,000원, 주름+미백 80,000원</strong><br>
+          <span style="font-size:11px;color:var(--g6)">주름기능성(아데노신) · 미백기능성(나이아신아마이드) 성분이 함유됩니다</span><br>
           <span style="font-size:11px;color:var(--g6)">주름기능성과 미백기능성만 중복사용가능</span><br>
           <span style="font-size:11px;color:var(--g6)">현재 ${STATE.functions.length}개 선택 → <strong style="color:var(--t)">${N(getFnCost())}원</strong> 추가</span>
         </div>
@@ -1734,21 +1735,20 @@ function buildStep3(aiLoading=false) {
   const isDel = STATE.delegateExtracts;
   if (isDel) {
     return `
-    <div class="card"><div class="card-title">컨셉성분 선택</div><div class="card-sub">제품 컨셉에 맞는 핵심 성분을 선택하거나, 제조 전문가에게 맡길 수 있습니다</div>
-      <div class="delegate-card active" onclick="toggleDelegate()"><div class="dc-icon">👨‍🔬</div><div class="dc-text"><div class="dc-title">연구원 추천 배합</div><div class="dc-sub">입력하신 개발 목표와 제형을 바탕으로<br>제조 연구팀이 최적의 원료를 직접 배합해드립니다</div></div><div class="dc-check">✓</div></div>
+    <div class="card"><div class="card-title">연구원 추천 배합</div><div class="card-sub">앞서 적어주신 목표를 보고 연구원이 성분을 골라 넣어드립니다</div>
+      <div class="delegate-card active"><div class="dc-icon">🧑‍🔬</div><div class="dc-text"><div class="dc-title">잘 몰라도 괜찮아요!</div><div class="dc-sub">연구원이 최적의 원료를 직접 배합해드립니다</div></div><div class="dc-check">✓</div></div>
     </div>
     <div class="price-bar"><div><div class="pb-label">컨셉성분: 제조 전문가 위임</div><div class="pb-sub" id="selectedList">제조 연구팀이 최적 원료를 배합합니다</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가</div><div class="pb-price" id="priceDisplay">-</div></div></div>
-    <div class="btn-row"><button class="btn" onclick="goToStep(4)">← 이전</button><button class="btn primary" onclick="goToStep(6)">다음 단계 →</button></div>`;
+    <div class="btn-row"><button class="btn" onclick="backToExtractModeSelect()">← 이전</button><button class="btn primary" onclick="goToStep(6)">다음 단계 →</button></div>`;
   }
   return `
-    <div class="card"><div class="card-title">컨셉성분 선택</div><div class="card-sub">제품 컨셉에 맞는 핵심 성분을 선택하거나, 제조 전문가에게 맡길 수 있습니다</div>
-      <div class="delegate-card" onclick="toggleDelegate()"><div class="dc-icon">👨‍🔬</div><div class="dc-text"><div class="dc-title">연구원 추천 배합</div><div class="dc-sub">입력하신 개발 목표와 제형을 바탕으로<br>제조 연구팀이 최적의 원료를 직접 배합해드립니다</div></div><div class="dc-check"></div></div>
+    <div class="card"><div class="card-title">컨셉성분 선택</div><div class="card-sub">제품 컨셉에 맞는 핵심 성분을 직접 선택합니다</div>
       <div id="extractSelectArea"><div class="section-tag"><span style="font-size:10px;font-weight:800;padding:2px 7px;background:var(--tl);color:var(--tmd);border-radius:10px">✦ AI 추천 성분</span></div><div id="aiSection">${aiSection}</div><div class="section-tag">전체 성분 리스트</div><div class="chips">${allChips}</div></div>
       ${buildPctSliders()}
     </div>
     <div class="price-bar"><div><div class="pb-label">선택한 성분 ${selKeys.length}개</div><div class="pb-sub" id="selectedList">${selKeys.length?selKeys.map(k=>{const v=STATE.selExtracts[k];return k+'('+v.pct+'%)';}).join(', '):'성분 미선택'}</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가</div><div class="pb-price" id="priceDisplay">${N(Math.round(getUnitCost()))}원</div></div></div>
     <div style="background:#fef9f0;border:0.5px solid #f0dcc0;border-radius:var(--rsm);padding:8px 13px;margin-top:6px;font-size:11px;color:#9a7b4f;line-height:1.5">※ 최종 원가는 원료 수급·배합 비율에 따라 변동될 수 있습니다.</div>
-    <div class="btn-row"><button class="btn" onclick="goToStep(4)">← 이전</button><button class="btn primary" onclick="goToStep(6)">다음 단계 →</button></div>`;
+    <div class="btn-row"><button class="btn" onclick="backToExtractModeSelect()">← 이전</button><button class="btn primary" onclick="goToStep(6)">다음 단계 →</button></div>`;
 }
 
 function buildAIChips() {
@@ -1874,7 +1874,7 @@ function toggleFunction(fn, checked, el) {
   if (notice) {
     const n = STATE.functions.length, cost = getFnCost();
     notice.style.display = n ? 'block' : 'none';
-    notice.innerHTML = `<div class="notice info" style="margin-top:0;font-size:12px">💰 기능성 추가 비용: <strong>주름/미백 50,000원, 자외선차단/탈모완화 200,000원, 주름+미백 80,000원</strong><br><span style="font-size:11px;color:var(--g6)">주름기능성과 미백기능성만 중복사용가능</span><br><span style="font-size:11px;color:var(--g6)">현재 ${n}개 선택 → <strong style="color:var(--t)">${N(cost)}원</strong> 추가</span></div>`;
+    notice.innerHTML = `<div class="notice info" style="margin-top:0;font-size:12px">💰 기능성 추가 비용: <strong>주름 50,000원, 미백 50,000원, 자외선차단/탈모완화 200,000원, 주름+미백 80,000원</strong><br><span style="font-size:11px;color:var(--g6)">주름기능성(아데노신) · 미백기능성(나이아신아마이드) 성분이 함유됩니다</span><br><span style="font-size:11px;color:var(--g6)">주름기능성과 미백기능성만 중복사용가능</span><br><span style="font-size:11px;color:var(--g6)">현재 ${n}개 선택 → <strong style="color:var(--t)">${N(cost)}원</strong> 추가</span></div>`;
   }
   updateGuidePanel(1);
 }
@@ -1947,6 +1947,58 @@ function buildPctSliders() {
   });
   html += `</div>`;
   return html;
+}
+
+function buildExtractModeSelect() {
+  return `
+    <div class="card">
+      <div class="card-title">컨셉성분 배합 방식 선택</div>
+      <div class="card-sub">컨셉성분을 어떤 방식으로 구성하시겠습니까?</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+        <div class="order-type-card" style="display:flex;align-items:center;padding:20px;border:2px solid var(--t);border-radius:var(--r);cursor:pointer;background:#FFF5F5;position:relative" onclick="selectExtractMode('delegate')">
+          <div style="font-size:36px;margin-right:16px">🧑‍🔬</div>
+          <div style="flex:1">
+            <div style="font-size:16px;font-weight:800;color:#1F2937;margin-bottom:6px">잘 몰라도 괜찮아요!</div>
+            <div style="font-size:13px;color:#6B7280;line-height:1.6">앞서 적어주신 목표를 보고<br>연구원이 성분을 골라 넣어드립니다</div>
+          </div>
+          <div style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:var(--tl);color:var(--t)">추천</div>
+        </div>
+        <div class="order-type-card" style="display:flex;align-items:center;padding:20px;border:2px solid var(--ge);border-radius:var(--r);cursor:pointer;background:#fff" onclick="selectExtractMode('self')">
+          <div style="font-size:36px;margin-right:16px">🔬</div>
+          <div style="flex:1">
+            <div style="font-size:16px;font-weight:800;color:#1F2937;margin-bottom:6px">직접 골라볼게요</div>
+            <div style="font-size:13px;color:#6B7280;line-height:1.6">성분 리스트를 보면서<br>원하는 컨셉성분을 직접 담습니다</div>
+          </div>
+          <div style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:#F3F4F6;color:#6B7280">셀프 구성</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn" onclick="goToStep(4)">← 이전</button></div>`;
+}
+
+function selectExtractMode(mode) {
+  STATE.extractModeSelected = true;
+  if (mode === 'delegate') {
+    STATE.delegateExtracts = true;
+    STATE.selExtracts = {};
+    _goToStepReal(5);
+  } else {
+    STATE.delegateExtracts = false;
+    _goToStepReal(5);
+    showStepBanner('컨셉성분 선택 안내', [
+      '선택하신 제형의 <strong>기본 베이스 성분</strong>은 이미 포함되어 있으며, "전성분 기본 포함"으로 표시됩니다.',
+      '기본 베이스 외에 <strong>최대 5개</strong>까지 컨셉 성분을 추가로 선택할 수 있습니다.',
+      '각 성분은 <strong>최대 1%</strong>까지 배합 비율을 지정할 수 있으며, 표시된 가격은 1% 적용 시 기준 단가입니다.',
+      '표시되는 가격은 <strong>예상 단가</strong>이며, 최종 제조 단가는 달라질 수 있습니다.',
+    ]);
+  }
+}
+
+function backToExtractModeSelect() {
+  STATE.extractModeSelected = false;
+  STATE.delegateExtracts = false;
+  STATE.selExtracts = {};
+  _goToStepReal(5);
 }
 
 function toggleDelegate() {
@@ -2079,7 +2131,10 @@ function _goToStepReal(n) {
   else if (n===2) html = buildStep2();
   else if (n===3) html = buildStep5();
   else if (n===4) html = buildStep4();
-  else if (n===5) html = buildStep3(!!STATE.apiKey);
+  else if (n===5) {
+    if (!STATE.extractModeSelected) { html = buildExtractModeSelect(); }
+    else html = buildStep3(!!STATE.apiKey);
+  }
   else if (n===6) {
     if (STATE.delegateExtracts) { STATE.selectedScent = null; STATE.step = 7; n = 7; renderProgress(); html = buildStep6(); }
     else html = buildStepScent();
@@ -2088,21 +2143,12 @@ function _goToStepReal(n) {
   document.getElementById('stepContent').innerHTML = html;
   document.getElementById('progressBar').scrollIntoView({ behavior:'smooth', block:'start' });
   updateGuidePanel(n);
-  if (n === 5) loadAIRecommendations();
+  if (n === 5 && STATE.extractModeSelected) loadAIRecommendations();
 }
 
 async function goToStep(n) {
   _goToStepReal(n);
-  // Step 5(컨셉성분): 해당 단계 진입 시 배너 표시
-  if (n === 5) {
-    showStepBanner('컨셉성분 선택 안내', [
-      '선택하신 제형의 <strong>기본 베이스 성분</strong>은 이미 포함되어 있으며, "전성분 기본 포함"으로 표시됩니다.',
-      '기본 베이스 외에 <strong>최대 5개</strong>까지 컨셉 성분을 추가로 선택할 수 있습니다.',
-      '각 성분은 <strong>최대 1%</strong>까지 배합 비율을 지정할 수 있으며, 표시된 가격은 1% 적용 시 기준 단가입니다.',
-      '표시되는 가격은 <strong>예상 단가</strong>이며, 최종 제조 단가는 달라질 수 있습니다.',
-      '성분 선택이 어려우시면 <strong>"제조 전문가에게 맡기기"</strong>를 선택해주세요.',
-    ]);
-  }
+  // Step 5(컨셉성분): 배합 방식 선택 화면에서는 배너 없음
   // Step 7 진입 시 에센셜 오일 선택 안내 배너
   if (n === 7 && STATE.selectedScent && STATE.selectedScent !== '무향') {
     showStepBanner('에센셜 오일 안내', [
@@ -4008,7 +4054,7 @@ function closeOrderTypeModal() {
 function startCustomOrder() {
   Object.assign(STATE, {
     step:1, description:'', functions:[], bodyPart:'',
-    formula:null, delegateExtracts:false, selExtracts:{}, aiRecs:[], selectedScent:null, volume:100, quantity:300, container:null
+    formula:null, delegateExtracts:false, extractModeSelected:false, selExtracts:{}, aiRecs:[], selectedScent:null, volume:100, quantity:300, container:null
   });
   STATE.userName = currentUserData.name;
   STATE.userBrand = currentUserData.brand;
@@ -4815,9 +4861,9 @@ function openUserGuide() {
     </div>
 
     <div class="guide-section">
-      <h3>2. 발주 유형 안내</h3>
+      <h3>2. 의뢰서 유형 안내</h3>
       <ul>
-        <li><strong>맞춤형 발주</strong>: 안내드리고 있는 성분 리스트와 제형 중에서 선택하여 발주하는 방식입니다.</li>
+        <li><strong>맞춤형 의뢰서</strong>: 안내드리고 있는 성분 리스트와 제형 중에서 선택하여 의뢰하는 방식입니다.</li>
         <li><strong>독점개발 의뢰</strong>: 기존 성분 리스트 외 별도의 성분을 추가하거나, 원하는 유형의 제형으로 개발하고 싶을 경우 독점개발 의뢰를 통해 발주해주세요.<br><strong style="color:#DC2626">※ 독점개발 의뢰 시 최소 수량은 1,000개입니다.</strong></li>
       </ul>
     </div>
@@ -4829,7 +4875,7 @@ function openUserGuide() {
         <li><strong>제품 유형</strong> — 크림, 토너, 로션 등 제형 선택</li>
         <li><strong>용기</strong> — 제형에 맞는 용기 선택</li>
         <li><strong>용량/수량</strong> — 용량(ml)과 최소 수량 설정</li>
-        <li><strong>원료</strong> — AI 추천 성분 또는 연구원 추천 배합 선택</li>
+        <li><strong>원료</strong> — 연구원 추천 배합 또는 직접 선택 배합</li>
         <li><strong>향 선택</strong> — 에센셜 오일 1가지 선택 (또는 무향)</li>
         <li><strong>최종 제출</strong> — 샘플 배송 주소 입력 후 제출</li>
       </ol>
@@ -4846,7 +4892,8 @@ function openUserGuide() {
       <h3>5. 의뢰서 작성 시 유의사항</h3>
       <ul>
         <li><strong>기능성 화장품</strong>: 최대 2개까지 선택 가능하며, 주름기능성과 미백기능성만 중복 선택됩니다.</li>
-        <li><strong>기능성 비용</strong>: 주름/미백 각 50,000원, 자외선차단/탈모완화 각 200,000원, 주름+미백 동시 80,000원</li>
+        <li><strong>기능성 비용</strong>: 주름 50,000원, 미백 50,000원, 자외선차단/탈모완화 각 200,000원, 주름+미백 동시 80,000원</li>
+        <li><strong>기능성 성분</strong>: 주름기능성 선택 시 아데노신, 미백기능성 선택 시 나이아신아마이드 성분이 함유됩니다.</li>
         <li><strong>컨셉 성분</strong>: 최대 5개까지 선택 가능합니다.</li>
         <li><strong>함량 설정</strong>: 원료 특성상 함량에 따라 제형이나 색상이 변할 수 있으며, 이 경우 연구진과의 협의 후 함량이 조정될 수 있습니다.</li>
         <li><strong>기능성 원료</strong>: 나이아신아마이드(미백)와 아데노신(주름)은 해당 기능성을 선택해야 추가할 수 있습니다.</li>
