@@ -588,6 +588,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
     <h1 style="text-align:center;font-size:24px;font-weight:800;margin-bottom:.5rem;color:var(--g1)">맞춤형 화장품 발주</h1>
     <p style="text-align:center;margin-bottom:1.5rem;font-size:13px;color:var(--g6)">교육생 전용 플랫폼</p>
 
+    <div id="loginMainView">
     <div class="login-tabs">
       <div class="login-tab active" onclick="switchLoginTab('login')">로그인</div>
       <div class="login-tab" onclick="switchLoginTab('signup')">교육생 가입</div>
@@ -606,6 +607,9 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
       </div>
       <div id="loginError" style="font-size:11px;color:#dc2626;margin-top:8px;display:none"></div>
       <button class="btn-full btn-primary" style="margin-top:16px;padding:13px;font-size:15px" onclick="doLogin()" id="loginBtn">로그인</button>
+      <div style="text-align:center;margin-top:12px">
+        <a href="#" onclick="event.preventDefault();showResetView()" style="font-size:12px;color:var(--g6);text-decoration:underline">비밀번호를 잊으셨나요?</a>
+      </div>
     </div>
 
     <!-- 교육생 회원가입 폼 -->
@@ -656,6 +660,22 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
       </div>
       <div id="adminSignupError" style="font-size:11px;color:#dc2626;margin-top:8px;display:none"></div>
       <button class="btn-full btn-primary" style="margin-top:16px;padding:13px;font-size:15px" onclick="doAdminSignup()" id="adminSignupBtn">관리자 가입</button>
+    </div>
+    </div>
+
+    <!-- 비밀번호 재설정 화면 -->
+    <div id="resetView" style="display:none">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:.5rem;color:var(--g1);text-align:center">비밀번호 재설정</h2>
+      <p style="text-align:center;margin-bottom:1.5rem;font-size:12px;color:var(--g6)">가입 시 사용한 이메일을 입력하시면<br>재설정 링크를 보내드립니다</p>
+      <div class="info-field">
+        <label class="field-label">이메일</label>
+        <input type="email" class="inp" id="resetEmail" placeholder="example@email.com" onkeydown="if(event.key==='Enter')doPasswordReset()">
+      </div>
+      <div id="resetMsg" style="font-size:11px;color:#dc2626;margin-top:8px;display:none"></div>
+      <button class="btn-full btn-primary" style="margin-top:16px;padding:13px;font-size:15px" onclick="doPasswordReset()" id="resetBtn">재설정 메일 보내기</button>
+      <div style="text-align:center;margin-top:12px">
+        <a href="#" onclick="event.preventDefault();hideResetView()" style="font-size:12px;color:var(--g6);text-decoration:underline">← 로그인으로 돌아가기</a>
+      </div>
     </div>
   </div>
 </div>
@@ -2510,6 +2530,48 @@ async function doLogin() {
     errEl.textContent = msg; errEl.style.display = 'block';
     document.getElementById('loginBtn').disabled = false;
   }
+}
+
+function showResetView() {
+  document.getElementById('loginMainView').style.display = 'none';
+  document.getElementById('resetView').style.display = 'block';
+  const loginEmail = document.getElementById('loginEmail').value.trim();
+  if (loginEmail) document.getElementById('resetEmail').value = loginEmail;
+  document.getElementById('resetMsg').style.display = 'none';
+  setTimeout(()=>document.getElementById('resetEmail').focus(), 50);
+}
+
+function hideResetView() {
+  document.getElementById('resetView').style.display = 'none';
+  document.getElementById('loginMainView').style.display = 'block';
+  document.getElementById('resetMsg').style.display = 'none';
+}
+
+async function doPasswordReset() {
+  const email = document.getElementById('resetEmail').value.trim();
+  const msgEl = document.getElementById('resetMsg');
+  msgEl.style.display = 'none';
+  msgEl.style.color = '#dc2626';
+  if (!email) {
+    msgEl.textContent = '이메일을 입력해주세요';
+    msgEl.style.display = 'block';
+    return;
+  }
+  const btn = document.getElementById('resetBtn');
+  btn.disabled = true;
+  try {
+    await auth.sendPasswordResetEmail(email);
+    msgEl.style.color = '#059669';
+    msgEl.textContent = '재설정 메일을 발송했습니다. 메일함(스팸함 포함)을 확인해주세요.';
+    msgEl.style.display = 'block';
+  } catch (e) {
+    const msg = e.code==='auth/user-not-found'?'등록되지 않은 이메일입니다':
+                e.code==='auth/invalid-email'?'올바른 이메일 형식이 아닙니다':
+                '메일 발송에 실패했습니다: '+e.message;
+    msgEl.textContent = msg;
+    msgEl.style.display = 'block';
+  }
+  btn.disabled = false;
 }
 
 let _isSigningUp = false;
