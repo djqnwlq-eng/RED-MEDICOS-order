@@ -89,6 +89,13 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--gf); color: va
 .po-check { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--g1); padding:6px 12px; background:#f9fafb; border-radius:8px; cursor:pointer; }
 .po-check input { accent-color:var(--t); }
 /* ─── ADMIN STUDENT CARDS ─── */
+.student-section { margin-bottom:16px; }
+.student-section-header { display:flex; justify-content:space-between; align-items:center; padding:10px 16px; border-radius:var(--r); cursor:pointer; font-size:14px; font-weight:700; margin-bottom:8px; user-select:none; }
+.student-section-header:hover { opacity:0.85; }
+.section-order { background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5; }
+.section-registered { background:#F3F4F6; color:#374151; border:1px solid #D1D5DB; }
+.section-completed { background:#D1FAE5; color:#065F46; border:1px solid #6EE7B7; }
+.section-arrow { font-size:10px; transition:transform .2s; }
 .admin-student-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
 @media(max-width:900px) { .admin-student-grid { grid-template-columns:repeat(3,1fr); } }
 @media(max-width:640px) { .admin-student-grid { grid-template-columns:repeat(2,1fr); } }
@@ -3038,9 +3045,7 @@ async function renderAdminStudentList() {
 
     const totalDocs = _adminStudents.length + ordersSnap.size + chatLogsSnap.size + inquiriesSnap.size;
     const estimatedMB = (totalDocs * 1.5 / 1024).toFixed(1);
-    const testModeExpiry = '2026-04-26';
-    const daysLeft = Math.max(0, Math.ceil((new Date(testModeExpiry) - new Date()) / 86400000));
-    const daysColor = daysLeft <= 7 ? '#DC2626' : daysLeft <= 14 ? '#92400E' : '#065F46';
+    const securityRulesDeployed = true;
 
     let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div style="font-size:18px;font-weight:700">교육생 관리 (${_adminStudents.length}명)</div>
@@ -3050,7 +3055,7 @@ async function renderAdminStudentList() {
     html += `<div style="background:#f0f4ff;border:1px solid #c7d2fe;border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:12px;color:#3730A3">
       <div class="firebase-toggle" onclick="toggleFirebaseInfo()">
         <span style="font-weight:700;font-size:12px">📊 Firebase 현황 (Spark 무료 플랜)
-          <span style="font-size:10px;color:${daysColor};font-weight:700;background:#fff;padding:2px 8px;border-radius:10px;margin-left:8px">테스트 모드 ${daysLeft}일 남음</span>
+          <span style="font-size:10px;color:#065F46;font-weight:700;background:#D1FAE5;padding:2px 8px;border-radius:10px;margin-left:8px">✅ 보안 규칙 적용됨</span>
         </span>
         <span class="arrow" id="fbArrow">▶</span>
       </div>
@@ -3063,7 +3068,7 @@ async function renderAdminStudentList() {
         </div>
         <div style="font-size:10px;color:#6b7280;line-height:1.5">
           무료 한도: 저장 1GB · 일일 읽기 50,000건 · 일일 쓰기 20,000건<br>
-          ${daysLeft <= 14 ? '<span style="color:#DC2626;font-weight:700">⚠ Firestore 테스트 모드가 곧 만료됩니다. 보안 규칙 설정이 필요합니다.</span>' : '교육생 300명 이하는 무료 플랜으로 충분합니다.'}
+          교육생 300명 이하는 무료 플랜으로 충분합니다.
         </div>
       </div>
     </div>`;
@@ -3084,13 +3089,55 @@ async function renderAdminStudentList() {
       </div>`;
     }
 
+    // 교육생 분류: 발주 / 가입 / 완료
+    const orderStudents = [];
+    const completedStudents = [];
+    const registeredStudents = [];
+    approvedStudents.forEach(s => {
+      const entries = (window._adminOrderStatuses || {})[s.uid] || [];
+      if (entries.length === 0) {
+        registeredStudents.push(s);
+      } else {
+        const hasShipped = entries.some(e => e.status === 'shipped');
+        const hasActive = entries.some(e => !['shipped','cancelled'].includes(e.status));
+        if (hasActive) orderStudents.push(s);
+        else if (hasShipped) completedStudents.push(s);
+        else registeredStudents.push(s);
+      }
+    });
+    window._studentCategories = { order: orderStudents, registered: registeredStudents, completed: completedStudents };
+
     // 필터 바
     html += `<div class="admin-filter-bar">
       <input type="text" id="studentFilter" placeholder="이름, 브랜드, 이메일로 검색..." oninput="filterStudents()">
     </div>`;
 
-    // 교육생 그리드 (승인된 교육생만)
-    html += `<div class="admin-student-grid" id="studentGrid">${buildStudentCards(approvedStudents)}</div>`;
+    // 발주 섹션
+    html += `<div class="student-section">
+      <div class="student-section-header section-order" onclick="toggleStudentSection('orderGrid')">
+        <span>🔴 진행중 (${orderStudents.length}명)</span>
+        <span class="section-arrow" id="orderGridArrow">▼</span>
+      </div>
+      <div class="admin-student-grid" id="orderGrid">${orderStudents.length ? buildStudentCards(orderStudents) : '<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--g8);font-size:13px">진행중인 교육생이 없습니다</div>'}</div>
+    </div>`;
+
+    // 가입 섹션
+    html += `<div class="student-section">
+      <div class="student-section-header section-registered" onclick="toggleStudentSection('registeredGrid')">
+        <span>⚪ 가입 (${registeredStudents.length}명)</span>
+        <span class="section-arrow" id="registeredGridArrow">▼</span>
+      </div>
+      <div class="admin-student-grid" id="registeredGrid">${registeredStudents.length ? buildStudentCards(registeredStudents) : '<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--g8);font-size:13px">발주 없는 교육생이 없습니다</div>'}</div>
+    </div>`;
+
+    // 완료 섹션
+    html += `<div class="student-section">
+      <div class="student-section-header section-completed" onclick="toggleStudentSection('completedGrid')">
+        <span>✅ 완료 (${completedStudents.length}명)</span>
+        <span class="section-arrow" id="completedGridArrow">▼</span>
+      </div>
+      <div class="admin-student-grid" id="completedGrid">${completedStudents.length ? buildStudentCards(completedStudents) : '<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--g8);font-size:13px">생산 완료된 교육생이 없습니다</div>'}</div>
+    </div>`;
 
     document.getElementById('adminContent').innerHTML = html;
   } catch(e) { document.getElementById('adminContent').innerHTML = `<div style="color:#dc2626">오류: ${e.message}</div>`; }
@@ -3131,15 +3178,28 @@ function toggleFirebaseInfo() {
   }
 }
 
+function toggleStudentSection(gridId) {
+  const grid = document.getElementById(gridId);
+  const arrow = document.getElementById(gridId + 'Arrow');
+  if (grid.style.display === 'none') {
+    grid.style.display = ''; arrow.textContent = '▼';
+  } else {
+    grid.style.display = 'none'; arrow.textContent = '▶';
+  }
+}
+
 function filterStudents() {
   const q = (document.getElementById('studentFilter')?.value || '').toLowerCase().trim();
-  const filtered = q ? _adminStudents.filter(s =>
+  const cats = window._studentCategories || { order:[], registered:[], completed:[] };
+  const filterList = list => q ? list.filter(s =>
     (s.name||'').toLowerCase().includes(q) ||
     (s.brand||'').toLowerCase().includes(q) ||
     (s.email||'').toLowerCase().includes(q) ||
     (s.phone||'').includes(q)
-  ) : _adminStudents;
-  document.getElementById('studentGrid').innerHTML = buildStudentCards(filtered);
+  ) : list;
+  document.getElementById('orderGrid').innerHTML = buildStudentCards(filterList(cats.order)) || '<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--g8);font-size:13px">검색 결과 없음</div>';
+  document.getElementById('registeredGrid').innerHTML = buildStudentCards(filterList(cats.registered)) || '<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--g8);font-size:13px">검색 결과 없음</div>';
+  document.getElementById('completedGrid').innerHTML = buildStudentCards(filterList(cats.completed)) || '<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--g8);font-size:13px">검색 결과 없음</div>';
 }
 
 let _adminStudentListener = null;
@@ -3160,13 +3220,23 @@ async function showStudentOrders(uid, name, brand) {
     const orders = []; snap.forEach(doc => orders.push({ id:doc.id, ...doc.data() }));
     orders.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
 
-    // 미확인 발주 → 확인 처리
+    // 미확인 발주 표시 (소장님 전용 확인 버튼은 아래에서 렌더링)
     const unviewed = orders.filter(o => o.adminViewed !== true);
-    for (const o of unviewed) {
-      db.collection('orders').doc(o.id).update({ adminViewed: true }).catch(() => {});
-    }
+    const isDirector = currentUser?.email === DIRECTOR_EMAIL;
 
     let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px"><div style="display:flex;align-items:center;gap:12px"><button class="btn-sm" onclick="renderAdminStudentList()">← 목록</button><div><div style="font-size:18px;font-weight:700">${name}</div><div style="font-size:12px;color:var(--g6)">${brand} · 발주 ${orders.length}건</div></div></div><button class="btn-sm" onclick="deleteStudent('${uid}','${name.replace(/'/g,"\\'")}')" style="color:#DC2626;border-color:#FCA5A5">교육생 삭제</button></div>`;
+
+    if (unviewed.length > 0 && isDirector) {
+      html += `<div style="background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:var(--r);padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:13px;font-weight:600;color:#92400E">🔔 미확인 발주 ${unviewed.length}건</div>
+        <button onclick="directorConfirmOrders('${uid}','${name.replace(/'/g,"\\'")}','${brand.replace(/'/g,"\\'")}');" style="padding:6px 16px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #065F46;background:#D1FAE5;color:#065F46;font-family:inherit">✅ 확인완료</button>
+      </div>`;
+    } else if (unviewed.length > 0 && !isDirector) {
+      html += `<div style="background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:var(--r);padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:13px;font-weight:600;color:#92400E">🔔 미확인 발주 ${unviewed.length}건</div>
+        <span style="font-size:11px;color:#92400E">소장님 확인 대기중</span>
+      </div>`;
+    }
 
     if (orders.length === 0) {
       html += `<div style="text-align:center;padding:2rem;color:var(--g6)">발주 내역이 없습니다</div>`;
@@ -3177,12 +3247,38 @@ async function showStudentOrders(uid, name, brand) {
     document.getElementById('adminContent').innerHTML = html;
   } catch(e) { document.getElementById('adminContent').innerHTML = `<div style="color:#dc2626">오류: ${e.message}</div>`; }
 }
+async function directorConfirmOrders(uid, name, brand) {
+  if (currentUser?.email !== DIRECTOR_EMAIL) { alert('소장님만 확인 처리할 수 있습니다.'); return; }
+  if (!confirm('이 교육생의 미확인 발주를 모두 확인 처리하시겠습니까?')) return;
+  try {
+    const snap = await db.collection('orders').where('userId','==',uid).get();
+    const batch = [];
+    snap.forEach(doc => { if (doc.data().adminViewed !== true) batch.push(doc.id); });
+    for (const id of batch) await db.collection('orders').doc(id).update({ adminViewed: true });
+    alert(`✅ ${batch.length}건 확인 완료`);
+    showStudentOrders(uid, name, brand);
+  } catch(e) { alert('오류: ' + e.message); }
+}
+
 async function _showStudentOrdersRender(uid, name, brand) {
   try {
     const snap = await db.collection('orders').where('userId','==',uid).get();
     const orders = []; snap.forEach(doc => orders.push({ id:doc.id, ...doc.data() }));
     orders.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+    const unviewed = orders.filter(o => o.adminViewed !== true);
+    const isDirector = currentUser?.email === DIRECTOR_EMAIL;
     let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px"><div style="display:flex;align-items:center;gap:12px"><button class="btn-sm" onclick="renderAdminStudentList()">← 목록</button><div><div style="font-size:18px;font-weight:700">${name}</div><div style="font-size:12px;color:var(--g6)">${brand} · 발주 ${orders.length}건</div></div></div><button class="btn-sm" onclick="deleteStudent('${uid}','${name.replace(/'/g,"\\'")}')" style="color:#DC2626;border-color:#FCA5A5">교육생 삭제</button></div>`;
+    if (unviewed.length > 0 && isDirector) {
+      html += `<div style="background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:var(--r);padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:13px;font-weight:600;color:#92400E">🔔 미확인 발주 ${unviewed.length}건</div>
+        <button onclick="directorConfirmOrders('${uid}','${name.replace(/'/g,"\\'")}','${brand.replace(/'/g,"\\'")}');" style="padding:6px 16px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #065F46;background:#D1FAE5;color:#065F46;font-family:inherit">✅ 확인완료</button>
+      </div>`;
+    } else if (unviewed.length > 0 && !isDirector) {
+      html += `<div style="background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:var(--r);padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:13px;font-weight:600;color:#92400E">🔔 미확인 발주 ${unviewed.length}건</div>
+        <span style="font-size:11px;color:#92400E">소장님 확인 대기중</span>
+      </div>`;
+    }
     html += orders.length ? renderOrderGroups(orders, true, uid, name, brand) : `<div style="text-align:center;padding:2rem;color:var(--g6)">발주 내역이 없습니다</div>`;
     document.getElementById('adminContent').innerHTML = html;
   } catch(e) {}
@@ -5038,6 +5134,7 @@ function dismissGuideBanner() {
 //  📝 기록 관리 (ADMIN AUDIT LOG)
 // ════════════════════════════════════════════════════════════
 const SUPER_ADMIN_EMAIL = 'djqnwlq@gmail.com';
+const DIRECTOR_EMAIL = 'mysk2lee@gmail.com';
 
 async function addAuditLog(action, target, detail) {
   try {
