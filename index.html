@@ -824,7 +824,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
       <div class="biz-section-title">세금계산서 발행 안내</div>
       <div style="font-size:12px;color:var(--g6);line-height:1.7">
         세금계산서 발행을 원하시면 사업자등록증 사본과 함께<br>
-        <strong>채널톡</strong>으로 문의해주세요.<br>
+        <strong>집중코칭방</strong>으로 문의해주세요.<br>
         입금 확인 후 익월 10일 이내 발행됩니다.
       </div>
     </div>
@@ -2954,6 +2954,7 @@ function getStatusBadge(status) {
 //  🏠  STUDENT DASHBOARD
 // ════════════════════════════════════════════════════════════
 async function showDashboard() {
+  pushAppState('dashboard');
   document.getElementById('dashboardScreen').style.display = 'block';
   document.getElementById('dashUserInfo').textContent = currentUserData.name + ' · ' + currentUserData.brand;
   document.getElementById('dashWelcome').textContent = currentUserData.name + '님, 안녕하세요';
@@ -3018,6 +3019,7 @@ let _adminOrderCounts = {};
 let _adminChatCounts = {};
 
 async function renderAdminStudentList() {
+  pushAppState('admin-students');
   if (_adminStudentListener) { _adminStudentListener(); _adminStudentListener = null; }
   document.getElementById('adminContent').innerHTML = `<div class="ai-loading"><div class="spinner"></div> 교육생 목록을 불러오는 중...</div>`;
   try {
@@ -3197,13 +3199,17 @@ function filterStudents() {
     (s.email||'').toLowerCase().includes(q) ||
     (s.phone||'').includes(q)
   ) : list;
-  document.getElementById('orderGrid').innerHTML = buildStudentCards(filterList(cats.order)) || '<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--g8);font-size:13px">검색 결과 없음</div>';
-  document.getElementById('registeredGrid').innerHTML = buildStudentCards(filterList(cats.registered)) || '<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--g8);font-size:13px">검색 결과 없음</div>';
-  document.getElementById('completedGrid').innerHTML = buildStudentCards(filterList(cats.completed)) || '<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--g8);font-size:13px">검색 결과 없음</div>';
+  ['orderGrid','registeredGrid','completedGrid'].forEach(id => {
+    const grid = document.getElementById(id);
+    const list = id === 'orderGrid' ? cats.order : id === 'registeredGrid' ? cats.registered : cats.completed;
+    grid.innerHTML = buildStudentCards(filterList(list)) || '<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--g8);font-size:13px">검색 결과 없음</div>';
+    if (q) { grid.style.display = ''; document.getElementById(id + 'Arrow').textContent = '▼'; }
+  });
 }
 
 let _adminStudentListener = null;
 async function showStudentOrders(uid, name, brand) {
+  pushAppState('admin-student-orders', { uid, name, brand });
   // 기존 리스너 해제
   if (_adminStudentListener) { _adminStudentListener(); _adminStudentListener = null; }
   document.getElementById('adminContent').innerHTML = `<div class="ai-loading"><div class="spinner"></div> 발주 내역을 불러오는 중...</div>`;
@@ -3873,6 +3879,7 @@ async function deleteStudent(uid, name) {
 //  📨  ADMIN INQUIRY MANAGEMENT
 // ════════════════════════════════════════════════════════════
 async function renderAdminInquiries() {
+  pushAppState('admin-inquiries');
   document.getElementById('adminContent').innerHTML = `<div class="ai-loading"><div class="spinner"></div> 문의 목록을 불러오는 중...</div>`;
   try {
     const snap = await db.collection('inquiries').get();
@@ -3995,6 +4002,7 @@ async function toggleFollowUp(inquiryId, val) {
 //  💬  ADMIN CHAT LOGS
 // ════════════════════════════════════════════════════════════
 async function renderAdminChatLogs() {
+  pushAppState('admin-chats');
   document.getElementById('adminContent').innerHTML = `<div class="ai-loading"><div class="spinner"></div> 대화 내역을 불러오는 중...</div>`;
   try {
     const usersSnap = await db.collection('users').where('role','==','student').get();
@@ -4231,6 +4239,39 @@ function startCustomOrder() {
   goToStep(1);
 }
 
+// ════════════════════════════════════════════════════════════
+//  🔄  BROWSER HISTORY (뒤로가기 지원)
+// ════════════════════════════════════════════════════════════
+let _skipPushState = false;
+
+function pushAppState(screen, params) {
+  if (_skipPushState) return;
+  history.pushState({ screen, ...params }, '', '');
+}
+
+window.addEventListener('popstate', function(e) {
+  const state = e.state;
+  if (!state || !state.screen) {
+    history.pushState({ screen: '_prevent_exit' }, '', '');
+    return;
+  }
+  _skipPushState = true;
+  try {
+    switch(state.screen) {
+      case 'admin-students': renderAdminStudentList(); break;
+      case 'admin-student-orders': showStudentOrders(state.uid, state.name, state.brand); break;
+      case 'admin-logs': renderAdminLogs(); break;
+      case 'admin-inquiries': renderAdminInquiries(); break;
+      case 'admin-chats': renderAdminChatLogs(); break;
+      case 'dashboard': showDashboard(); break;
+      case 'order-flow': break;
+      case 'dev-request': startDevRequest(); break;
+      default: goToDashboard(); break;
+    }
+  } catch(err) { console.warn('History navigation error:', err); }
+  _skipPushState = false;
+});
+
 function goToDashboard() {
   document.getElementById('mainApp').style.display = 'none';
   document.getElementById('dashboardScreen').style.display = 'none';
@@ -4241,6 +4282,7 @@ function goToDashboard() {
 }
 
 function startDevRequest() {
+  pushAppState('dev-request');
   document.getElementById('dashboardScreen').style.display = 'none';
   document.getElementById('adminScreen').style.display = 'none';
   document.getElementById('mainApp').style.display = 'none';
@@ -4465,7 +4507,7 @@ const STAGE_GUIDES = {
     title: '용기 테스트: 적합 판정',
     items: [
       '용기 테스트가 적합 판정을 받았습니다.',
-      '이제 용기에 입힐 디자인과 바코드를 준비하셔야 합니다. 채널톡으로 <strong>"문안요청"</strong>이라고 남겨주시면 안내드리겠습니다.',
+      '이제 용기에 입힐 디자인과 바코드를 준비하셔야 합니다. 집중코칭방으로 <strong>"문안요청"</strong>이라고 남겨주시면 안내드리겠습니다.',
       '<a href="https://cafe.naver.com/tlzm1234/4668" target="_blank" style="color:#DC2626;font-weight:700">📎 문안/바코드 안내 보기</a>',
     ]
   },
@@ -4473,7 +4515,7 @@ const STAGE_GUIDES = {
     title: '문안/바코드/견적서 발송 완료',
     items: [
       '디자인이 확정되면 최종 문안 검수를 받으셔야 합니다.',
-      '채널톡에서 <strong>"검수 요청"</strong>이라고 남겨주시면 검수를 진행해드립니다.',
+      '집중코칭방에서 <strong>"검수 요청"</strong>이라고 남겨주시면 검수를 진행해드립니다.',
       '검수 완료 후 다음 단계로 진행됩니다.',
     ]
   },
@@ -4512,7 +4554,7 @@ const STAGE_GUIDES = {
     title: '모든 부자재가 입고되었습니다',
     items: [
       '아래 업로드된 부자재 검수사진을 확인해주세요.',
-      '이상이 없으시면 확정을 눌러주세요. 이상이 있다면 채널톡으로 문의해주세요.',
+      '이상이 없으시면 확정을 눌러주세요. 이상이 있다면 집중코칭방으로 문의해주세요.',
       '<button onclick="confirmMaterialsPhoto()" style="margin-top:4px;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:var(--t);color:#fff;font-family:inherit">✓ 부자재 검수 확정</button>',
     ]
   },
@@ -4882,7 +4924,7 @@ function renderGuideTab() {
         el.className = 'cb-msg bot';
         el.innerHTML = `🎉 <strong>제품이 출고되었습니다!</strong><br><span style="font-size:11px;color:var(--g6)">제품: ${label}</span><br><br>1. 제품이 정상적으로 출고 완료되었습니다.<br>2. 재발주가 필요하시면 나의현황 패널 우측 하단의 <strong>재발주</strong> 버튼을 이용해주세요.<br>3. 새로운 제품 발주는 상단의 <strong>+ 새 발주</strong> 버튼을 눌러주세요.`;
         msgEl.appendChild(el);
-        addSystemMessage('상세 문의는 채널톡을 이용해주세요.');
+        addSystemMessage('상세 문의는 집중코칭방을 이용해주세요.');
         scrollChatBottom();
         return;
       }
@@ -4938,7 +4980,7 @@ function renderGuideTab() {
         prodEl.className = 'cb-msg bot';
         const poAddr = active.purchaseOrder?.deliveryAddr?.trim();
         const addrInfo = poAddr
-          ? `<br>4. 완제품 입고처: <strong>${poAddr}</strong> (발주서 기입)<br><span style="font-size:11px;color:var(--g6)">변경이 필요하면 채널톡으로 문의해주세요.</span>`
+          ? `<br>4. 완제품 입고처: <strong>${poAddr}</strong> (발주서 기입)<br><span style="font-size:11px;color:var(--g6)">변경이 필요하면 집중코칭방으로 문의해주세요.</span>`
           : `<br>4. 생산일정 하루 전까지 완제품 받을 주소(3PL)를 입력해주세요.<br><button onclick="openDeliveryAddrInput()" style="margin-top:6px;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #F59E0B;background:#FEF3C7;color:#92400E;font-family:inherit">📦 입고처 주소 입력</button>`;
         prodEl.innerHTML = `📅 <strong>생산 일정: ${active.productionStartDate}</strong><br><br>1. 생산 일정이 확정되었습니다.<br>2. 견적서 확인 후 50% 선입금을 진행해주세요.<br>3. 생산 완료 후 잔금을 결제하시게 됩니다.${addrInfo}`;
         msgEl.appendChild(prodEl);
@@ -4946,7 +4988,7 @@ function renderGuideTab() {
     } else {
       addBotMessage('현재 진행 중인 발주가 없습니다.\n새 발주를 시작해보세요.');
     }
-    addSystemMessage('상세 문의는 채널톡을 이용해주세요.');
+    addSystemMessage('상세 문의는 집중코칭방을 이용해주세요.');
     scrollChatBottom();
   }).catch(() => {
     addBotMessage('가이드를 불러올 수 없습니다. 새로고침 후 다시 시도해주세요.');
@@ -4963,7 +5005,7 @@ function renderFAQTab() {
     btn.onclick = () => showFAQAnswer(i);
     msgEl.appendChild(btn);
   });
-  addSystemMessage('위 질문으로 해결되지 않으면 채널톡으로 문의해주세요.');
+  addSystemMessage('위 질문으로 해결되지 않으면 집중코칭방으로 문의해주세요.');
   scrollChatBottom();
 }
 
@@ -5067,7 +5109,7 @@ function openUserGuide() {
         <tr style="background:#f3f4f6"><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">단계</th><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">액션</th></tr>
         <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">샘플 출고</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">샘플 수령 후 사용감 확인 → <strong>샘플 확정하기</strong> 클릭</td></tr>
         <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">확정</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">동일 용기 5개 발송 → <strong>용기 발송 완료</strong> 클릭</td></tr>
-        <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">용기 적합</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">채널톡에서 <strong>"문안요청"</strong> 남기기</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">용기 적합</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">집중코칭방에서 <strong>"문안요청"</strong> 남기기</td></tr>
         <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">문안 검수 완료</td><td style="padding:8px;border-bottom:1px solid #f3f4f6"><strong>발주서 작성하기</strong> 클릭 → 발주서 양식 작성</td></tr>
         <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">검수사진</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">검수사진 확인 → <strong>부자재 검수 확정</strong> 클릭</td></tr>
         <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6">생산일정</td><td style="padding:8px;border-bottom:1px solid #f3f4f6">견적서 확인 후 50% 선입금 + 완제품 입고처 주소 입력</td></tr>
@@ -5092,7 +5134,7 @@ function openUserGuide() {
         <li><strong>발주 가이드 탭</strong>: 현재 진행 중인 발주의 단계별 안내를 확인할 수 있습니다.</li>
         <li><strong>자주 묻는 질문 탭</strong>: 자주 묻는 질문과 답변을 확인할 수 있습니다.</li>
         <li><strong>배송 주소 변경</strong>: 접수 완료 단계에서 챗봇을 통해 변경 가능합니다.</li>
-        <li><strong>상세 문의</strong>: 채널톡을 이용해주세요.</li>
+        <li><strong>상세 문의</strong>: 집중코칭방을 이용해주세요.</li>
       </ul>
     </div>
 
@@ -5101,7 +5143,7 @@ function openUserGuide() {
       <ul>
         <li><strong>취소 요청</strong>: 나의현황 패널에서 "취소 요청" 버튼 → 관리자 승인 후 취소됩니다.</li>
         <li><strong>재발주</strong>: 출고 완료 후 나의현황 패널 우측 하단 "재발주" 버튼을 이용해주세요.</li>
-        <li><strong>세금계산서</strong>: 사업자등록증 사본과 함께 채널톡으로 문의해주세요.</li>
+        <li><strong>세금계산서</strong>: 사업자등록증 사본과 함께 집중코칭방으로 문의해주세요.</li>
         <li><strong>용기 테스트 부적합 시</strong>: 새로운 용기를 동일 규격 5개 다시 보내주세요.</li>
       </ul>
     </div>
@@ -5150,6 +5192,7 @@ async function addAuditLog(action, target, detail) {
 }
 
 async function renderAdminLogs() {
+  pushAppState('admin-logs');
   if (_adminStudentListener) { _adminStudentListener(); _adminStudentListener = null; }
   document.getElementById('adminContent').innerHTML = `<div class="ai-loading"><div class="spinner"></div> 기록을 불러오는 중...</div>`;
   try {
@@ -5209,7 +5252,7 @@ async function restoreFromLog(logId, detail) {
       }
     });
     await addAuditLog('복원', detail, `로그 ID: ${logId}`);
-    alert('복원 요청이 기록되었습니다. 채널톡으로 상세 복원을 요청해주세요.');
+    alert('복원 요청이 기록되었습니다. 집중코칭방으로 상세 복원을 요청해주세요.');
     renderAdminLogs();
   } catch(e) { alert('복원 실패: ' + e.message); }
 }
@@ -5286,7 +5329,7 @@ async function sendDirectInquiry() {
   if (!text) return;
   input.value = '';
   addUserMessage(text);
-  addBotMessage('이곳은 자동 답변 시스템입니다.\n상세 문의는 <strong>채널톡</strong>으로 문의해주세요.\n\n발주 가이드와 자주 묻는 질문은 상단 탭에서 확인하실 수 있습니다.');
+  addBotMessage('이곳은 자동 답변 시스템입니다.\n상세 문의는 <strong>집중코칭방</strong>으로 문의해주세요.\n\n발주 가이드와 자주 묻는 질문은 상단 탭에서 확인하실 수 있습니다.');
 }
 
 // ════════════════════════════════════════════════════════════
@@ -5302,6 +5345,7 @@ auth.onAuthStateChanged(async (user) => {
 
   if (user) {
     currentUser = user;
+    history.replaceState({ screen: 'init' }, '', '');
     try {
       const doc = await db.collection('users').doc(user.uid).get();
       if (doc.exists) {
