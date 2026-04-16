@@ -1,0 +1,117 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== 헬퍼 함수 =====
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ===== users 컬렉션 =====
+    // 교육생/관리자 프로필
+    match /users/{userId} {
+      // 본인 문서 또는 관리자만 읽기
+      allow get: if isOwner(userId) || isAdmin();
+      // 목록 조회(list)는 관리자만 (교육생 전체 목록 보기)
+      allow list: if isAdmin();
+
+      // 가입 시 본인 uid로만 생성 가능
+      allow create: if isOwner(userId)
+                    && request.resource.data.email is string
+                    && request.resource.data.role in ['student', 'admin'];
+
+      // 본인 프로필 수정 (단, role은 변경 불가)
+      // 관리자는 모든 필드 수정 가능 (approved 처리 등)
+      allow update: if (isOwner(userId)
+                        && request.resource.data.role == resource.data.role)
+                    || isAdmin();
+
+      // 삭제는 관리자만
+      allow delete: if isAdmin();
+    }
+
+    // ===== orders 컬렉션 =====
+    // 발주 데이터
+    match /orders/{orderId} {
+      // 본인 발주 또는 관리자만 읽기
+      allow read: if isSignedIn()
+                  && (resource.data.userId == request.auth.uid || isAdmin());
+
+      // 발주 생성: 본인 uid로만
+      allow create: if isSignedIn()
+                    && request.resource.data.userId == request.auth.uid;
+
+      // 수정: 본인 발주 또는 관리자
+      allow update: if isSignedIn()
+                    && (resource.data.userId == request.auth.uid || isAdmin());
+
+      // 삭제: 본인 발주 또는 관리자
+      allow delete: if isSignedIn()
+                    && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // ===== chatLogs 컬렉션 =====
+    // 챗봇 대화 기록
+    match /chatLogs/{logId} {
+      allow read: if isSignedIn()
+                  && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn()
+                    && request.resource.data.userId == request.auth.uid;
+
+      allow update: if isAdmin();
+      allow delete: if isAdmin()
+                    || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // ===== inquiries 컬렉션 =====
+    // 문의
+    match /inquiries/{inquiryId} {
+      allow read: if isSignedIn()
+                  && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn()
+                    && request.resource.data.userId == request.auth.uid;
+
+      // 교육생은 본인 문의 수정 가능, 관리자는 답변/메모 작성
+      allow update: if isSignedIn()
+                    && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow delete: if isAdmin()
+                    || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // ===== deletedUsers 컬렉션 =====
+    // 탈퇴한 교육생 이메일 추적 (관리자 전용)
+    match /deletedUsers/{userId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ===== auditLogs 컬렉션 =====
+    // 관리자 작업 로그 (감사 추적)
+    // 생성/조회는 관리자만, 수정·삭제는 절대 불가 (기록 보존)
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+                    && request.resource.data.adminEmail == request.auth.token.email;
+      allow update, delete: if false;
+    }
+
+    // ===== 기본 거부 =====
+    // 위에서 명시되지 않은 모든 경로는 접근 차단
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
