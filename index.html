@@ -2999,7 +2999,7 @@ function renderStatusTimeline(currentStatus, stageDates, createdAt, feedback) {
   function renderRow(stages, offset) {
     return stages.map((stage, i) => {
       const gi = i + offset;
-      const isAcceptedPending = stage.id === 'accepted' && fbInProgress;
+      const isAcceptedPending = stage.id === 'accepted' && fbInProgress && gi <= currentIdx;
       const done = gi <= currentIdx && !isAcceptedPending;
       const isCurrent = gi === currentIdx || isAcceptedPending;
       const stepClass = done && !isCurrent ? 'done' : '';
@@ -3007,9 +3007,9 @@ function renderStatusTimeline(currentStatus, stageDates, createdAt, feedback) {
       const labelClass = isCurrent ? 'current' : (done ? 'done' : '');
       const stageDate = sd[stage.id] || (done ? baseDate : '');
       const dateStr = stageDate ? `<div style="font-size:6px;color:var(--g8);margin-top:1px">${stageDate}</div>` : '';
-      // 접수 완료 단계에 피드백 하위 상태 배지 추가
+      // 접수 완료 단계에 피드백 하위 상태 배지 추가 (상태가 실제로 접수 단계 이상일 때만)
       let subBadge = '';
-      if (stage.id === 'accepted' && feedback && feedback.enabled && feedback.subStatus && feedback.subStatus !== 'approved') {
+      if (stage.id === 'accepted' && gi <= currentIdx && feedback && feedback.enabled && feedback.subStatus && feedback.subStatus !== 'approved') {
         const sub = FEEDBACK_SUB_LABELS[feedback.subStatus];
         if (sub) subBadge = `<div style="font-size:8px;font-weight:700;padding:1px 5px;border-radius:6px;background:${sub.bg};color:${sub.color};margin-top:2px;display:inline-block">${sub.label}</div>`;
       }
