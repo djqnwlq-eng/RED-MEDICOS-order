@@ -563,12 +563,13 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
 #chatbotToggle .badge { position:absolute; top:-4px; right:-4px; width:18px; height:18px; border-radius:50%; background:#dc2626; color:#fff; font-size:10px; font-weight:800; display:none; align-items:center; justify-content:center; z-index:1; }
 #chatbotPanel {
   position:fixed; bottom:84px; right:24px; z-index:91;
-  width:380px; max-height:520px; background:#fff;
+  width:320px; max-height:75vh; background:#fff;
   border-radius:var(--rlg); box-shadow:0 8px 40px rgba(0,0,0,.15);
   border:1px solid var(--ge); display:none; flex-direction:column;
-  overflow:hidden;
+  overflow:hidden; opacity:.92; transition:opacity .2s;
 }
-@media(max-width:480px) { #chatbotPanel { right:8px; left:8px; width:auto; bottom:80px; max-height:70vh; } }
+#chatbotPanel:hover, #chatbotPanel:focus-within { opacity:1; }
+@media(max-width:480px) { #chatbotPanel { right:8px; left:8px; width:auto; bottom:80px; max-height:70vh; opacity:1; } }
 #chatbotPanel.open { display:flex; }
 .cb-header {
   background:var(--t); color:#fff; padding:14px 16px;
@@ -2993,11 +2994,14 @@ function renderStatusTimeline(currentStatus, stageDates, createdAt, feedback) {
   const currentIdx = mainStages.findIndex(s => s.id === currentStatus);
   const row1 = mainStages.slice(0, 8);
   const row2 = mainStages.slice(8);
+  // 피드백이 승인되기 전(reviewing/feedback_sent/awaiting_reply)이면 접수 완료는 아직 완료 아님
+  const fbInProgress = feedback && feedback.enabled && feedback.subStatus && feedback.subStatus !== 'approved';
   function renderRow(stages, offset) {
     return stages.map((stage, i) => {
       const gi = i + offset;
-      const done = gi <= currentIdx;
-      const isCurrent = gi === currentIdx;
+      const isAcceptedPending = stage.id === 'accepted' && fbInProgress;
+      const done = gi <= currentIdx && !isAcceptedPending;
+      const isCurrent = gi === currentIdx || isAcceptedPending;
       const stepClass = done && !isCurrent ? 'done' : '';
       const dotClass = isCurrent ? 'current' : (done ? 'done' : '');
       const labelClass = isCurrent ? 'current' : (done ? 'done' : '');
@@ -4517,10 +4521,18 @@ function buildFeedbackSection(o, orderId) {
         orig = o[k] || '-'; neu = fs[k].value || '-';
       }
       const reason = fs[k].reason || '';
+      let extraReasonsHtml = '';
+      if (k === 'extracts' && fs.extracts.extractDetails) {
+        const perRows = Object.entries(fs.extracts.extractDetails)
+          .filter(([name, v]) => v && v.reason)
+          .map(([name, v]) => `<div style="font-size:11.5px;color:#4b5563;margin-top:3px"><strong>· ${name}(${v.pct}%):</strong> ${v.reason}</div>`);
+        if (perRows.length) extraReasonsHtml = perRows.join('');
+      }
       diffRows.push(`<div style="padding:8px 10px;background:#fff;border-radius:6px;margin-bottom:6px;border:1px solid #d1fae5">
         <div style="font-size:11px;font-weight:800;color:#065f46;margin-bottom:4px">${FIELD_LABEL[k]}</div>
         <div style="font-size:12px;color:#1F2937"><span style="color:#9ca3af;text-decoration:line-through">${orig}</span> → <strong>${neu}</strong></div>
         ${reason ? `<div style="font-size:11.5px;color:#4b5563;margin-top:4px"><strong>사유:</strong> ${reason}</div>` : ''}
+        ${extraReasonsHtml}
       </div>`);
     });
     if (diffRows.length) {
@@ -4588,7 +4600,7 @@ async function openFeedbackEditor(orderId) {
   const extractsSource = fsExtracts && fsExtracts.extractDetails ? fsExtracts.extractDetails
                       : (o.extractDetails && typeof o.extractDetails === 'object' ? o.extractDetails : {});
   const initialExtractsHtml = Object.entries(extractsSource)
-    .map(([name, v]) => renderFinalExtractRow({ name, pct: v && v.pct !== undefined ? v.pct : '' })).join('');
+    .map(([name, v]) => renderFinalExtractRow({ name, pct: v && v.pct !== undefined ? v.pct : '', reason: v && v.reason ? v.reason : '' })).join('');
   // 옵션 생성
   const formulaOpts = FORMULAS.map(f => {
     const label = `${f.name} (${f.desc})`;
@@ -4597,7 +4609,7 @@ async function openFeedbackEditor(orderId) {
   const containerOpts = CONTAINERS.map(c => `<option value="${c.name}" ${c.name===curContainer?'selected':''}>${c.name}</option>`).join('');
   const volumeOpts = VOLUMES.map(v => `<option value="${v}" ${v==curVolume?'selected':''}>${v}ml</option>`).join('');
   // 필드 렌더 헬퍼
-  const fsFieldRow = (key, label, displayVal, editInnerHtml, reasonInit, startEditing) => `
+  const fsFieldRow = (key, label, displayVal, editInnerHtml, reasonInit, startEditing, hideSharedReason) => `
     <div class="fs-field ${startEditing?'is-editing':''}" data-field="${key}" style="padding:10px 0;border-bottom:1px dashed #d1fae5">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
         <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
@@ -4608,7 +4620,7 @@ async function openFeedbackEditor(orderId) {
       </div>
       <div class="fs-edit-box" style="display:${startEditing?'block':'none'};margin-top:8px;padding:10px;background:#fff;border-radius:6px;border:1px solid #d1fae5">
         ${editInnerHtml}
-        <input class="fs-reason" type="text" placeholder="수정 사유 (예: pH 안정성 고려)" value="${reasonInit||''}" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;box-sizing:border-box;margin-top:8px">
+        ${hideSharedReason ? '' : `<input class="fs-reason" type="text" placeholder="수정 사유 (예: pH 안정성 고려)" value="${reasonInit||''}" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;box-sizing:border-box;margin-top:8px">`}
         <button type="button" onclick="revertFinalField('${key}')" style="margin-top:6px;padding:5px 10px;background:none;border:1px solid #9ca3af;color:#4b5563;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">↺ 되돌리기</button>
       </div>
     </div>`;
@@ -4618,7 +4630,7 @@ async function openFeedbackEditor(orderId) {
     ${fsFieldRow('container', '용기', o.container||'-', `<select class="fs-input" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">${containerOpts}</select>`, fsContainer?fsContainer.reason:'', !!fsContainer)}
     ${fsFieldRow('volume', '용량', o.volume?o.volume+'ml':'-', `<select class="fs-input" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">${volumeOpts}</select>`, fsVolume?fsVolume.reason:'', !!fsVolume)}
     ${fsFieldRow('quantity', '수량', o.quantity?N(o.quantity)+'개':'-', `<input class="fs-input" type="number" min="1" step="1" value="${curQuantity}" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;box-sizing:border-box">`, fsQuantity?fsQuantity.reason:'', !!fsQuantity)}
-    ${fsFieldRow('extracts', '컨셉 성분', extractsDisplay, `<div id="fsExtractsBox">${initialExtractsHtml}</div><button type="button" onclick="addFinalExtractRow()" style="width:100%;padding:7px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px dashed #065f46;background:#ecfdf5;color:#065f46;font-family:inherit;margin-top:4px">+ 성분 추가</button>`, fsExtracts?fsExtracts.reason:'', !!fsExtracts)}
+    ${fsFieldRow('extracts', '컨셉 성분', extractsDisplay, `<div style="font-size:11px;color:#6b7280;margin-bottom:6px">각 성분별로 수정 사유를 입력해주세요</div><div id="fsExtractsBox">${initialExtractsHtml}</div><button type="button" onclick="addFinalExtractRow()" style="width:100%;padding:7px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px dashed #065f46;background:#ecfdf5;color:#065f46;font-family:inherit;margin-top:4px">+ 성분 추가</button>`, '', !!fsExtracts, true)}
     ${fsFieldRow('scent', '향', o.scent||'-', `<input class="fs-input" type="text" value="${curScent}" placeholder="예: 페퍼민트오일" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;box-sizing:border-box">`, fsScent?fsScent.reason:'', !!fsScent)}
   `;
   const html = `<div id="fbEditorOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10001;display:flex;align-items:center;justify-content:center" onclick="if(event.target===this)closeFeedbackEditor()">
@@ -4664,10 +4676,13 @@ function addFeedbackItemRow() {
   if (box) box.insertAdjacentHTML('beforeend', renderFeedbackItemRow({}, Date.now()));
 }
 function renderFinalExtractRow(it = {}) {
-  return `<div class="fs-extract-row" style="display:flex;gap:6px;margin-bottom:6px;align-items:center">
-    <input class="fs-ext-name" type="text" placeholder="성분명 (예: 엑토인)" value="${it.name||''}" style="flex:2;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">
-    <input class="fs-ext-pct" type="number" step="0.01" min="0" placeholder="%" value="${it.pct!==undefined?it.pct:''}" style="flex:1;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">
-    <button type="button" onclick="this.closest('.fs-extract-row').remove()" style="background:none;border:none;font-size:16px;cursor:pointer;color:#9ca3af">🗑</button>
+  return `<div class="fs-extract-row" style="margin-bottom:8px;padding:8px;background:#fff;border:1px solid #d1fae5;border-radius:8px">
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+      <input class="fs-ext-name" type="text" placeholder="성분명 (예: 엑토인)" value="${it.name||''}" style="flex:2;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">
+      <input class="fs-ext-pct" type="number" step="0.1" min="0" placeholder="%" value="${it.pct!==undefined?it.pct:''}" style="flex:1;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">
+      <button type="button" onclick="this.closest('.fs-extract-row').remove()" style="background:none;border:none;font-size:16px;cursor:pointer;color:#9ca3af">🗑</button>
+    </div>
+    <textarea class="fs-ext-reason" rows="2" placeholder="수정 사유 (예: pH 안정성 고려)" style="width:100%;padding:6px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:11.5px;font-family:inherit;box-sizing:border-box;background:#fafafa;resize:vertical;min-height:44px;line-height:1.5">${it.reason||''}</textarea>
   </div>`;
 }
 function addFinalExtractRow() {
@@ -4730,12 +4745,13 @@ async function saveFeedback(orderId) {
       field.querySelectorAll('.fs-extract-row').forEach(r => {
         const name = r.querySelector('.fs-ext-name').value.trim();
         const pct = parseFloat(r.querySelector('.fs-ext-pct').value);
+        const rowReason = (r.querySelector('.fs-ext-reason')?.value || '').trim();
         if (name && !isNaN(pct) && pct > 0) {
           arr.push(`${name}(${pct}%)`);
-          details[name] = { pct, price: 0 };
+          details[name] = { pct, price: 0, reason: rowReason };
         }
       });
-      finalSpec.extracts = { value: arr, extractDetails: details, reason };
+      finalSpec.extracts = { value: arr, extractDetails: details, reason: '' };
     } else {
       const input = field.querySelector('.fs-input');
       if (!input) return;
