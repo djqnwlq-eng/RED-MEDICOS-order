@@ -194,6 +194,43 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--gf); color: va
 .card { background:#fff; border-radius:var(--r); border:0.5px solid var(--ge); padding:1.25rem 1.25rem 1rem; margin-bottom:.875rem; }
 .card-title { font-size:15px; font-weight:700; color:var(--g1); margin-bottom:4px; }
 .card-sub { font-size:13px; color:var(--g6); line-height:1.6; margin-bottom:1rem; }
+.dev-notice-banner { background:#fff5f5; border:2px solid #e53935; border-left:6px solid #e53935; border-radius:10px; padding:16px 18px; margin:12px 0 16px; }
+.dev-notice-banner .dev-notice-title { font-size:16px; font-weight:800; color:#c62828; margin-bottom:10px; letter-spacing:-.2px; }
+.dev-notice-banner .dev-notice-body { font-size:14px; color:#333; line-height:1.7; }
+.dev-notice-banner .dev-notice-body strong { color:#c62828; font-weight:700; }
+.dev-notice-btn { margin-left:8px; font-size:12px; font-weight:600; color:#c62828; background:#fff5f5; border:1px solid #e53935; border-radius:14px; padding:3px 10px; cursor:pointer; vertical-align:middle; }
+.dev-notice-btn:hover { background:#ffebee; }
+.dev-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:9999; animation:fadeIn .2s ease; }
+.dev-modal-overlay.active { display:flex; }
+.dev-modal { background:#fff; border-radius:16px; max-width:480px; width:90%; padding:0; box-shadow:0 20px 60px rgba(0,0,0,.3); animation:slideUp .25s ease; overflow:hidden; }
+.dev-modal-head { background:#fff5f5; border-bottom:2px solid #e53935; padding:18px 22px; display:flex; align-items:center; justify-content:space-between; }
+.dev-modal-head .dev-modal-title { font-size:17px; font-weight:800; color:#c62828; }
+.dev-modal-close { background:transparent; border:0; font-size:22px; cursor:pointer; color:#999; padding:0; width:30px; height:30px; border-radius:50%; }
+.dev-modal-close:hover { background:#f0f0f0; color:#333; }
+.dev-modal-body { padding:22px; font-size:14.5px; line-height:1.8; color:#333; }
+.dev-modal-body strong { color:#c62828; font-weight:700; }
+.dev-modal-foot { padding:0 22px 20px; text-align:right; }
+.dev-modal-ok { background:#c62828; color:#fff; border:0; border-radius:8px; padding:10px 24px; font-size:14px; font-weight:700; cursor:pointer; }
+.dev-modal-ok:hover { background:#b71c1c; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+.fn-section-divider { height:1px; background:linear-gradient(to right, transparent, #e5e7eb, transparent); margin:22px 0 16px; }
+.fn-section-header { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+.fn-section-header .fn-section-title { font-size:15px; font-weight:800; color:#1f2937; letter-spacing:-.2px; }
+.fn-section-header .fn-section-sub { font-size:12px; color:#6b7280; font-weight:500; }
+.desc-input-label { display:flex; align-items:center; gap:6px; font-size:15px; font-weight:800; color:#0d6efd; margin:18px 0 8px; letter-spacing:-.2px; }
+.desc-input-wrap { position:relative; animation:descPulse 2.2s ease-in-out infinite; border-radius:12px; }
+.desc-input-wrap.is-focused { animation:none; box-shadow:0 0 0 3px rgba(13,110,253,.18); }
+.desc-input-wrap textarea#descInput { min-height:170px; font-size:15px; padding:14px 16px; border:2px solid #0d6efd; border-radius:10px; line-height:1.7; background:#f8fbff; }
+.desc-input-wrap textarea#descInput:focus { background:#fff; border-color:#0d6efd; box-shadow:none; }
+@keyframes descPulse {
+  0%,100% { box-shadow:0 0 0 0 rgba(13,110,253,.0); }
+  50% { box-shadow:0 0 0 6px rgba(13,110,253,.12); }
+}
+@keyframes fbPulse {
+  0%,100% { box-shadow:0 0 0 0 rgba(220,38,38,.0); }
+  50% { box-shadow:0 0 0 5px rgba(220,38,38,.18); }
+}
 .section-tag { font-size:10px; font-weight:800; color:#c8cad0; letter-spacing:.1em; text-transform:uppercase; margin:.875rem 0 .5rem; }
 
 /* ─── FORM ELEMENTS ─── */
@@ -1563,10 +1600,19 @@ function buildStep1() {
   const customInput = isCustom ? `<div id="customBodyWrapper" style="margin-top:10px"><input type="text" id="customBodyInput" value="${STATE.bodyPart}" placeholder="사용 부위를 직접 입력하세요" style="width:100%;padding:10px 12px;border:1px solid var(--ge);border-radius:var(--rsm);font-size:14px;font-family:inherit" oninput="STATE.bodyPart=this.value.trim()"></div>` : '';
   return `
     <div class="card">
-      <div class="card-title">어떤 화장품을 만들고 싶으신가요?</div>
+      <div class="card-title">어떤 화장품을 만들고 싶으신가요?
+        <button type="button" class="dev-notice-btn" onclick="showDevNoticeModal()" title="개발 의뢰서 안내">ⓘ 안내</button>
+      </div>
       <div class="card-sub">원하는 효능, 느낌, 고객군을 자유롭게 적어주세요.<br>AI가 내용을 분석해 맞춤 성분을 추천해드립니다.</div>
-      <textarea id="descInput" placeholder="예시 1) 가려움에 좋은 바디미스트를 만들고 싶어요&#10;예시 2) 탄력+보습크림을 만들고 싶어요">${STATE.description}</textarea>
-      <div class="section-tag">기능성 화장품 (해당 시 체크)</div>
+      <div class="desc-input-label">✍️ 이곳에 자유롭게 적어주세요</div>
+      <div class="desc-input-wrap" id="descInputWrap">
+        <textarea id="descInput" placeholder="예시 1) 가려움에 좋은 바디미스트를 만들고 싶어요&#10;예시 2) 탄력+보습크림을 만들고 싶어요" onfocus="handleDescFocus()" onblur="document.getElementById('descInputWrap').classList.remove('is-focused')">${STATE.description}</textarea>
+      </div>
+      <div class="fn-section-divider"></div>
+      <div class="fn-section-header">
+        <span class="fn-section-title">✨ 기능성 화장품</span>
+        <span class="fn-section-sub">해당 시 체크하세요</span>
+      </div>
       <div class="fn-group">${fnBtns}</div>
       <div id="fnCostNotice" style="display:${STATE.functions.length?'block':'none'}">
         <div class="notice info" style="margin-top:0;font-size:12px">
@@ -1653,11 +1699,27 @@ function buildStepScent() {
   }).join('');
   const selName = STATE.selectedScent || '미선택';
   const scentPct = '';
+  const ings = FORMULA_INGREDIENTS[STATE.formula];
+  const scentIngHtml = ings ? `
+    <div class="card" style="padding:0;overflow:hidden">
+      <button type="button" onclick="toggleScentIngDetail()" id="scentIngBtn" style="width:100%;padding:14px 18px;background:transparent;border:0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-family:inherit;text-align:left">
+        <span style="font-size:15px;font-weight:800;color:#1f2937">🧬 기본 전성분 한눈에 보기 (${ings.kr.length}종)</span>
+        <span id="scentIngArrow" style="font-size:12px;font-weight:700;color:#6b7280">펼치기 ▼</span>
+      </button>
+      <div id="scentIngBox" style="display:none;padding:0 18px 16px;border-top:1px dashed #e5e7eb">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px;flex-wrap:wrap">
+          <div style="font-size:12px;color:#4b5563;line-height:1.5;font-weight:600">※ 전성분 표기 순서는 실제 함량 비율에 따라 변경될 수 있습니다.</div>
+          <button onclick="navigator.clipboard.writeText('${ings.kr.join(', ').replace(/'/g,"\\'")}').then(()=>alert('전성분이 복사되었습니다.'))" style="padding:4px 12px;border-radius:14px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#6b7280;font-family:inherit">복사</button>
+        </div>
+        <div style="margin-top:10px;font-size:13px;color:#374151;line-height:1.9">${ings.kr.join(', ')}</div>
+      </div>
+    </div>` : '';
   return `
     <div class="card"><div class="card-title">향 선택</div><div class="card-sub">에센셜 오일 중 <strong style="color:var(--t)">1가지</strong>만 선택할 수 있습니다. 향을 넣지 않으려면 <strong>무향</strong>을 선택하세요.</div>
       <div class="container-grid">${cards}</div>
       ${buildScentSlider()}
     </div>
+    ${scentIngHtml}
     <div class="price-bar"><div><div class="pb-label">선택한 향</div><div class="pb-sub">${selName}${scentPct}</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가</div><div class="pb-price">${N(getUnitCost())}원</div></div></div>
     <div style="background:#fef9f0;border:0.5px solid #f0dcc0;border-radius:var(--rsm);padding:8px 13px;margin-top:6px;font-size:11px;color:#9a7b4f;line-height:1.5">※ 최종 원가는 원료 수급·배합 비율에 따라 변동될 수 있습니다.</div>
     <div class="btn-row"><button class="btn" onclick="goToStep(5)">← 이전</button><button class="btn primary" ${STATE.selectedScent!==null?'':'disabled'} onclick="goToStep(7)">다음 단계 →</button></div>`;
@@ -1768,9 +1830,24 @@ function buildStep3(aiLoading=false) {
     <div class="price-bar"><div><div class="pb-label">컨셉성분: 제조 전문가 위임</div><div class="pb-sub" id="selectedList">제조 연구팀이 최적 원료를 배합합니다</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가</div><div class="pb-price" id="priceDisplay">-</div></div></div>
     <div class="btn-row"><button class="btn" onclick="backToExtractModeSelect()">← 이전</button><button class="btn primary" onclick="goToStep(6)">다음 단계 →</button></div>`;
   }
+  const baseIngredients = sorted.filter(e => isFullyInBase(e, STATE.formula));
+  const baseInciCombined = baseIngredients.map(e => e.inci || e.name).join(', ');
+  const baseDetailHtml = baseIngredients.length ? `
+    <div style="margin:8px 0 12px;border:1px solid #86efac;border-radius:10px;overflow:hidden;background:#f0fdf4">
+      <button type="button" onclick="toggleBaseDetail()" id="baseDetailBtn" style="width:100%;padding:12px 16px;background:transparent;border:0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-family:inherit;text-align:left">
+        <span style="font-size:13.5px;font-weight:800;color:#047857">🧬 기본 베이스 성분 한눈에 펼쳐보기</span>
+        <span id="baseDetailArrow" style="font-size:12px;font-weight:700;color:#047857">펼치기 ▼</span>
+      </button>
+      <div id="baseDetailBox" style="display:none;padding:12px 16px 14px;border-top:1px dashed #86efac">
+        <div style="font-size:13px;color:#065f46;line-height:1.8;font-weight:500">${baseInciCombined}</div>
+      </div>
+    </div>` : '';
   return `
-    <div class="card"><div class="card-title">컨셉성분 선택</div><div class="card-sub">제품 컨셉에 맞는 핵심 성분을 직접 선택합니다</div>
-      <div id="extractSelectArea"><div class="section-tag"><span style="font-size:10px;font-weight:800;padding:2px 7px;background:var(--tl);color:var(--tmd);border-radius:10px">✦ AI 추천 성분</span></div><div id="aiSection">${aiSection}</div><div class="section-tag">전체 성분 리스트</div><div class="chips">${allChips}</div></div>
+    <div class="card"><div class="card-title">컨셉성분 선택
+        <button type="button" class="dev-notice-btn" onclick="showConceptNoticeModal()" title="컨셉성분 안내">ⓘ 안내</button>
+      </div>
+      <div class="card-sub">제품 컨셉에 맞는 핵심 성분을 직접 선택합니다</div>
+      <div id="extractSelectArea"><div class="section-tag"><span style="font-size:10px;font-weight:800;padding:2px 7px;background:var(--tl);color:var(--tmd);border-radius:10px">✦ AI 추천 성분</span></div><div id="aiSection">${aiSection}</div><div style="font-size:15px;font-weight:800;color:#1f2937;margin:16px 0 8px;letter-spacing:-.2px">📋 전체 성분 리스트</div>${baseDetailHtml}<div class="chips">${allChips}</div></div>
       ${buildPctSliders()}
     </div>
     <div class="price-bar"><div><div class="pb-label">선택한 성분 ${selKeys.length}개</div><div class="pb-sub" id="selectedList">${selKeys.length?selKeys.map(k=>{const v=STATE.selExtracts[k];return k+'('+v.pct+'%)';}).join(', '):'성분 미선택'}</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--g6);margin-bottom:2px">예상 제조 원가</div><div class="pb-price" id="priceDisplay">${N(Math.round(getUnitCost()))}원</div></div></div>
@@ -1865,11 +1942,32 @@ function buildSuccess() {
     <div class="success-screen">
       <div class="success-icon">✅</div>
       <h2 style="font-size:22px;font-weight:800;margin-bottom:8px">개발의뢰서 제출이 완료되었습니다</h2>
-      <p style="font-size:14px;color:var(--g6);line-height:1.7;margin-bottom:2rem">
+      <p style="font-size:14px;color:var(--g6);line-height:1.7;margin-bottom:1.5rem">
         연구소에서 내용 검토 후 순차적으로 개발이 진행됩니다.<br>
-        샘플링은 제출일 기준 약 2주 정도 소요됩니다.<br>
-        진행상황은 '나의현황'을 통해 실시간으로 확인하실 수 있습니다.
+        샘플링은 제출일 기준 약 2주 정도 소요됩니다.
       </p>
+
+      <!-- 📢 피드백 안내 배너 (안1 + 안2 조합) -->
+      <div style="max-width:560px;margin:0 auto 1.5rem;text-align:left;background:#fff5f5;border:2px solid #e53935;border-left:6px solid #e53935;border-radius:12px;padding:16px 18px">
+        <div style="font-size:16px;font-weight:800;color:#c62828;margin-bottom:10px">📢 연구소 피드백을 꼭 확인해주세요</div>
+        <div style="font-size:13.5px;color:#374151;line-height:1.8">
+          제출하신 개발 의뢰서는 <strong style="color:#c62828">연구소에서 검토 후 최종 배합이 결정</strong>됩니다.<br>
+          검토 과정에서 <strong>성분·함량·제형 관련 피드백</strong>이 전달될 수 있습니다.
+        </div>
+        <div style="margin-top:12px;padding:10px 12px;background:#fff;border-radius:8px;border:1px dashed #fca5a5">
+          <div style="font-size:13px;font-weight:800;color:#1f2937;margin-bottom:6px">📋 앞으로 진행 순서</div>
+          <div style="font-size:12.5px;color:#4b5563;line-height:1.9">
+            1️⃣ 연구소에서 <strong>의뢰서 검토</strong><br>
+            2️⃣ 필요 시 <strong>피드백 전달</strong> (성분·함량·제형 조정안)<br>
+            3️⃣ 교육생님의 <strong>확인 및 회신</strong><br>
+            4️⃣ 최종 배합 확정 → <strong>샘플 발송</strong>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:12.5px;color:#c62828;font-weight:700">⚠️ 피드백 알림이 오면 반드시 확인해주세요. 확인이 있어야 다음 단계가 진행됩니다.</div>
+      </div>
+
+      <div style="font-size:13px;color:#6b7280;margin-bottom:1.5rem">진행상황은 <strong>'나의현황'</strong>에서 실시간 확인하실 수 있습니다.</div>
+
       <button class="btn primary" onclick="goToDashboard()">대시보드로 돌아가기</button>
       <button class="btn" onclick="openOrderTypeModal()" style="margin-left:8px">+ 새 발주 시작</button>
     </div>`;
@@ -1957,8 +2055,10 @@ function buildPctSliders() {
   const keys = Object.keys(STATE.selExtracts);
   if (keys.length === 0) return '';
   let html = `<div style="margin-top:14px;padding:14px 16px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:var(--r)">
-    <div style="font-size:13px;font-weight:700;margin-bottom:4px">함량 설정</div>
-    <div style="font-size:11px;color:#6b7280;margin-bottom:12px;line-height:1.6">기본 함량은 <strong>0.1%</strong>로 설정되어 있으며, 대부분의 제형에서 효과적인 배합 비율입니다.<br>제품 컨셉에 따라 함량을 높이면 해당 성분의 특성이 더 강조되며, 가격도 비례하여 변동됩니다.<br>원하시는 컨셉과 예산에 맞게 자유롭게 조절해주세요.<br>※ 원료 특성상 함량에 따라 제형이나 색상이 변할 수 있으며, 이 경우 연구진과의 협의 후 함량이 조정될 수 있습니다.</div>`;
+    <div style="font-size:15px;font-weight:800;margin-bottom:8px;color:#1f2937;display:flex;align-items:center;flex-wrap:wrap;gap:8px">🧪 함량 설정
+      <button type="button" class="dev-notice-btn" onclick="showConcNoticeModal()" title="함량 설정 안내">ⓘ 안내</button>
+    </div>
+    <div style="font-size:12px;color:#6b7280;margin-bottom:12px;line-height:1.7">기본 함량은 <strong>0.1%</strong>로 설정되어 있으며, 대부분의 제형에서 효과적인 배합 비율입니다.<br>제품 컨셉에 따라 함량을 높이면 해당 성분의 특성이 더 강조되며, 가격도 비례하여 변동됩니다.<br>✏️ <strong style="color:#1f2937">자유롭게 함량을 선택해주세요.</strong></div>`;
   keys.forEach((name, idx) => {
     const v = STATE.selExtracts[name];
     const safeName = name.replace(/'/g, "\\'");
@@ -1967,6 +2067,7 @@ function buildPctSliders() {
       <div style="min-width:120px;font-size:12px;font-weight:600;color:#1F2937">${name}</div>
       <input type="range" min="1" max="10" step="1" value="${Math.round(v.pct * 10)}"
         oninput="updateExtractPct('${safeName}',this.value/10)"
+        onfocus="handleConcFocus()" onmousedown="handleConcFocus()" ontouchstart="handleConcFocus()"
         style="flex:1;accent-color:var(--t);height:4px">
       <div style="min-width:40px;text-align:center;font-size:12px;font-weight:700;color:var(--t)" id="pctL${idx}">${v.pct}%</div>
       <div style="min-width:55px;text-align:right;font-size:11px;color:#6b7280" id="pctC${idx}">${N(calcCost)}원</div>
@@ -2012,12 +2113,7 @@ function selectExtractMode(mode) {
   } else {
     STATE.delegateExtracts = false;
     _goToStepReal(5);
-    showStepBanner('컨셉성분 선택 안내', [
-      '선택하신 제형의 <strong>기본 베이스 성분</strong>은 이미 포함되어 있으며, "전성분 기본 포함"으로 표시됩니다.',
-      '기본 베이스 외에 <strong>최대 5개</strong>까지 컨셉 성분을 추가로 선택할 수 있습니다.',
-      '각 성분은 <strong>최대 1%</strong>까지 배합 비율을 지정할 수 있으며, 표시된 가격은 1% 적용 시 기준 단가입니다.',
-      '표시되는 가격은 <strong>예상 단가</strong>이며, 최종 제조 단가는 달라질 수 있습니다.',
-    ]);
+    showConceptNoticeModal();
   }
 }
 
@@ -2176,23 +2272,9 @@ function _goToStepReal(n) {
 async function goToStep(n) {
   _goToStepReal(n);
   // Step 5(컨셉성분): 배합 방식 선택 화면에서는 배너 없음
-  // Step 7 진입 시 에센셜 오일 선택 안내 배너
-  if (n === 7 && STATE.selectedScent && STATE.selectedScent !== '무향') {
-    showStepBanner('에센셜 오일 안내', [
-      '에센셜 오일은 천연 원료 특성상, 향 이외에 안정화·보존을 위한 <strong>첨가 성분이 포함</strong>될 수 있습니다.',
-      '이에 따라 최종 제조 단가가 <strong>변동될 수 있으며</strong>, 정확한 단가는 배합 확정 후 안내드립니다.',
-    ]);
-  }
-  // Step 6(향 선택): 해당 단계 진입 시 배너 표시
+  // Step 6(향 선택): 해당 단계 진입 시 모달 표시
   if (n === 6 && !STATE.delegateExtracts) {
-    showStepBanner('향 선택 안내', [
-      '마지막 단계입니다. 제품에 넣을 향(에센셜 오일)을 선택합니다.',
-      '에센셜 오일은 식물에서 추출한 천연 향 원료로, 향 외에도 <strong>항균·진정·혈행 촉진</strong> 등 기능성 효과가 있습니다.',
-      '향은 <strong>1가지만</strong> 선택할 수 있으며, AI가 개발 목표에 적합한 향을 추천해드립니다.',
-      '향료·에센셜 오일을 넣지 않을 경우 <strong>"무향"</strong>을 선택해주세요. 무향 선택 시에도 원료 자체의 특성 향이 있을 수 있습니다.',
-      '표시되는 가격은 <strong>예상 단가</strong>이며, 최종 제조 단가는 달라질 수 있습니다.',
-      '향을 선택하시면 <strong>최종 전성분</strong>을 확인하실 수 있습니다.',
-    ]);
+    showScentNoticeModal();
   }
 }
 
@@ -2300,7 +2382,7 @@ function getScentGuide() {
   const isRec = scent && recs[scent] > 0;
   const fid = STATE.formula;
   const ings = fid ? FORMULA_INGREDIENTS[fid] : null;
-  const ingsHtml = ings ? `<div class="gp-divider"></div><div class="gp-section"><div style="display:flex;justify-content:space-between;align-items:center"><div class="gp-section-title">기본 전성분 (${ings.kr.length}종)</div><button onclick="navigator.clipboard.writeText('${ings.kr.join(', ').replace(/'/g,"\\'")}').then(()=>alert('전성분이 복사되었습니다.'))" style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#6b7280;font-family:inherit">복사</button></div><div style="margin-top:6px;font-size:11px;color:#9ca3af">※ 전성분 표기 순서는 실제 함량 비율에 따라 변경될 수 있습니다.</div><div class="gp-text" style="font-size:12px;line-height:1.6;color:#6b7280;margin-top:8px">${ings.kr.join(', ')}</div></div>` : '';
+  const ingsHtml = '';
 
   if (!scent) {
     return `<div class="gp-section"><div class="gp-section-title">에센셜 오일이란?</div><div class="gp-text">식물에서 추출한 천연 향 원료로, 향 외에도 항균·진정·혈행 촉진 등 기능성 효과가 있습니다.</div></div><div class="gp-divider"></div><div class="gp-section"><div class="gp-section-title">향 선택 안내</div><div class="gp-text"><ul><li>향은 <strong>1가지만</strong> 선택할 수 있습니다.</li><li>향료·에센셜 오일을 넣지 않을 경우 <strong>무향</strong>을 선택하세요.</li></ul></div></div>${ingsHtml}`;
@@ -2381,6 +2463,14 @@ async function submitOrder() {
     totalCost:   getUnitCost() * STATE.quantity,
     status:      'ordered',
     adminViewed: false,
+    feedback: {
+      enabled: true,
+      subStatus: 'reviewing',
+      items: [],
+      comment: '',
+      history: [],
+      updatedAt: null,
+    },
     createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
   };
   try {
@@ -2729,7 +2819,7 @@ function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') 
           <div class="round-header">
             <span class="rh-round">${round}차</span><span class="rh-date">${date}</span><span class="rh-qty">${qty}</span>${statusBadge}<span style="font-size:10px;color:var(--g8);margin-left:auto">▼ 펼치기</span>
           </div>
-          <div class="round-expand" style="display:none;margin-top:10px">${renderStatusTimeline(o.status, o.stageDates, o.createdAt)}${renderRoundDetails(o, editable, uid, uname, ubrand)}</div>
+          <div class="round-expand" style="display:none;margin-top:10px">${renderStatusTimeline(o.status, o.stageDates, o.createdAt, o.feedback)}${renderRoundDetails(o, editable, uid, uname, ubrand)}</div>
         </div>`;
       } else {
         // 최신 차수: 펼친 상태
@@ -2779,9 +2869,22 @@ function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') 
           cancelBtn = adminActions;
         }
         const chatGuideBtn = (!editable && o.status !== 'cancelled') ? `<button onclick="event.stopPropagation();switchToOrderGuide('${o.id}')" style="margin-left:6px;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;border:1.5px solid #6EE7B7;background:#ECFDF5;color:#065F46;font-family:inherit">📋 가이드 보기</button>` : '';
+        let feedbackBadge = '';
+        if (o.feedback && o.feedback.enabled) {
+          const fs = o.feedback.subStatus;
+          if (!editable && fs === 'feedback_sent') {
+            feedbackBadge = `<button onclick="event.stopPropagation();showOrderDetail('${o.id}')" style="margin-left:6px;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;border:1.5px solid #fca5a5;background:#fee2e2;color:#991B1B;font-family:inherit;animation:fbPulse 1.8s ease-in-out infinite">🔔 피드백 확인</button>`;
+          } else if (editable && fs === 'reviewing' && (!o.feedback.items || !o.feedback.items.length)) {
+            feedbackBadge = `<button onclick="event.stopPropagation();showOrderDetail('${o.id}')" style="margin-left:6px;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;border:1.5px solid #fcd34d;background:#fef3c7;color:#92400E;font-family:inherit">✍️ 피드백 작성</button>`;
+          } else if (editable && (fs === 'feedback_sent' || fs === 'awaiting_reply')) {
+            feedbackBadge = `<span style="margin-left:6px;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:#f3f4f6;color:#6b7280">⏳ 교육생 회신 대기</span>`;
+          } else if (fs === 'approved') {
+            feedbackBadge = `<span style="margin-left:6px;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:#d1fae5;color:#065f46">✅ 피드백 승인</span>`;
+          }
+        }
         roundsHtml += `<div class="order-round">
-          <div class="round-header"><span class="rh-round">${round}차</span><span class="rh-date">${date}</span><span class="rh-qty">${qty}</span>${statusBadge}${chatGuideBtn}</div>
-          <div style="margin-top:10px">${renderStatusTimeline(o.status, o.stageDates, o.createdAt)}${renderRoundDetails(o, editable, uid, uname, ubrand)}${cancelBtn}</div>
+          <div class="round-header"><span class="rh-round">${round}차</span><span class="rh-date">${date}</span><span class="rh-qty">${qty}</span>${statusBadge}${feedbackBadge}${chatGuideBtn}</div>
+          <div style="margin-top:10px">${renderStatusTimeline(o.status, o.stageDates, o.createdAt, o.feedback)}${renderRoundDetails(o, editable, uid, uname, ubrand)}${cancelBtn}</div>
         </div>`;
       }
     });
@@ -2877,7 +2980,7 @@ function renderRoundDetails(o, editable, uid, uname, ubrand) {
   return `${matSection}${prodDate}${addrChanged}${studentConfirmed}${containerSentByStudent}${containerResult}${materialsConfirmed}${note}`;
 }
 
-function renderStatusTimeline(currentStatus, stageDates, createdAt) {
+function renderStatusTimeline(currentStatus, stageDates, createdAt, feedback) {
   currentStatus = normalizeStatus(currentStatus);
   const sd = stageDates || {};
   const baseDate = createdAt?.seconds ? new Date(createdAt.seconds*1000).toLocaleDateString('ko-KR') : '';
@@ -2900,7 +3003,13 @@ function renderStatusTimeline(currentStatus, stageDates, createdAt) {
       const labelClass = isCurrent ? 'current' : (done ? 'done' : '');
       const stageDate = sd[stage.id] || (done ? baseDate : '');
       const dateStr = stageDate ? `<div style="font-size:6px;color:var(--g8);margin-top:1px">${stageDate}</div>` : '';
-      return `<div class="st-step ${stepClass}"><div class="st-dot ${dotClass}">${done?'✓':(gi+1)}</div><div class="st-label ${labelClass}">${stage.label}</div>${dateStr}</div>`;
+      // 접수 완료 단계에 피드백 하위 상태 배지 추가
+      let subBadge = '';
+      if (stage.id === 'accepted' && feedback && feedback.enabled && feedback.subStatus && feedback.subStatus !== 'approved') {
+        const sub = FEEDBACK_SUB_LABELS[feedback.subStatus];
+        if (sub) subBadge = `<div style="font-size:8px;font-weight:700;padding:1px 5px;border-radius:6px;background:${sub.bg};color:${sub.color};margin-top:2px;display:inline-block">${sub.label}</div>`;
+      }
+      return `<div class="st-step ${stepClass}"><div class="st-dot ${dotClass}">${done?'✓':(gi+1)}</div><div class="st-label ${labelClass}">${stage.label}</div>${dateStr}${subBadge}</div>`;
     }).join('');
   }
   return `<div class="status-timeline">${renderRow(row1, 0)}</div><div class="status-timeline" style="margin-top:4px">${renderRow(row2, 8)}</div>`;
@@ -4218,6 +4327,8 @@ function closeOrderTypeModal() {
 }
 
 function startCustomOrder() {
+  devNoticeShown = false;
+  concNoticeShown = false;
   Object.assign(STATE, {
     step:1, description:'', functions:[], bodyPart:'',
     formula:null, delegateExtracts:false, extractModeSelected:false, selExtracts:{}, aiRecs:[], selectedScent:null, volume:100, quantity:300, container:null
@@ -4357,26 +4468,380 @@ async function rejectStudent(uid) {
   } catch(e) { alert('거절 실패: ' + e.message); }
 }
 
+// ════════════════════════════════════════════════════════════
+//  💬  LAB FEEDBACK SYSTEM (연구소 피드백)
+// ════════════════════════════════════════════════════════════
+const FEEDBACK_SUB_LABELS = {
+  reviewing:      { label: '검토 중',         color: '#6b7280', bg: '#f3f4f6' },
+  feedback_sent:  { label: '피드백 전달',     color: '#b45309', bg: '#fef3c7' },
+  awaiting_reply: { label: '교육생 회신 대기', color: '#b45309', bg: '#fef3c7' },
+  approved:       { label: '승인 완료',       color: '#065f46', bg: '#d1fae5' },
+};
+
+function buildFeedbackSection(o, orderId) {
+  if (!o.feedback || !o.feedback.enabled) return '';
+  const isAdmin = currentUserData && currentUserData.role === 'admin';
+  const fb = o.feedback;
+  const sub = FEEDBACK_SUB_LABELS[fb.subStatus] || FEEDBACK_SUB_LABELS.reviewing;
+  const headerHtml = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+    <div style="font-size:14px;font-weight:800;color:#1F2937">📨 연구소 피드백</div>
+    <span style="padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;background:${sub.bg};color:${sub.color}">${sub.label}</span>
+  </div>`;
+
+  const itemsHtml = (fb.items && fb.items.length) ? fb.items.map((it, i) => `
+    <div style="padding:10px 12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:6px">
+      <div style="font-size:11px;font-weight:700;color:#c62828;margin-bottom:4px">${it.type || '일반 안내'}</div>
+      ${it.target ? `<div style="font-size:12px;color:#1F2937"><strong>대상:</strong> ${it.target}</div>` : ''}
+      ${it.proposed ? `<div style="font-size:12px;color:#1F2937"><strong>제안값:</strong> ${it.proposed}</div>` : ''}
+      ${it.reason ? `<div style="font-size:12px;color:#4b5563;margin-top:4px"><strong>사유:</strong> ${it.reason}</div>` : ''}
+    </div>`).join('') : '';
+
+  const commentHtml = fb.comment ? `<div style="margin-top:8px;padding:10px 12px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:6px;font-size:12.5px;color:#374151;line-height:1.7"><strong>💬 연구소 코멘트</strong><br>${fb.comment.replace(/\n/g,'<br>')}</div>` : '';
+  // 최종 배합안 미리보기 (finalSpec 있고 전송 완료 상태일 때) - 수정된 필드만 표시
+  let finalSpecHtml = '';
+  if (fb.finalSpec && ['feedback_sent','awaiting_reply','approved'].includes(fb.subStatus)) {
+    const fs = fb.finalSpec;
+    const FIELD_LABEL = { formula:'제형', container:'용기', volume:'용량', quantity:'수량', extracts:'컨셉 성분', scent:'향' };
+    const diffRows = [];
+    ['formula','container','volume','quantity','extracts','scent'].forEach(k => {
+      if (!fs[k] || typeof fs[k] !== 'object' || !('value' in fs[k])) return;
+      let orig, neu;
+      if (k === 'extracts') {
+        orig = (o.extracts && o.extracts.length) ? o.extracts.join(', ') : '(없음)';
+        neu = (fs.extracts.value && fs.extracts.value.length) ? fs.extracts.value.join(', ') : '(없음)';
+      } else if (k === 'volume') {
+        orig = o.volume ? o.volume+'ml' : '-'; neu = fs[k].value ? fs[k].value+'ml' : '-';
+      } else if (k === 'quantity') {
+        orig = o.quantity ? N(o.quantity)+'개' : '-'; neu = fs[k].value ? N(fs[k].value)+'개' : '-';
+      } else {
+        orig = o[k] || '-'; neu = fs[k].value || '-';
+      }
+      const reason = fs[k].reason || '';
+      diffRows.push(`<div style="padding:8px 10px;background:#fff;border-radius:6px;margin-bottom:6px;border:1px solid #d1fae5">
+        <div style="font-size:11px;font-weight:800;color:#065f46;margin-bottom:4px">${FIELD_LABEL[k]}</div>
+        <div style="font-size:12px;color:#1F2937"><span style="color:#9ca3af;text-decoration:line-through">${orig}</span> → <strong>${neu}</strong></div>
+        ${reason ? `<div style="font-size:11.5px;color:#4b5563;margin-top:4px"><strong>사유:</strong> ${reason}</div>` : ''}
+      </div>`);
+    });
+    if (diffRows.length) {
+      finalSpecHtml = `<div style="margin-top:10px;padding:12px 14px;background:#f0fdf4;border:1.5px solid #065f46;border-radius:8px">
+        <div style="font-size:12px;font-weight:800;color:#065f46;margin-bottom:8px">✅ 연구소 제안 최종 배합안 (수정 항목)</div>
+        ${diffRows.join('')}
+      </div>`;
+    }
+  }
+
+  // 관리자 뷰: 피드백 작성/편집 가능
+  if (isAdmin) {
+    const editBtn = `<button onclick="openFeedbackEditor('${orderId}')" style="padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #c62828;background:#fff5f5;color:#c62828;font-family:inherit;margin-top:8px">✍️ 피드백 ${fb.items && fb.items.length ? '수정' : '작성'}하기</button>`;
+    return `<div style="margin-top:16px;padding-top:16px;border-top:2px solid #c62828">
+      ${headerHtml}
+      ${itemsHtml || '<div style="font-size:12px;color:#9ca3af;padding:10px 0">아직 작성된 피드백이 없습니다.</div>'}
+      ${commentHtml}
+      ${finalSpecHtml}
+      ${editBtn}
+    </div>`;
+  }
+
+  // 교육생 뷰: 피드백 확인 및 회신
+  const hasAnyFeedback = (fb.items && fb.items.length) || fb.comment || finalSpecHtml;
+  if (fb.subStatus === 'reviewing' || !hasAnyFeedback) {
+    return `<div style="margin-top:16px;padding-top:16px;border-top:2px solid #e5e7eb">
+      ${headerHtml}
+      <div style="font-size:12.5px;color:#6b7280;padding:10px 0">연구소 검토 중입니다. 피드백이 도착하면 이곳에 표시됩니다.</div>
+    </div>`;
+  }
+  const actionBtns = (fb.subStatus === 'feedback_sent' || fb.subStatus === 'awaiting_reply') ? `
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+      <button onclick="approveFeedback('${orderId}')" style="flex:1;min-width:120px;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:#065f46;color:#fff;font-family:inherit">✅ 승인하고 진행</button>
+      <button onclick="requestFeedbackChange('${orderId}')" style="flex:1;min-width:120px;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#374151;font-family:inherit">💬 수정 요청</button>
+    </div>` : '';
+  const approvedNotice = fb.subStatus === 'approved' ? `<div style="margin-top:10px;padding:10px 12px;background:#d1fae5;border-radius:8px;font-size:12.5px;color:#065f46;font-weight:700">✅ 승인 완료되었습니다. 다음 단계(샘플 출고)로 진행됩니다.</div>` : '';
+  return `<div style="margin-top:16px;padding-top:16px;border-top:2px solid #c62828">
+    ${headerHtml}
+    ${itemsHtml}
+    ${commentHtml}
+    ${finalSpecHtml}
+    ${approvedNotice}
+    ${actionBtns}
+  </div>`;
+}
+
+async function openFeedbackEditor(orderId) {
+  const doc = await db.collection('orders').doc(orderId).get();
+  if (!doc.exists) { alert('발주를 찾을 수 없습니다.'); return; }
+  const o = doc.data();
+  const fb = o.feedback || { items: [], comment: '' };
+  const items = fb.items || [];
+  const itemsFormHtml = items.map((it, i) => renderFeedbackItemRow(it, i)).join('');
+  // 최종 배합안 - 필드별 초기값 & 기존 수정 여부 확인
+  const fs = fb.finalSpec || {};
+  const getFs = (k) => (fs[k] && typeof fs[k] === 'object' && 'value' in fs[k]) ? fs[k] : null;
+  const fsFormula = getFs('formula'), fsContainer = getFs('container'), fsVolume = getFs('volume'),
+        fsQuantity = getFs('quantity'), fsExtracts = getFs('extracts'), fsScent = getFs('scent');
+  const curFormula  = fsFormula ? fsFormula.value  : (o.formula||'');
+  const curContainer= fsContainer?fsContainer.value: (o.container||'');
+  const curVolume   = fsVolume   ? fsVolume.value  : (o.volume||'');
+  const curQuantity = fsQuantity ? fsQuantity.value: (o.quantity||'');
+  const curScent    = fsScent    ? fsScent.value   : (o.scent||'');
+  // 컨셉 성분: finalSpec이면 그거, 아니면 원본 extractDetails
+  const extractsSource = fsExtracts && fsExtracts.extractDetails ? fsExtracts.extractDetails
+                      : (o.extractDetails && typeof o.extractDetails === 'object' ? o.extractDetails : {});
+  const initialExtractsHtml = Object.entries(extractsSource)
+    .map(([name, v]) => renderFinalExtractRow({ name, pct: v && v.pct !== undefined ? v.pct : '' })).join('');
+  // 옵션 생성
+  const formulaOpts = FORMULAS.map(f => {
+    const label = `${f.name} (${f.desc})`;
+    return `<option value="${label}" ${label===curFormula?'selected':''}>${label}</option>`;
+  }).join('');
+  const containerOpts = CONTAINERS.map(c => `<option value="${c.name}" ${c.name===curContainer?'selected':''}>${c.name}</option>`).join('');
+  const volumeOpts = VOLUMES.map(v => `<option value="${v}" ${v==curVolume?'selected':''}>${v}ml</option>`).join('');
+  // 필드 렌더 헬퍼
+  const fsFieldRow = (key, label, displayVal, editInnerHtml, reasonInit, startEditing) => `
+    <div class="fs-field ${startEditing?'is-editing':''}" data-field="${key}" style="padding:10px 0;border-bottom:1px dashed #d1fae5">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+          <span style="font-size:12px;font-weight:700;color:#065f46;min-width:70px">${label}</span>
+          <span class="fs-display" style="font-size:12.5px;color:#1F2937;word-break:break-all">${displayVal}</span>
+        </div>
+        <button type="button" class="fs-edit-btn" onclick="toggleFinalField('${key}')" style="padding:4px 10px;border:1px solid #065f46;background:#fff;color:#065f46;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">${startEditing?'취소':'수정'}</button>
+      </div>
+      <div class="fs-edit-box" style="display:${startEditing?'block':'none'};margin-top:8px;padding:10px;background:#fff;border-radius:6px;border:1px solid #d1fae5">
+        ${editInnerHtml}
+        <input class="fs-reason" type="text" placeholder="수정 사유 (예: pH 안정성 고려)" value="${reasonInit||''}" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;box-sizing:border-box;margin-top:8px">
+        <button type="button" onclick="revertFinalField('${key}')" style="margin-top:6px;padding:5px 10px;background:none;border:1px solid #9ca3af;color:#4b5563;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">↺ 되돌리기</button>
+      </div>
+    </div>`;
+  const extractsDisplay = (o.extracts && o.extracts.length) ? o.extracts.join(', ') : '(없음)';
+  const finalSpecSectionHtml = `
+    ${fsFieldRow('formula', '제형', o.formula||'-', `<select class="fs-input" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">${formulaOpts}</select>`, fsFormula?fsFormula.reason:'', !!fsFormula)}
+    ${fsFieldRow('container', '용기', o.container||'-', `<select class="fs-input" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">${containerOpts}</select>`, fsContainer?fsContainer.reason:'', !!fsContainer)}
+    ${fsFieldRow('volume', '용량', o.volume?o.volume+'ml':'-', `<select class="fs-input" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">${volumeOpts}</select>`, fsVolume?fsVolume.reason:'', !!fsVolume)}
+    ${fsFieldRow('quantity', '수량', o.quantity?N(o.quantity)+'개':'-', `<input class="fs-input" type="number" min="1" step="1" value="${curQuantity}" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;box-sizing:border-box">`, fsQuantity?fsQuantity.reason:'', !!fsQuantity)}
+    ${fsFieldRow('extracts', '컨셉 성분', extractsDisplay, `<div id="fsExtractsBox">${initialExtractsHtml}</div><button type="button" onclick="addFinalExtractRow()" style="width:100%;padding:7px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px dashed #065f46;background:#ecfdf5;color:#065f46;font-family:inherit;margin-top:4px">+ 성분 추가</button>`, fsExtracts?fsExtracts.reason:'', !!fsExtracts)}
+    ${fsFieldRow('scent', '향', o.scent||'-', `<input class="fs-input" type="text" value="${curScent}" placeholder="예: 페퍼민트오일" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;box-sizing:border-box">`, fsScent?fsScent.reason:'', !!fsScent)}
+  `;
+  const html = `<div id="fbEditorOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10001;display:flex;align-items:center;justify-content:center" onclick="if(event.target===this)closeFeedbackEditor()">
+    <div style="background:#fff;border-radius:16px;padding:24px;max-width:600px;width:92%;max-height:88vh;overflow-y:auto" onclick="event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="margin:0;font-size:17px;font-weight:800">✍️ 연구소 피드백 작성</h3>
+        <button onclick="closeFeedbackEditor()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#9ca3af">×</button>
+      </div>
+      <div style="font-size:12px;color:#6b7280;margin-bottom:14px;line-height:1.6">피드백 항목을 추가하여 교육생에게 전달하세요. 전송 후 교육생이 확인·회신합니다.</div>
+      <div id="fbItemsBox">${itemsFormHtml}</div>
+      <button type="button" onclick="addFeedbackItemRow()" style="width:100%;padding:10px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px dashed #c62828;background:#fff5f5;color:#c62828;font-family:inherit;margin:8px 0 14px">+ 피드백 항목 추가</button>
+      <div style="margin:14px 0;padding:14px;background:#f0fdf4;border:2px solid #065f46;border-radius:10px">
+        <div style="font-size:13px;font-weight:800;color:#065f46;margin-bottom:6px">✅ 최종 배합안 (교육생 승인 후 의뢰서에 반영)</div>
+        <div style="font-size:11px;color:#065f46;margin-bottom:10px;line-height:1.6">원본 의뢰서 기준으로 표시됩니다. 수정이 필요한 항목만 [수정] 버튼을 눌러 변경하세요. 수정하지 않은 항목은 원본 그대로 유지됩니다.</div>
+        ${finalSpecSectionHtml}
+      </div>
+      <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:6px">💬 교육생에게 전달할 종합 코멘트</div>
+      <textarea id="fbComment" style="width:100%;min-height:90px;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical" placeholder="전체 의견 및 안내 사항을 입력하세요">${fb.comment || ''}</textarea>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button onclick="closeFeedbackEditor()" style="flex:1;padding:11px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#374151;font-family:inherit">취소</button>
+        <button onclick="saveFeedback('${orderId}')" style="flex:2;padding:11px;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;border:none;background:#c62828;color:#fff;font-family:inherit">📤 피드백 전송</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function renderFeedbackItemRow(it = {}, idx) {
+  const types = ['함량 조정','성분 대체','제형 변경','일반 안내'];
+  const typeOpts = types.map(t => `<option value="${t}" ${it.type===t?'selected':''}>${t}</option>`).join('');
+  return `<div class="fb-item-row" style="padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px;background:#fafafa">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <select class="fb-type" style="padding:5px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">${typeOpts}</select>
+      <button type="button" onclick="this.closest('.fb-item-row').remove()" style="background:none;border:none;font-size:16px;cursor:pointer;color:#9ca3af">🗑</button>
+    </div>
+    <input class="fb-target" type="text" placeholder="대상 성분/항목 (예: 엑토인)" value="${it.target||''}" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;margin-bottom:6px">
+    <input class="fb-proposed" type="text" placeholder="제안값 (예: 0.3% 또는 알파알부틴)" value="${it.proposed||''}" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;margin-bottom:6px">
+    <input class="fb-reason" type="text" placeholder="사유 (예: pH 안정성 고려)" value="${it.reason||''}" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">
+  </div>`;
+}
+function addFeedbackItemRow() {
+  const box = document.getElementById('fbItemsBox');
+  if (box) box.insertAdjacentHTML('beforeend', renderFeedbackItemRow({}, Date.now()));
+}
+function renderFinalExtractRow(it = {}) {
+  return `<div class="fs-extract-row" style="display:flex;gap:6px;margin-bottom:6px;align-items:center">
+    <input class="fs-ext-name" type="text" placeholder="성분명 (예: 엑토인)" value="${it.name||''}" style="flex:2;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">
+    <input class="fs-ext-pct" type="number" step="0.01" min="0" placeholder="%" value="${it.pct!==undefined?it.pct:''}" style="flex:1;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit">
+    <button type="button" onclick="this.closest('.fs-extract-row').remove()" style="background:none;border:none;font-size:16px;cursor:pointer;color:#9ca3af">🗑</button>
+  </div>`;
+}
+function addFinalExtractRow() {
+  const box = document.getElementById('fsExtractsBox');
+  if (box) box.insertAdjacentHTML('beforeend', renderFinalExtractRow({}));
+}
+// 최종 배합안 - 필드별 토글/되돌리기
+function toggleFinalField(fieldKey) {
+  const field = document.querySelector(`.fs-field[data-field="${fieldKey}"]`);
+  if (!field) return;
+  const editBox = field.querySelector('.fs-edit-box');
+  const editBtn = field.querySelector('.fs-edit-btn');
+  if (field.classList.contains('is-editing')) {
+    field.classList.remove('is-editing');
+    editBox.style.display = 'none';
+    if (editBtn) editBtn.textContent = '수정';
+  } else {
+    field.classList.add('is-editing');
+    editBox.style.display = 'block';
+    if (editBtn) editBtn.textContent = '취소';
+  }
+}
+function revertFinalField(fieldKey) {
+  const field = document.querySelector(`.fs-field[data-field="${fieldKey}"]`);
+  if (!field) return;
+  // 사유 초기화 + 편집창 닫기
+  const reason = field.querySelector('.fs-reason');
+  if (reason) reason.value = '';
+  field.classList.remove('is-editing');
+  const editBox = field.querySelector('.fs-edit-box');
+  if (editBox) editBox.style.display = 'none';
+  const editBtn = field.querySelector('.fs-edit-btn');
+  if (editBtn) editBtn.textContent = '수정';
+  // 값은 DOM 초기값 유지 (브라우저 기본)
+}
+function closeFeedbackEditor() { const el = document.getElementById('fbEditorOverlay'); if (el) el.remove(); }
+
+async function saveFeedback(orderId) {
+  const rows = document.querySelectorAll('.fb-item-row');
+  const items = [];
+  rows.forEach(r => {
+    const type = r.querySelector('.fb-type').value;
+    const target = r.querySelector('.fb-target').value.trim();
+    const proposed = r.querySelector('.fb-proposed').value.trim();
+    const reason = r.querySelector('.fb-reason').value.trim();
+    if (target || proposed || reason) items.push({ type, target, proposed, reason });
+  });
+  const comment = document.getElementById('fbComment').value.trim();
+  // 최종 배합안: [수정] 열린 필드만 수집
+  const finalSpec = {
+    updatedBy: (typeof currentUser !== 'undefined' && currentUser && currentUser.email) ? currentUser.email : 'admin',
+    updatedAt: new Date().toISOString(),
+  };
+  document.querySelectorAll('.fs-field.is-editing').forEach(field => {
+    const key = field.dataset.field;
+    const reason = (field.querySelector('.fs-reason')?.value || '').trim();
+    if (key === 'extracts') {
+      const arr = [];
+      const details = {};
+      field.querySelectorAll('.fs-extract-row').forEach(r => {
+        const name = r.querySelector('.fs-ext-name').value.trim();
+        const pct = parseFloat(r.querySelector('.fs-ext-pct').value);
+        if (name && !isNaN(pct) && pct > 0) {
+          arr.push(`${name}(${pct}%)`);
+          details[name] = { pct, price: 0 };
+        }
+      });
+      finalSpec.extracts = { value: arr, extractDetails: details, reason };
+    } else {
+      const input = field.querySelector('.fs-input');
+      if (!input) return;
+      let value = input.value;
+      if (key === 'volume' || key === 'quantity') value = parseFloat(value) || 0;
+      finalSpec[key] = { value, reason };
+    }
+  });
+  if (items.length === 0 && !comment && Object.keys(finalSpec).length <= 2) {
+    alert('피드백 항목, 코멘트, 또는 최종 배합안 수정 중 하나 이상 입력해주세요.'); return;
+  }
+  const historyEntry = { at: new Date().toISOString(), by: 'admin', action: 'feedback_sent', itemCount: items.length };
+  try {
+    await db.collection('orders').doc(orderId).update({
+      'feedback.items': items,
+      'feedback.comment': comment,
+      'feedback.subStatus': 'feedback_sent',
+      'feedback.finalSpec': finalSpec,
+      'feedback.updatedAt': firebase.firestore.FieldValue.serverTimestamp(),
+      'feedback.history': firebase.firestore.FieldValue.arrayUnion(historyEntry),
+    });
+    closeFeedbackEditor();
+    document.querySelectorAll('[style*="z-index:9999"]').forEach(el => el.remove());
+    alert('피드백이 전송되었습니다.');
+    showOrderDetail(orderId);
+  } catch(e) { alert('저장 실패: ' + e.message); }
+}
+
+async function approveFeedback(orderId) {
+  if (!confirm('연구소 피드백을 승인하고 다음 단계로 진행하시겠습니까?')) return;
+  const historyEntry = { at: new Date().toISOString(), by: 'student', action: 'approved' };
+  try {
+    await db.collection('orders').doc(orderId).update({
+      'feedback.subStatus': 'approved',
+      'feedback.updatedAt': firebase.firestore.FieldValue.serverTimestamp(),
+      'feedback.history': firebase.firestore.FieldValue.arrayUnion(historyEntry),
+    });
+    alert('승인 완료되었습니다.');
+    document.querySelectorAll('[style*="z-index:9999"]').forEach(el => el.remove());
+  } catch(e) { alert('저장 실패: ' + e.message); }
+}
+
+async function requestFeedbackChange(orderId) {
+  const msg = prompt('추가로 요청하실 내용을 적어주세요:');
+  if (!msg || !msg.trim()) return;
+  const historyEntry = { at: new Date().toISOString(), by: 'student', action: 'change_requested', message: msg.trim() };
+  try {
+    await db.collection('orders').doc(orderId).update({
+      'feedback.subStatus': 'reviewing',
+      'feedback.updatedAt': firebase.firestore.FieldValue.serverTimestamp(),
+      'feedback.history': firebase.firestore.FieldValue.arrayUnion(historyEntry),
+    });
+    alert('수정 요청이 전달되었습니다. 연구소에서 재검토 후 다시 피드백을 드립니다.');
+    document.querySelectorAll('[style*="z-index:9999"]').forEach(el => el.remove());
+  } catch(e) { alert('저장 실패: ' + e.message); }
+}
+
 async function showOrderDetail(orderId) {
   try {
     const doc = await db.collection('orders').doc(orderId).get();
     if (!doc.exists) { alert('발주서를 찾을 수 없습니다.'); return; }
     const o = doc.data();
     const date = o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleString('ko-KR', {year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '-';
-    const selExtracts = o.extracts && o.extracts.length ? o.extracts.join(', ') : '-';
+    // 승인 후 최종 배합안 반영 - 필드별 적용
+    const approved = o.feedback && o.feedback.finalSpec && o.feedback.subStatus === 'approved';
+    const fs = approved ? o.feedback.finalSpec : {};
+    const finalBadge = ` <span style="background:#d1fae5;color:#065f46;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;margin-left:4px">🔄 연구소 조정</span>`;
+    const pick = (key) => (fs[key] && typeof fs[key] === 'object' && 'value' in fs[key]) ? fs[key] : null;
+    const formulaF = pick('formula'), containerF = pick('container'), volumeF = pick('volume'),
+          quantityF = pick('quantity'), extractsF = pick('extracts'), scentF = pick('scent');
+    const dispFormula = formulaF ? formulaF.value : (o.formula||'-');
+    const dispContainer = containerF ? containerF.value : (o.container||'-');
+    const dispVolume = volumeF ? volumeF.value : o.volume;
+    const dispQuantity = quantityF ? quantityF.value : o.quantity;
+    const dispExtractsArr = extractsF ? (extractsF.value||[]) : (o.extracts||[]);
+    const dispScent = scentF ? (scentF.value||'-') : (o.scent||'-');
+    const selExtracts = dispExtractsArr && dispExtractsArr.length ? dispExtractsArr.join(', ') : '-';
     const rows = [
       ['개발 목표', o.description||'-'],
       ['기능성', o.functions && o.functions.length ? o.functions.join(', ') : '없음'],
       ['사용 부위', o.bodyPart||'-'],
-      ['제품 유형 / 제형', o.formula||'-'],
-      ['용기', o.container||'-'],
-      ['용량', o.volume ? o.volume+'ml' : '-'],
-      ['수량', o.quantity ? N(o.quantity)+'개' : '-'],
-      ['컨셉 성분', (o.extracts && o.extracts[0] === '제조 전문가 위임') ? '제조 전문가 위임' : selExtracts],
-      ['향', o.scent||'-'],
+      ['제품 유형 / 제형', dispFormula + (formulaF ? finalBadge : '')],
+      ['용기', dispContainer + (containerF ? finalBadge : '')],
+      ['용량', (dispVolume ? dispVolume+'ml' : '-') + (volumeF ? finalBadge : '')],
+      ['수량', (dispQuantity ? N(dispQuantity)+'개' : '-') + (quantityF ? finalBadge : '')],
+      ['컨셉 성분', ((o.extracts && o.extracts[0] === '제조 전문가 위임' && !extractsF) ? '제조 전문가 위임' : selExtracts) + (extractsF ? finalBadge : '')],
+      ['향', dispScent + (scentF ? finalBadge : '')],
       ['샘플 배송 주소', (o.userAddress||'-') + (o.addressChanged ? ' <span style="color:#DC2626;font-weight:700;font-size:11px">📍 주소 변경됨</span>' : '')],
       ['제출일', date],
     ];
+    // 원본 의뢰서 접기 섹션 (최종 반영된 필드가 있을 때)
+    let originalSection = '';
+    const anyChanged = approved && [formulaF,containerF,volumeF,quantityF,extractsF,scentF].some(x=>x);
+    if (anyChanged) {
+      const origRows = [
+        ['제형', o.formula||'-'], ['용기', o.container||'-'],
+        ['용량', o.volume?o.volume+'ml':'-'], ['수량', o.quantity?N(o.quantity)+'개':'-'],
+        ['컨셉 성분', (o.extracts&&o.extracts.length)?o.extracts.join(', '):'-'], ['향', o.scent||'-']
+      ];
+      originalSection = `<details style="margin-top:14px;padding:12px 14px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb">
+        <summary style="cursor:pointer;font-size:12px;font-weight:700;color:#6b7280">📋 원본 의뢰서 (교육생 최초 제출본) 보기</summary>
+        <div style="margin-top:10px;font-size:12px;color:#374151;line-height:1.9">
+          ${origRows.map(([k,v])=>`<div><strong>${k}:</strong> ${v}</div>`).join('')}
+        </div>
+      </details>`;
+    }
     // 발주서 정보
     const po = o.purchaseOrder;
     let poSection = '';
@@ -4400,10 +4865,12 @@ async function showOrderDetail(orderId) {
           <h3 style="margin:0;font-size:18px">${modalTitle}</h3>
           <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--g8)">✕</button>
         </div>
+        ${buildFeedbackSection(o, orderId)}
         ${rows.map(([k,v]) => `<div style="display:flex;border-bottom:1px solid #f3f4f6;padding:10px 0">
           <span style="min-width:110px;font-size:12px;font-weight:600;color:var(--g6)">${k}</span>
           <span style="font-size:13px;color:#1F2937;word-break:break-all">${v}</span>
         </div>`).join('')}
+        ${originalSection}
         ${poSection}
       </div>
     </div>`;
@@ -5394,6 +5861,178 @@ auth.onAuthStateChanged(async (user) => {
   }
 });
 
+// ─── 개발 의뢰서 안내 모달 ───
+let devNoticeShown = false;
+function handleDescFocus() {
+  document.getElementById('descInputWrap').classList.add('is-focused');
+  if (!devNoticeShown) {
+    showDevNoticeModal();
+    devNoticeShown = true;
+  }
+}
+function showDevNoticeModal() {
+  document.getElementById('devNoticeModal').classList.add('active');
+}
+function closeDevNoticeModal() {
+  document.getElementById('devNoticeModal').classList.remove('active');
+}
+
+// ─── 함량 설정 안내 모달 ───
+let concNoticeShown = false;
+function handleConcFocus() {
+  if (!concNoticeShown) {
+    showConcNoticeModal();
+    concNoticeShown = true;
+  }
+}
+function showConcNoticeModal() {
+  document.getElementById('concNoticeModal').classList.add('active');
+}
+function closeConcNoticeModal() {
+  document.getElementById('concNoticeModal').classList.remove('active');
+}
+
+// ─── 컨셉성분 선택 안내 모달 ───
+function showConceptNoticeModal() {
+  document.getElementById('conceptNoticeModal').classList.add('active');
+}
+function closeConceptNoticeModal() {
+  document.getElementById('conceptNoticeModal').classList.remove('active');
+}
+function toggleBaseDetail() {
+  const box = document.getElementById('baseDetailBox');
+  const arrow = document.getElementById('baseDetailArrow');
+  if (!box || !arrow) return;
+  const open = box.style.display !== 'none';
+  box.style.display = open ? 'none' : 'block';
+  arrow.textContent = open ? '펼치기 ▼' : '접기 ▲';
+}
+function toggleScentIngDetail() {
+  const box = document.getElementById('scentIngBox');
+  const arrow = document.getElementById('scentIngArrow');
+  if (!box || !arrow) return;
+  const open = box.style.display !== 'none';
+  box.style.display = open ? 'none' : 'block';
+  arrow.textContent = open ? '펼치기 ▼' : '접기 ▲';
+}
+
+// ─── 향 선택 안내 모달 ───
+function showScentNoticeModal() {
+  document.getElementById('scentNoticeModal').classList.add('active');
+}
+function closeScentNoticeModal() {
+  document.getElementById('scentNoticeModal').classList.remove('active');
+}
+
 </script>
+
+<!-- 개발 의뢰서 안내 모달 -->
+<div class="dev-modal-overlay" id="devNoticeModal" onclick="if(event.target===this)closeDevNoticeModal()">
+  <div class="dev-modal">
+    <div class="dev-modal-head">
+      <div class="dev-modal-title">📝 이 칸은 "개발 의뢰서"입니다</div>
+      <button class="dev-modal-close" onclick="closeDevNoticeModal()" aria-label="닫기">×</button>
+    </div>
+    <div class="dev-modal-body">
+      이곳은 <strong>연구소 소장님이 제품을 잘 배합하실 수 있도록</strong><br>
+      원하시는 방향을 자유롭게 적어주시는 공간입니다.<br><br>
+      적어주신 내용 그대로 개발되는 것은 아니며,<br>
+      연구소 검토 과정에서 <strong>성분·함량이 수정되거나 변경될 수 있습니다.</strong><br><br>
+      편하게, 자유롭게 적어주세요 :)<br><br>
+      <div style="padding:10px 12px;background:#fff7ed;border-left:3px solid #f59e0b;border-radius:6px;font-size:13px;color:#92400E;line-height:1.7">
+        <strong>단,</strong> 화장품으로 해결 가능한 범위에서 작성해주세요.<br>
+        <span style="font-weight:600">질병이나 질환</span>을 말씀하시는 것보다, <strong>화장품으로 기대할 수 있는 효과</strong> 정도로 적어주시면 좋습니다.
+      </div>
+    </div>
+    <div class="dev-modal-foot">
+      <button class="dev-modal-ok" onclick="closeDevNoticeModal()">확인했습니다</button>
+    </div>
+  </div>
+</div>
+
+<!-- 컨셉성분 선택 안내 모달 -->
+<div class="dev-modal-overlay" id="conceptNoticeModal" onclick="if(event.target===this)closeConceptNoticeModal()">
+  <div class="dev-modal" style="max-width:540px">
+    <div class="dev-modal-head">
+      <div class="dev-modal-title">🎯 컨셉성분 선택 안내</div>
+      <button class="dev-modal-close" onclick="closeConceptNoticeModal()" aria-label="닫기">×</button>
+    </div>
+    <div class="dev-modal-body">
+      컨셉성분은 제품의 <strong>마케팅 포인트</strong>를 만들어주는 성분입니다.<br>
+      "이런 좋은 성분이 들어갔어요"라고 소비자에게 <strong>어필하는 역할</strong>을 합니다.<br><br>
+
+      <div style="background:#f8f9fa;border-left:3px solid #9ca3af;padding:10px 14px;border-radius:6px;margin:10px 0;font-size:13.5px">
+        <div style="font-weight:700;margin-bottom:6px;color:#374151">📌 예시</div>
+        • "<strong>병풀 추출물 함유</strong> 진정 크림"<br>
+        • "<strong>녹차 추출물 5종 복합</strong> 토너"<br>
+        • "<strong>10가지 발효 성분</strong> 앰플"
+      </div>
+
+      실제 제품의 <strong>핵심 효능은 제형과 베이스 성분 설계</strong>에서 나오며,<br>
+      컨셉성분은 제품의 <strong>컨셉과 스토리에 맞는 것</strong>으로 <strong>적절히</strong> 선택하시는 것을 권장드립니다.
+
+      <hr style="border:0;border-top:1px solid #e5e7eb;margin:16px 0">
+
+      <div style="font-size:13px;color:#4b5563;line-height:1.8">
+        • 기본 베이스 성분은 이미 포함되어 있으며, "<strong>전성분 기본 포함</strong>"으로 표시됩니다.<br>
+        • 기본 베이스 외에 <strong>최대 5개</strong>까지 컨셉 성분을 추가하실 수 있습니다.<br>
+        • 각 성분은 최대 1%까지 배합 가능하며, 표시 가격은 1% 기준 <strong>예상 단가</strong>입니다.
+      </div>
+    </div>
+    <div class="dev-modal-foot">
+      <button class="dev-modal-ok" onclick="closeConceptNoticeModal()">확인했습니다</button>
+    </div>
+  </div>
+</div>
+
+<!-- 향 선택 안내 모달 -->
+<div class="dev-modal-overlay" id="scentNoticeModal" onclick="if(event.target===this)closeScentNoticeModal()">
+  <div class="dev-modal" style="max-width:520px">
+    <div class="dev-modal-head">
+      <div class="dev-modal-title">🌿 향 선택 안내</div>
+      <button class="dev-modal-close" onclick="closeScentNoticeModal()" aria-label="닫기">×</button>
+    </div>
+    <div class="dev-modal-body">
+      마지막 단계입니다. 제품에 넣을 <strong>향(에센셜 오일)을 1개만</strong> 선택해주세요.<br><br>
+
+      <div style="background:#fef9f0;border-left:3px solid #f59e0b;padding:12px 14px;border-radius:6px;margin:10px 0;font-size:13.5px;line-height:1.8">
+        <div style="font-weight:800;margin-bottom:6px;color:#92400e">💡 향 테스트 방식</div>
+        선택하신 향을 포함한 <strong>최종 샘플을 발송해드립니다.</strong><br>
+        샘플을 받으신 후 <strong>직접 향을 맡아보시고 최종 확정</strong>해주세요.<br><br>
+        향은 <strong>함량·제형·기타 성분과의 조합</strong>에 따라 느낌이 달라질 수 있으므로,<br>
+        <strong>선택 단계에서의 향은 참고용</strong>으로만 활용해주세요.
+      </div>
+
+      <div style="font-size:13px;color:#4b5563;line-height:1.8;margin-top:12px">
+        • 향료·에센셜 오일을 넣지 않을 경우 <strong>"무향"</strong>을 선택해주세요.<br>
+        &nbsp;&nbsp;&nbsp;(무향 선택 시에도 원료 자체의 특성 향이 있을 수 있습니다)<br>
+        • 표시되는 가격은 <strong>예상 단가</strong>이며, 최종 제조 단가는 달라질 수 있습니다.
+      </div>
+    </div>
+    <div class="dev-modal-foot">
+      <button class="dev-modal-ok" onclick="closeScentNoticeModal()">확인했습니다</button>
+    </div>
+  </div>
+</div>
+
+<!-- 함량 설정 안내 모달 -->
+<div class="dev-modal-overlay" id="concNoticeModal" onclick="if(event.target===this)closeConcNoticeModal()">
+  <div class="dev-modal">
+    <div class="dev-modal-head">
+      <div class="dev-modal-title">🧪 함량은 자유롭게 설정해주세요</div>
+      <button class="dev-modal-close" onclick="closeConcNoticeModal()" aria-label="닫기">×</button>
+    </div>
+    <div class="dev-modal-body">
+      원하시는 컨셉과 예산에 맞춰 <strong>함량을 자유롭게 조절</strong>하실 수 있습니다.<br><br>
+      다만, 원료 특성에 따라 <strong>제형 안정성(점도·색상·상 분리 등)에 영향을 줄 수 있는 함량 구간</strong>이 있으며,<br>
+      이 경우 <strong>연구소에서 검토 후 피드백을 전달</strong>드립니다.<br><br>
+      최종 함량은 <strong>연구소 협의를 통해 조정</strong>될 수 있습니다.
+    </div>
+    <div class="dev-modal-foot">
+      <button class="dev-modal-ok" onclick="closeConcNoticeModal()">확인했습니다</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
