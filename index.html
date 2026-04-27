@@ -1308,7 +1308,7 @@ const FORMULA_INGREDIENTS = {
   },
 };
 
-const VOLUMES     = [30, 50, 100, 150, 200, 300];
+const VOLUMES     = [30, 50, 100, 150, 200, 300, 500];
 const BODY_PARTS  = [['얼굴','svg-face'], ['목','🧖‍♀️'], ['바디','💪'], ['손','🤲'], ['가슴','👙'], ['발','🦶'], ['머리','💆'], ['직접입력','✏️']];
 
 const BODY_SVGS = {
@@ -1398,6 +1398,18 @@ function getBaseIngredients(formulaId) {
   if (STATE.functions.includes('미백기능성') && !base.includes('나이아신아마이드')) base.push('나이아신아마이드');
   if (STATE.functions.includes('주름기능성') && !base.includes('아데노신')) base.push('아데노신');
   return base;
+}
+
+// 발주 데이터에서 제형 ID 해석 (저장된 텍스트 → FORMULAS 매칭)
+function resolveFormulaId(o) {
+  if (!o) return null;
+  let formulaText = o.formula;
+  if (o.feedback?.subStatus === 'approved' && o.feedback?.finalSpec?.formula?.value) {
+    formulaText = o.feedback.finalSpec.formula.value;
+  }
+  if (!formulaText) return null;
+  const f = FORMULAS.find(f => `${f.name} (${f.desc})` === formulaText || f.name === formulaText);
+  return f ? f.id : null;
 }
 
 // 추출물의 하위 성분이 전부 기본 전성분에 포함되는지 체크
@@ -2803,7 +2815,12 @@ function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') 
       : `${first.formula||'-'} · ${first.volume||'-'}ml · ${first.container||'-'}${first.scent?' · 향: '+first.scent:''}`;
     const hasPO = first.purchaseOrder;
     const detailLabel = hasPO ? '발주서 상세보기' : '의뢰서 상세보기';
-    const orderDetailBtn = `<button onclick="event.stopPropagation();${isDev ? `showDevDetail('${first.id}')` : `showOrderDetail('${first.id}')`}" style="position:absolute;top:12px;right:12px;padding:5px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #FCA5A5;background:#FFF5F5;color:#DC2626;font-family:inherit">${detailLabel}</button>`;
+    const fid = isDev ? null : resolveFormulaId(latest);
+    const fLabel = fid ? (latest.formula || '') : '';
+    const ingBtn = (fid && FORMULA_INGREDIENTS[fid])
+      ? `<button onclick="event.stopPropagation();showFullIngredients('${fid}', '${(fLabel||'').replace(/'/g,"\\'")}')" style="padding:5px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #BBF7D0;background:#F0FDF4;color:#166534;font-family:inherit">🧬 전성분 보기</button>`
+      : '';
+    const orderDetailBtn = `<div style="position:absolute;top:12px;right:12px;display:flex;gap:6px">${ingBtn}<button onclick="event.stopPropagation();${isDev ? `showDevDetail('${first.id}')` : `showOrderDetail('${first.id}')`}" style="padding:5px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #FCA5A5;background:#FFF5F5;color:#DC2626;font-family:inherit">${detailLabel}</button></div>`;
 
     let roundsHtml = '';
     group.forEach((o, idx) => {
@@ -4807,6 +4824,37 @@ async function requestFeedbackChange(orderId) {
     alert('수정 요청이 전달되었습니다. 연구소에서 재검토 후 다시 피드백을 드립니다.');
     document.querySelectorAll('[style*="z-index:9999"]').forEach(el => el.remove());
   } catch(e) { alert('저장 실패: ' + e.message); }
+}
+
+function showFullIngredients(formulaId, formulaLabel) {
+  const fi = FORMULA_INGREDIENTS[formulaId];
+  if (!fi) { alert('해당 제형의 전성분 정보를 찾을 수 없습니다.'); return; }
+  const krText = fi.kr.join(', ');
+  const inciText = (fi.inci || []).join(', ');
+  const safeKr = krText.replace(/'/g, "\\'").replace(/\n/g,' ');
+  const safeInci = inciText.replace(/'/g, "\\'").replace(/\n/g,' ');
+  const html = `<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center" onclick="if(event.target===this)this.remove()">
+    <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:560px;width:92%;max-height:85vh;overflow-y:auto" onclick="event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h3 style="margin:0;font-size:18px">🧬 기본 전성분 보기</h3>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--g8)">✕</button>
+      </div>
+      <div style="font-size:13px;color:#6b7280;margin-bottom:14px"><strong style="color:#1f2937">${formulaLabel||''}</strong> · 총 <strong style="color:#DC2626">${fi.kr.length}종</strong></div>
+      <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:#991B1B;line-height:1.6">📋 본 전성분은 베이스 제형 기준이며, 선택한 컨셉 성분 및 향에 따라 추가될 수 있습니다. 표기 순서는 실제 함량 비율에 따라 변경될 수 있습니다.</div>
+      <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;font-weight:700;color:#1f2937">국문 (한글명)</span>
+        <button onclick="navigator.clipboard.writeText('${safeKr}').then(()=>alert('국문 전성분이 복사되었습니다.'))" style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#6b7280;font-family:inherit">📋 복사</button>
+      </div>
+      <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;font-size:12px;color:#374151;line-height:1.8;word-break:keep-all;margin-bottom:16px">${krText}</div>
+      ${inciText ? `
+      <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;font-weight:700;color:#1f2937">INCI (영문명)</span>
+        <button onclick="navigator.clipboard.writeText('${safeInci}').then(()=>alert('INCI 전성분이 복사되었습니다.'))" style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#6b7280;font-family:inherit">📋 복사</button>
+      </div>
+      <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;font-size:11px;color:#4b5563;line-height:1.8;word-break:break-word">${inciText}</div>` : ''}
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
 }
 
 async function showOrderDetail(orderId) {
