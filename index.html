@@ -673,8 +673,8 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; h
         <input type="text" class="inp" id="signupName" placeholder="홍길동">
       </div>
       <div class="info-field">
-        <label class="field-label">소속 / 기수</label>
-        <select class="inp" id="signupBrand"><option value="">선택해주세요</option><option value="맞춤형1기">맞춤형1기</option></select>
+        <label class="field-label">초대 코드</label>
+        <input type="text" class="inp" id="signupInviteCode" placeholder="강사님께 받은 초대 코드를 입력하세요" autocomplete="off">
       </div>
       <div class="info-field">
         <label class="field-label">연락처</label>
@@ -2684,17 +2684,25 @@ async function doPasswordReset() {
   btn.disabled = false;
 }
 
+const INVITE_CODES = {
+  'KKANG20261': '맞춤형1기',
+  'CORA20261': '코라1기'
+};
+
 let _isSigningUp = false;
 async function doSignup() {
   const email = document.getElementById('signupEmail').value.trim();
   const pw = document.getElementById('signupPassword').value;
   const name = document.getElementById('signupName').value.trim();
-  const brand = document.getElementById('signupBrand').value.trim();
+  const inviteCode = document.getElementById('signupInviteCode').value.trim().toUpperCase();
   const phone = document.getElementById('signupPhone').value.trim();
   const errEl = document.getElementById('signupError');
   errEl.style.display = 'none';
-  if (!email||!pw||!name||!brand||!phone) { errEl.textContent='모든 항목을 입력하세요'; errEl.style.display='block'; return; }
+  errEl.style.color = '#dc2626';
+  if (!email||!pw||!name||!inviteCode||!phone) { errEl.textContent='모든 항목을 입력하세요'; errEl.style.display='block'; return; }
   if (pw.length < 6) { errEl.textContent='비밀번호는 6자 이상이어야 합니다'; errEl.style.display='block'; return; }
+  const brand = INVITE_CODES[inviteCode];
+  if (!brand) { errEl.textContent='유효하지 않은 초대 코드입니다. 강사님께 다시 문의해주세요.'; errEl.style.display='block'; return; }
   document.getElementById('signupBtn').disabled = true;
   _isSigningUp = true;
   try {
@@ -3275,6 +3283,22 @@ async function renderAdminStudentList() {
   } catch(e) { document.getElementById('adminContent').innerHTML = `<div style="color:#dc2626">오류: ${e.message}</div>`; }
 }
 
+function getBrandGroup(brand) {
+  if (!brand) return '';
+  const b = brand.trim();
+  if (b.startsWith('맞춤형')) return '맞춤형';
+  const m = b.match(/^([가-힣A-Za-z]+)/);
+  return m ? m[1] : b;
+}
+function getBrandColor(brand) {
+  const group = getBrandGroup(brand);
+  if (!group || group === '맞춤형') return 'var(--t)';
+  const palette = ['#0891B2','#7C3AED','#059669','#D97706','#DB2777','#2563EB','#9333EA','#0D9488'];
+  let hash = 0;
+  for (let i = 0; i < group.length; i++) hash = (hash * 31 + group.charCodeAt(i)) >>> 0;
+  return palette[hash % palette.length];
+}
+
 function buildStudentCards(list) {
   if (list.length === 0) return `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--g6)">등록된 교육생이 없습니다</div>`;
   const stageLabel = id => (ORDER_STAGES.find(s => s.id === id) || {}).label || '발주접수';
@@ -3293,7 +3317,7 @@ function buildStudentCards(list) {
     const newBadge = newCount > 0 ? `<span class="asc-new-badge">NEW ${newCount}</span>` : '';
     return `<div class="admin-student-card${newCount > 0 ? ' has-new' : ''}" onclick="showStudentOrders('${s.uid}','${safeName}','${safeBrand}')">
       <div class="asc-name">${s.name}${newBadge}</div>
-      <div class="asc-brand">${s.brand}</div>
+      <div class="asc-brand" style="color:${getBrandColor(s.brand)}">${s.brand}</div>
       <div class="asc-email">${s.phone||'-'}</div>
       <div class="asc-stats">${statusBadges}</div>
     </div>`;
@@ -4156,7 +4180,7 @@ async function renderAdminChatLogs() {
         const chats = (chatsByUser[s.uid] || []).sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
         if (chats.length === 0) return;
         html += `<div class="order-card" style="margin-bottom:12px">
-          <div style="font-size:14px;font-weight:700;margin-bottom:4px">${s.name} <span style="font-size:11px;color:var(--t);font-weight:600">${s.brand}</span> <span style="font-size:10px;color:var(--g6);font-weight:400">(${chats.length}건)</span></div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px">${s.name} <span style="font-size:11px;color:${getBrandColor(s.brand)};font-weight:600">${s.brand}</span> <span style="font-size:10px;color:var(--g6);font-weight:400">(${chats.length}건)</span></div>
           <div class="chat-log-toggle" style="cursor:pointer;font-size:11px;color:var(--tmd);font-weight:600" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.nextElementSibling.style.display==='none'?'▶ 대화 펼치기':'▼ 대화 접기'">▶ 대화 펼치기</div>
           <div style="display:none;margin-top:8px;max-height:400px;overflow-y:auto;border:1px solid var(--ge);border-radius:var(--rsm);padding:10px">
             ${chats.map(c => {
@@ -4190,7 +4214,7 @@ function filterChatLogs() {
     const filtered = q ? chats.filter(c => (c.question||'').toLowerCase().includes(q) || (c.answer||'').toLowerCase().includes(q) || (s.name||'').toLowerCase().includes(q)) : chats;
     if (filtered.length === 0) return;
     html += `<div class="order-card" style="margin-bottom:12px">
-      <div style="font-size:14px;font-weight:700;margin-bottom:4px">${s.name} <span style="font-size:11px;color:var(--t);font-weight:600">${s.brand}</span> <span style="font-size:10px;color:var(--g6);font-weight:400">(${filtered.length}건)</span></div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">${s.name} <span style="font-size:11px;color:${getBrandColor(s.brand)};font-weight:600">${s.brand}</span> <span style="font-size:10px;color:var(--g6);font-weight:400">(${filtered.length}건)</span></div>
       <div style="margin-top:8px;max-height:400px;overflow-y:auto;border:1px solid var(--ge);border-radius:var(--rsm);padding:10px">
         ${filtered.map(c => {
           const d = c.createdAt ? new Date(c.createdAt.seconds*1000).toLocaleString('ko-KR') : '-';
