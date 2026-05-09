@@ -3753,6 +3753,45 @@ async function submitAddressChange() {
   } catch(e) { addBotMessage('❌ 주소 변경 요청 실패: ' + e.message); }
 }
 
+// 의뢰서 상세 모달에서 인라인 주소 변경
+function openInlineAddressChange(orderId, btnEl) {
+  const valueCell = btnEl.parentElement;
+  if (!valueCell) return;
+  const currentAddr = document.getElementById(`addrText_${orderId}`)?.textContent || '';
+  const initial = (currentAddr === '-') ? '' : currentAddr;
+  valueCell.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:6px;width:100%">
+      <input id="addrInput_${orderId}" type="text" value="${initial.replace(/"/g,'&quot;')}" placeholder="새 배송 주소를 입력하세요" style="padding:7px 10px;border:1.5px solid #F59E0B;border-radius:6px;font-size:12px;width:100%;box-sizing:border-box;font-family:inherit">
+      <div style="display:flex;gap:6px">
+        <button onclick="submitAddressChangeInline('${orderId}')" style="padding:6px 14px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;border:none;background:#F59E0B;color:#fff;font-family:inherit">저장</button>
+        <button onclick="cancelInlineAddressChange('${orderId}')" style="padding:6px 14px;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-family:inherit">취소</button>
+      </div>
+    </div>`;
+  setTimeout(() => document.getElementById(`addrInput_${orderId}`)?.focus(), 50);
+}
+
+function cancelInlineAddressChange(orderId) {
+  const modal = document.querySelector('[style*="z-index:9999"]');
+  if (modal) modal.remove();
+  showOrderDetail(orderId);
+}
+
+async function submitAddressChangeInline(orderId) {
+  const input = document.getElementById(`addrInput_${orderId}`);
+  const newAddr = input?.value?.trim();
+  if (!newAddr) { alert('주소를 입력해주세요.'); return; }
+  try {
+    await db.collection('orders').doc(orderId).update({
+      userAddress: newAddr,
+      addressChanged: true,
+      addressChangedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    const modal = document.querySelector('[style*="z-index:9999"]');
+    if (modal) modal.remove();
+    showOrderDetail(orderId);
+  } catch(e) { alert('주소 변경 실패: ' + e.message); }
+}
+
 // 챗봇에서 발주서 작성 열기
 function openPurchaseOrderFormFromChat() {
   db.collection('orders').where('userId','==',currentUser.uid).get().then(snap => {
@@ -4921,6 +4960,12 @@ async function showOrderDetail(orderId) {
     const dispScent = scentF ? (scentF.value||'-') : (o.scent||'-');
     const selExtracts = dispExtractsArr && dispExtractsArr.length ? dispExtractsArr.join(', ') : '-';
     const estUnitCost = (o.unitCost != null && o.unitCost !== '') ? `<span style="font-weight:700;color:var(--t)">${N(o.unitCost)}원</span>` : '<span style="color:var(--g8)">-</span>';
+    const _stageIdx = ORDER_STAGES.findIndex(st => st.id === (o.status || 'ordered'));
+    const _sampleSentIdx = ORDER_STAGES.findIndex(st => st.id === 'sample_sent');
+    const _isOwner = currentUser?.uid === o.userId;
+    const _canChangeAddr = _isOwner && _stageIdx >= 0 && _stageIdx < _sampleSentIdx;
+    const addrChangeBtn = _canChangeAddr ? ` <button onclick="openInlineAddressChange('${orderId}', this)" style="margin-left:8px;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid #F59E0B;background:#FEF3C7;color:#92400E;font-family:inherit">📦 주소 변경</button>` : '';
+    const addrChangedBadge = o.addressChanged ? ' <span style="color:#DC2626;font-weight:700;font-size:11px">📍 주소 변경됨</span>' : '';
     const rows = [
       ['개발 목표', o.description||'-'],
       ['기능성', o.functions && o.functions.length ? o.functions.join(', ') : '없음'],
@@ -4932,7 +4977,7 @@ async function showOrderDetail(orderId) {
       ['컨셉 성분', ((o.extracts && o.extracts[0] === '제조 전문가 위임' && !extractsF) ? '제조 전문가 위임' : selExtracts) + (extractsF ? finalBadge : '')],
       ['향', dispScent + (scentF ? finalBadge : '')],
       ['예상 단가 (원가)', estUnitCost],
-      ['샘플 배송 주소', (o.userAddress||'-') + (o.addressChanged ? ' <span style="color:#DC2626;font-weight:700;font-size:11px">📍 주소 변경됨</span>' : '')],
+      ['샘플 배송 주소', `<span id="addrText_${orderId}">${(o.userAddress||'-')}</span>${addrChangedBadge}${addrChangeBtn}`],
       ['제출일', date],
     ];
     // 원본 의뢰서 접기 섹션 (최종 반영된 필드가 있을 때)
