@@ -2819,9 +2819,12 @@ function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') 
       ? `<span style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:#F3E8FF;color:#6B21A8">독점개발</span>`
       : `<span style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:var(--tl);color:var(--t)">맞춤형</span>`;
     const title = isDev ? (first.product||'-') : (first.description||'-');
+    const productCategory = first.formula ? first.formula.split(' - ')[0].trim() : '-';
+    const isExtractsDelegated = first.extracts && first.extracts[0] === '제조 전문가 위임';
+    const extractsLabel = isExtractsDelegated ? '제조 전문가 위임' : '직접 선택';
     const detail = isDev
       ? `${first.effect||''} · ${first.target||''}`
-      : `${first.formula||'-'} · ${first.volume||'-'}ml · ${first.container||'-'}${first.scent?' · 향: '+first.scent:''}`;
+      : `${productCategory} · ${extractsLabel}`;
     const hasPO = first.purchaseOrder;
     const detailLabel = hasPO ? '발주서 상세보기' : '의뢰서 상세보기';
     const fid = isDev ? null : resolveFormulaId(latest);
@@ -2940,7 +2943,7 @@ function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') 
     </div>`;
 
     return `<div class="order-group">
-      <div class="order-group-header"><div style="display:flex;align-items:center;gap:8px">${typeBadge}<span class="og-title">${title}</span></div>${productTitle}<div class="og-detail">${detail}</div>${orderDetailBtn}${productInfoBox}</div>
+      <div class="order-group-header"><div style="display:flex;align-items:center;gap:8px">${typeBadge}${isDev && first.product ? `<span class="og-title">${first.product}</span>` : ''}</div>${productTitle}<div class="og-detail">${detail}</div>${orderDetailBtn}${productInfoBox}</div>
       ${roundsHtml}${reorderBtn}
     </div>`;
   }).join('');
@@ -3176,7 +3179,10 @@ async function renderAdminStudentList() {
       const d = doc.data(); const uid = d.userId;
       _adminOrderCounts[uid] = (_adminOrderCounts[uid]||0) + 1;
       if (!_adminOrderStatuses[uid]) _adminOrderStatuses[uid] = [];
-      const isNew = d.adminViewed !== true;
+      // 신규 판정: adminViewed=false 이면서 상태가 아직 '의뢰서 제출(ordered)'에 머물러 있을 때만
+      // (접수 완료 이후 단계는 누군가 진행시킨 것이므로 신규로 표시하지 않음)
+      const stillOrdered = (d.status || 'ordered') === 'ordered';
+      const isNew = (d.adminViewed !== true) && stillOrdered;
       _adminOrderStatuses[uid].push({ status: d.status || 'ordered', isNew });
       if (isNew) _adminNewOrderCounts[uid] = (_adminNewOrderCounts[uid]||0) + 1;
     });
@@ -3400,7 +3406,7 @@ async function showStudentOrders(uid, name, brand) {
     orders.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
 
     // 미확인 발주 표시 (소장님 전용 확인 버튼은 아래에서 렌더링)
-    const unviewed = orders.filter(o => o.adminViewed !== true);
+    const unviewed = orders.filter(o => o.adminViewed !== true && (o.status || 'ordered') === 'ordered');
     const isDirector = currentUser?.email === DIRECTOR_EMAIL;
 
     let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px"><div style="display:flex;align-items:center;gap:12px"><button class="btn-sm" onclick="renderAdminStudentList()">← 목록</button><div><div style="font-size:18px;font-weight:700">${name}</div><div style="font-size:12px;color:var(--g6)">${brand} · 발주 ${orders.length}건</div></div></div><button class="btn-sm" onclick="deleteStudent('${uid}','${name.replace(/'/g,"\\'")}')" style="color:#DC2626;border-color:#FCA5A5">교육생 삭제</button></div>`;
@@ -3444,7 +3450,7 @@ async function _showStudentOrdersRender(uid, name, brand) {
     const snap = await db.collection('orders').where('userId','==',uid).get();
     const orders = []; snap.forEach(doc => orders.push({ id:doc.id, ...doc.data() }));
     orders.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
-    const unviewed = orders.filter(o => o.adminViewed !== true);
+    const unviewed = orders.filter(o => o.adminViewed !== true && (o.status || 'ordered') === 'ordered');
     const isDirector = currentUser?.email === DIRECTOR_EMAIL;
     let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px"><div style="display:flex;align-items:center;gap:12px"><button class="btn-sm" onclick="renderAdminStudentList()">← 목록</button><div><div style="font-size:18px;font-weight:700">${name}</div><div style="font-size:12px;color:var(--g6)">${brand} · 발주 ${orders.length}건</div></div></div><button class="btn-sm" onclick="deleteStudent('${uid}','${name.replace(/'/g,"\\'")}')" style="color:#DC2626;border-color:#FCA5A5">교육생 삭제</button></div>`;
     if (unviewed.length > 0 && isDirector) {
@@ -3503,6 +3509,10 @@ async function updateOrderStatus(orderId, uid, name, brand, newStatus, direction
     updateData.containerRetry = firebase.firestore.FieldValue.delete();
     updateData.materialsConfirmedBy = firebase.firestore.FieldValue.delete();
     updateData.materialsConfirmedAt = firebase.firestore.FieldValue.delete();
+    // 접수 완료(accepted) 단계 진입 시 발주서 확인 도장 자동 처리
+    if (newStatus === 'accepted' && direction !== 'prev') {
+      updateData.adminViewed = true;
+    }
     if (direction === 'prev') {
       updateData.productionStartDate = firebase.firestore.FieldValue.delete();
     }
@@ -5304,8 +5314,9 @@ function startOrderListener() {
   let firstLoad = true;
   orderListener = db.collection('orders').where('adminViewed','==',false)
     .onSnapshot(snap => {
-      // 미확인 발주 배지 업데이트
-      const count = snap.size;
+      // 미확인 발주 배지 업데이트 (status='ordered' 단계만 신규로 카운트)
+      let count = 0;
+      snap.forEach(doc => { if ((doc.data().status || 'ordered') === 'ordered') count++; });
       const badge = document.getElementById('orderBadge');
       if (badge) { badge.style.display = count > 0 ? 'inline' : 'none'; badge.textContent = count; }
       if (firstLoad) { firstLoad = false; return; }
@@ -5313,6 +5324,7 @@ function startOrderListener() {
       snap.docChanges().forEach(change => {
         if (change.type === 'added') {
           const data = change.doc.data();
+          if ((data.status || 'ordered') !== 'ordered') return;
           playOrderNotificationSound();
           showBrowserNotification('📦 새 발주 접수', `${data.userName || '교육생'} (${data.userBrand || ''}): ${data.description || ''}`);
           // 교육생 관리 탭이 보이고 있으면 자동 새로고침
@@ -5332,7 +5344,8 @@ async function updateOrderBadge() {
     const snap = await db.collection('orders').where('adminViewed','==',false).get();
     const badge = document.getElementById('orderBadge');
     if (badge) {
-      const count = snap.size;
+      let count = 0;
+      snap.forEach(doc => { if ((doc.data().status || 'ordered') === 'ordered') count++; });
       badge.style.display = count > 0 ? 'inline' : 'none';
       badge.textContent = count;
     }
