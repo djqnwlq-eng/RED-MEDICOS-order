@@ -1125,6 +1125,9 @@ const FORMULA_CATEGORIES = [
     { id: 'cream-a', name: '산뜻한',       heavy: false },
     { id: 'cream-b', name: '꾸덕한',       heavy: true  },
   ]},
+  { id: 'suncream', name: '선크림',      icon: 'svg-jar', uvOnly: true, subs: [
+    { id: 'suncream-a', name: '일반',       heavy: false, uv: true },
+  ]},
   { id: 'toner',    name: '토너',        icon: 'c-bottle', subs: [
     { id: 'toner-a', name: '점도 가벼움',  heavy: false },
     { id: 'toner-b', name: '점도 있음',    heavy: false },
@@ -1148,6 +1151,8 @@ const FORMULA_CATEGORIES = [
   { id: 'shampoo',  name: '샴푸',        icon: '🧴', subs: [
     { id: 'shampoo-a', name: '버블타입',    heavy: false },
     { id: 'shampoo-b', name: '일반',       heavy: false },
+    { id: 'shampoo-c', name: '산뜻한',      heavy: false, hairloss: true },
+    { id: 'shampoo-d', name: '부드러운',    heavy: false, hairloss: true },
   ]},
   { id: 'cleanser', name: '워시',        icon: 'svg-cleanser', subs: [
     { id: 'cleanser-a', name: '기본형',     heavy: false },
@@ -1214,8 +1219,11 @@ const CONTAINER_RULES = {
   'mist-a':  { allow: ['spray','bottle'],                 rec: 'spray' },
   'mist-b':  { allow: ['spray','bottle'],                 rec: 'spray' },
   'mist-c':  { allow: ['spray','bottle'],                 rec: 'spray' },
+  'suncream-a':{ allow: ['pump','airless','bottle'],      rec: 'airless' },
   'shampoo-a':{ allow: ['pump','bottle'],                 rec: 'pump' },
   'shampoo-b':{ allow: ['pump','bottle'],                 rec: 'pump' },
+  'shampoo-c':{ allow: ['pump','bottle'],                 rec: 'pump' },
+  'shampoo-d':{ allow: ['pump','bottle'],                 rec: 'pump' },
   'cleanser-a':{ allow: ['pump','bottle'],                rec: 'pump' },
   'cleanser-b':{ allow: ['bubble','bottle'],               rec: 'bubble' },
   'foam-a':  { allow: ['pump','bottle'],                  rec: 'pump' },
@@ -1294,6 +1302,18 @@ const FORMULA_INGREDIENTS = {
   'shampoo-b': {
     kr: ["정제수", "소듐C14-16올레핀설포네이트", "라우라마이드디이에이", "부틸렌글라이콜", "글리세린", "폴리글리세릴-10미리스테이트", "코코-글루코사이드", "다이소듐코코암포다이아세테이트", "알란토인", "라벤더오일", "카프릴릴글라이콜", "에틸헥실글리세린", "구아하이드록시프로필트리모늄클로라이드", "시트릭애씨드", "다이소듐이디티에이", "소듐클로라이드", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물", "리날룰"],
     inci: ["Water", "Sodium C14-16 Olefin Sulfonate", "Lauramide DEA", "Butylene Glycol", "Glycerin", "Polyglyceryl-10 Myristate", "Coco-glucoside", "Disodium Cocoamphodiacetate", "Allantoin", "Lavandula Angustifolia (Lavender) Oil", "Caprylyl Glycol", "Ethylhexylglycerin", "Guar Hydroxypropyl Trimonium Chloride", "Citric Acid", "Disodium EDTA", "Sodium Chloride", "Lactobacillus/Soybean Ferment Extract", "Salix Alba (Willow) Bark Extract", "Cinnamomum Cassia Bark Extract", "Origanum Vulgare Leaf Extract", "Chamaecyparis Obtusa Leaf Extract", "Scutellaria Baicalensis Root Extract", "Portulaca Oleracea Extract", "Pinus Palustris Leaf Extract", "Ulmus Davidiana Root Extract", "Oenothera Biennis (Evening Primrose) Flower Extract", "Pueraria Lobata Root Extract", "Linalool"],
+  },
+  'suncream-a': {
+    kr: ["정제수", "다이부틸아디페이트", "부틸렌글라이콜", "이소아밀p-메톡시신나메이트", "에칠헥실살리실레이트", "옥토크릴렌", "에틸헥실팔미테이트", "티타늄디옥사이드", "글리세린", "비스-에칠헥실옥시페놀메톡시페닐트리아진", "에칠헥실트리아존", "나이아신아마이드", "폴리글리세릴-3다이스테아레이트", "포타슘세틸포스페이트", "1,2-헥산다이올", "스테아릭애씨드", "판테놀", "실리카", "글리세릴스테아레이트", "폴리글리세릴-3메틸글루코오스다이스테아레이트", "알루미늄하이드록사이드", "하이드록시아세토페논", "솔비탄아이소스테아레이트", "폴리하이드록시스테아릭애씨드", "폴리아크릴레이트크로스폴리머-6", "잔탄검", "알란토인", "아데노신", "다이포타슘글리시리제이트", "글리세릴스테아레이트시트레이트", "토코페롤", "다이소듐이디티에이"],
+    inci: ["Water", "Dibutyl Adipate", "Butylene Glycol", "Isoamyl p-Methoxycinnamate", "Ethylhexyl Salicylate", "Octocrylene", "Ethylhexyl Palmitate", "Titanium Dioxide", "Glycerin", "Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine", "Ethylhexyl Triazone", "Niacinamide", "Polyglyceryl-3 Distearate", "Potassium Cetyl Phosphate", "1,2-Hexanediol", "Stearic Acid", "Panthenol", "Silica", "Glyceryl Stearate", "Polyglyceryl-3 Methylglucose Distearate", "Aluminum Hydroxide", "Hydroxyacetophenone", "Sorbitan Isostearate", "Polyhydroxystearic Acid", "Polyacrylate Crosspolymer-6", "Xanthan Gum", "Allantoin", "Adenosine", "Dipotassium Glycyrrhizate", "Glyceryl Stearate Citrate", "Tocopherol", "Disodium EDTA"],
+  },
+  'shampoo-c': {
+    kr: ["정제수", "소듐라우레스설페이트", "코카미도프로필베타인", "코카마이드디이에이", "암모늄라우릴설페이트", "코코-글루코사이드", "글리세린", "카페인", "소듐클로라이드", "폴리쿼터늄-10", "1,2-헥산다이올", "피이지-120메틸글루코스디올리에이트", "카프릴릴글라이콜", "시트릭애씨드", "에틸헥실글리세린", "소듐설페이트", "다이소듐이디티에이", "라우레스-3", "소듐벤조에이트"],
+    inci: ["Water", "Sodium Laureth Sulfate", "Cocamidopropyl Betaine", "Cocamide DEA", "Ammonium Lauryl Sulfate", "Coco-Glucoside", "Glycerin", "Caffeine", "Sodium Chloride", "Polyquaternium-10", "1,2-Hexanediol", "PEG-120 Methyl Glucose Dioleate", "Caprylyl Glycol", "Citric Acid", "Ethylhexylglycerin", "Sodium Sulfate", "Disodium EDTA", "Laureth-3", "Sodium Benzoate"],
+  },
+  'shampoo-d': {
+    kr: ["정제수", "소듐C14-16올레핀설포네이트", "코코-글루코사이드", "솔비톨", "코코-베타인", "카페인", "피피지-3카프릴릴에터", "1,2-헥산다이올", "폴리쿼터늄-10", "소듐클로라이드", "카프릴릴글라이콜", "구아하이드록시프로필트라이모늄클로라이드", "시트릭애씨드", "폴리쿼터늄-7", "에틸헥실글리세린", "다이소듐이디티에이", "소듐벤조에이트"],
+    inci: ["Water", "Sodium C14-16 Olefin Sulfonate", "Coco-Glucoside", "Sorbitol", "Coco-Betaine", "Caffeine", "PPG-3 Caprylyl Ether", "1,2-Hexanediol", "Polyquaternium-10", "Sodium Chloride", "Caprylyl Glycol", "Guar Hydroxypropyltrimonium Chloride", "Citric Acid", "Polyquaternium-7", "Ethylhexylglycerin", "Disodium EDTA", "Sodium Benzoate"],
   },
   'toner-a': {
     kr: ["정제수", "프로판다이올", "글리세린", "1,2-헥산다이올", "하이드록시에틸우레아", "자일리톨", "베타인", "글리세릴글루코사이드", "판테놀", "알란토인", "하이드롤라이즈드글라이코사미노글리칸", "소듐하이알루로네이트", "소듐하이알루로네이트크로스폴리머", "하이드롤라이즈드하이알루로닉애씨드", "하이드록시프로필트라이모늄하이알루로네이트", "하이알루로닉애씨드", "소듐아세틸레이티드하이알루로네이트", "아시아티코사이드", "마데카소사이드", "마데카식애씨드", "아시아틱애씨드", "세라마이드엔에스", "세라마이드엔피", "세라마이드에이에스", "세라마이드에이피", "세라마이드이오피", "락토바실러스/콩발효추출물", "흰버드나무껍질추출물", "육계나무껍질추출물", "오레가노잎추출물", "편백잎추출물", "황금추출물", "쇠비름추출물", "대왕송잎추출물", "당느릅나무뿌리추출물", "달맞이꽃추출물", "칡뿌리추출물"],
@@ -1651,15 +1671,46 @@ function getSelectedCategory() {
 }
 
 function buildStep2() {
+  // 기능성에 따른 카테고리/sub 노출 제어
+  const fns = STATE.functions || [];
+  const hairlossMode = fns.includes('탈모완화기능성');
+  const uvMode = fns.includes('자외선 차단 기능성');
+  // 현재 선택된 formula가 필터 결과와 맞지 않으면 초기화
+  if (STATE.formula) {
+    const cat = FORMULA_CATEGORIES.find(c => c.subs.some(s => s.id === STATE.formula));
+    const sub = cat?.subs.find(s => s.id === STATE.formula);
+    if (cat && sub) {
+      const isUvSub = !!sub.uv;
+      const isHairlossSub = !!sub.hairloss;
+      if (uvMode && !isUvSub) STATE.formula = null;
+      else if (!uvMode && isUvSub) STATE.formula = null;
+      else if (hairlossMode && (cat.id !== 'shampoo' || !isHairlossSub)) STATE.formula = null;
+      else if (!hairlossMode && !uvMode && isHairlossSub) STATE.formula = null;
+    }
+  }
+  let visibleCategories;
+  if (uvMode) {
+    visibleCategories = FORMULA_CATEGORIES.filter(cat => cat.id === 'suncream');
+  } else if (hairlossMode) {
+    visibleCategories = FORMULA_CATEGORIES.filter(cat => cat.id === 'shampoo');
+  } else {
+    // 일반 모드: 자외선차단 전용(suncream) 카테고리 제외
+    visibleCategories = FORMULA_CATEGORIES.filter(cat => !cat.uvOnly);
+  }
   const selCat = getSelectedCategory();
-  const catCards = FORMULA_CATEGORIES.map(cat => {
+  const catCards = visibleCategories.map(cat => {
     const active = selCat && selCat.id === cat.id;
     return `<div class="sel-card ${active?'active':''}" onclick="selectFormulaCategory('${cat.id}')"><div class="sc-icon">${formulaIcon(cat.icon)}</div><div class="sc-name">${cat.name}</div></div>`;
   }).join('');
   let subSection = '';
   if (selCat) {
-    const chips = selCat.subs.map(s => `<button class="sub-chip ${STATE.formula===s.id?'active':''}" data-id="${s.id}" onclick="selectFormulaSub('${s.id}')">${s.name}</button>`).join('');
-    subSection = `<div class="formula-sub-area"><div class="formula-sub-label">${formulaIcon(selCat.icon)} ${selCat.name} 세부 타입을 선택하세요</div><div class="formula-sub-chips">${chips}</div></div>`;
+    const visibleSubs = selCat.subs.filter(s => {
+      if (selCat.id === 'shampoo') return hairlossMode ? !!s.hairloss : !s.hairloss;
+      return true;
+    });
+    const chips = visibleSubs.map(s => `<button class="sub-chip ${STATE.formula===s.id?'active':''}" data-id="${s.id}" onclick="selectFormulaSub('${s.id}')">${s.name}</button>`).join('');
+    const subLabel = hairlossMode && selCat.id === 'shampoo' ? '탈모완화 샴푸 세부 타입을 선택하세요' : `${selCat.name} 세부 타입을 선택하세요`;
+    subSection = `<div class="formula-sub-area"><div class="formula-sub-label">${formulaIcon(selCat.icon)} ${subLabel}</div><div class="formula-sub-chips">${chips}</div></div>`;
   }
   return `
     <div class="card"><div class="card-title">만들고 싶은 제품 유형을 선택해주세요</div><div class="card-sub">제품 유형을 선택하면 구체적인 제형(텍스처)을 고를 수 있습니다</div><div class="formula-grid" id="formulaGrid">${catCards}</div><div id="formulaSubArea">${subSection}</div></div>
@@ -2041,12 +2092,18 @@ function selectFormulaCategory(catId) {
   const prevCat = getSelectedCategory();
   if (!prevCat || prevCat.id !== catId) { STATE.formula = null; STATE.container = null; }
   document.querySelectorAll('#formulaGrid .sel-card').forEach(c => c.classList.remove('active'));
-  const cards = document.querySelectorAll('#formulaGrid .sel-card');
-  const idx = FORMULA_CATEGORIES.findIndex(c => c.id === catId);
-  if (cards[idx]) cards[idx].classList.add('active');
-  const chips = cat.subs.map(s => `<button class="sub-chip ${STATE.formula===s.id?'active':''}" data-id="${s.id}" onclick="selectFormulaSub('${s.id}')">${s.name}</button>`).join('');
-  document.getElementById('formulaSubArea').innerHTML = `<div class="formula-sub-area"><div class="formula-sub-label">${formulaIcon(cat.icon)} ${cat.name} 세부 타입을 선택하세요</div><div class="formula-sub-chips">${chips}</div></div>`;
-  if (cat.subs.length === 1) selectFormulaSub(cat.subs[0].id);
+  const card = document.querySelector(`#formulaGrid .sel-card[onclick*="${catId}"]`);
+  if (card) card.classList.add('active');
+  // 기능성에 따른 sub 필터링
+  const hairlossMode = (STATE.functions || []).includes('탈모완화기능성');
+  const visibleSubs = cat.subs.filter(s => {
+    if (cat.id === 'shampoo') return hairlossMode ? !!s.hairloss : !s.hairloss;
+    return true;
+  });
+  const chips = visibleSubs.map(s => `<button class="sub-chip ${STATE.formula===s.id?'active':''}" data-id="${s.id}" onclick="selectFormulaSub('${s.id}')">${s.name}</button>`).join('');
+  const subLabel = hairlossMode && cat.id === 'shampoo' ? '탈모완화 샴푸 세부 타입을 선택하세요' : `${cat.name} 세부 타입을 선택하세요`;
+  document.getElementById('formulaSubArea').innerHTML = `<div class="formula-sub-area"><div class="formula-sub-label">${formulaIcon(cat.icon)} ${subLabel}</div><div class="formula-sub-chips">${chips}</div></div>`;
+  if (visibleSubs.length === 1) selectFormulaSub(visibleSubs[0].id);
   else { const btn = document.getElementById('btnNext2'); if (btn) btn.setAttribute('disabled',''); updateGuidePanel(2); }
 }
 
@@ -2313,12 +2370,13 @@ function getStep2Guide() {
   // 제형 영상 매핑 (제형 ID → 파일명)
   const videoMap = {
     'cream-a': 'cream-a.mp4', 'cream-b': 'cream-b.mp4',
+    'suncream-a': 'cream-b.mp4',
     'toner-a': 'toner-a.mp4', 'toner-b': 'toner-b.mp4',
     'tonic-a': 'tonic-a.mp4',
     'lotion-a': 'lotion-a.mp4', 'lotion-b': 'lotion-b.mp4',
     'serum-a': 'serum-a.mp4', 'serum-b': 'serum-b.mp4',
     'mist-a': 'mist-a.mp4', 'mist-b': 'mist-b.mp4', 'mist-c': 'mist-c.mp4',
-    'shampoo-a': 'bubble-all.mp4', 'shampoo-b': 'shampoo-b.mp4',
+    'shampoo-a': 'bubble-all.mp4', 'shampoo-b': 'shampoo-b.mp4', 'shampoo-c': 'shampoo-b.mp4', 'shampoo-d': 'shampoo-b.mp4',
     'cleanser-a': 'cleanser-a.mp4', 'cleanser-b': 'bubble-all.mp4',
     'foam-a': 'foam-a.mp4', 'foam-b': 'bubble-all.mp4', 'foam-c': 'foam-c.mp4',
     'gel-a': 'gel-a.mp4',
@@ -2335,6 +2393,7 @@ function getStep2Guide() {
   const formulaGuide = {
     'cream-a': '묽고 부드러운 텍스처로 빠르게 흡수되는 타입입니다.<br>끈적임 없이 가볍게 마무리됩니다.',
     'cream-b': '점도 높고 밀도 있는 텍스처로 보습감이 오래 유지되는 타입입니다.<br>흡수 후 보호막이 형성되며 쫀쫀하게 마무리됩니다.',
+    'suncream-a': '자외선차단 기능성 화장품 베이스 텍스처입니다.<br>가볍게 발리며 백탁이 적고 보습감 있는 마무리감을 제공합니다.',
     'toner-a': '물처럼 가볍게 흐르는 텍스처로 빠르게 흡수되는 타입입니다.<br>끈적임 없이 산뜻하게 마무리됩니다.',
     'toner-b': '약간의 점도가 느껴지는 텍스처로 촉촉함이 유지되는 타입입니다.<br>피부에 수분감을 남기며 촉촉하게 마무리됩니다.',
     'lotion-a': '가볍고 부드럽게 발리는 텍스처로 빠르게 흡수되는 타입입니다.<br>끈적임 없이 산뜻하게 마무리됩니다.',
@@ -2346,6 +2405,8 @@ function getStep2Guide() {
     'mist-c': '부드럽고 밀도 있는 분사 텍스처로 피부에 보습막을 형성하는 타입입니다.<br>건조함을 잡아주며 촉촉하고 보호감 있게 마무리됩니다.',
     'shampoo-a': '풍성한 거품 형태로 바로 사용 가능한 타입입니다.<br>손에서 거품을 낼 필요 없이 부드럽게 세정되며 가볍게 마무리됩니다.',
     'shampoo-b': '점성이 있는 액상 텍스처로 물과 함께 거품을 내어 사용하는 타입입니다.<br>세정력과 사용감을 조절하기 쉬우며 깔끔하게 마무리됩니다.',
+    'shampoo-c': '강한 세정력의 풍부한 거품 텍스처로 두피의 노폐물을 깔끔하게 제거하는 탈모완화 샴푸 타입입니다.<br>뽀드득한 마무리감으로 산뜻하게 헹궈집니다.',
+    'shampoo-d': '컨디셔닝 성분이 함유된 부드러운 거품 텍스처로 두피와 모발을 동시에 케어하는 탈모완화 샴푸 타입입니다.<br>모발이 매끈하게 정돈되며 부드럽게 마무리됩니다.',
     'cleanser-a': '점성이 있는 액상 텍스처로 물과 함께 거품을 내어 사용하는 타입입니다.<br>세정력과 사용감을 조절하기 쉬우며 깔끔하게 마무리됩니다.',
     'cleanser-b': '풍성한 거품 형태로 바로 사용 가능한 타입입니다.<br>손에서 거품을 낼 필요 없이 부드럽게 세정되며 가볍게 마무리됩니다.',
     'foam-a': '투명하고 부드러운 젤 텍스처로 피부에 자극 없이 세정되는 타입입니다.<br>물과 만나 부드럽게 롤링되며 산뜻하게 마무리됩니다.',
