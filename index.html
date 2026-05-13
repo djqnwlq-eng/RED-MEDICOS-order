@@ -128,10 +128,13 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--gf); color: va
 .input-with-suffix { position:relative; }
 .input-with-suffix input { padding-right:38px !important; }
 .input-with-suffix .input-suffix { position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--g6); font-size:13px; font-weight:600; pointer-events:none; }
-/* 발주서 모달 내 number input 스피너 제거 */
+/* 발주서 모달 + 시험성적서 폼 내 number input 스피너 제거 */
 .po-modal-large input[type="number"]::-webkit-outer-spin-button,
-.po-modal-large input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
-.po-modal-large input[type="number"] { -moz-appearance:textfield; appearance:textfield; }
+.po-modal-large input[type="number"]::-webkit-inner-spin-button,
+.iops-doc-form input[type="number"]::-webkit-outer-spin-button,
+.iops-doc-form input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+.po-modal-large input[type="number"],
+.iops-doc-form input[type="number"] { -moz-appearance:textfield; appearance:textfield; }
 /* ─── ADMIN STUDENT CARDS ─── */
 .student-section { margin-bottom:16px; }
 .student-section-header { display:flex; justify-content:space-between; align-items:center; padding:10px 16px; border-radius:var(--r); cursor:pointer; font-size:14px; font-weight:700; margin-bottom:8px; user-select:none; }
@@ -662,6 +665,67 @@ body.iops-mode #chatbotToggle, body.iops-mode #chatbotPanel { display:none !impo
 .iops-doc-btn-status { font-size:10px; color:var(--g6); }
 .iops-doc-btn.done { background:#F0FDF4; border-color:#BBF7D0; }
 .iops-doc-btn.done .iops-doc-btn-status { color:#166534; font-weight:600; }
+
+/* 📅 달력 (월간 뷰) */
+.cal-toolbar { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+.cal-toolbar button { padding:6px 14px; border:1px solid var(--ge); border-radius:var(--rsm); background:#fff; cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; color:var(--g8); }
+.cal-toolbar button:hover { background:var(--gf); border-color:var(--t); color:var(--t); }
+.cal-toolbar .cal-nav { display:flex; align-items:center; gap:4px; }
+.cal-toolbar .cal-nav-btn { width:32px; padding:6px 0; }
+.cal-toolbar #calMonthLabel { font-size:18px; font-weight:800; margin:0 12px; color:var(--g9); min-width:130px; text-align:center; }
+.cal-legend { display:flex; gap:14px; margin-left:auto; font-size:11px; color:var(--g6); flex-wrap:wrap; align-items:center; }
+.cal-legend > span { display:inline-flex; align-items:center; gap:4px; font-weight:500; }
+.cal-dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
+.cal-dot.red { background:#EF4444; }
+.cal-dot.blue { background:#3B82F6; }
+.cal-dot.purple { background:#A855F7; }
+.cal-dot.green { background:#22C55E; }
+.cal-dot.gray { background:#9CA3AF; }
+.cal-dot.amber { background:#F59E0B; }
+
+/* 달력 필터 칩 */
+.cal-filter-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:14px; padding:10px 12px; background:#FAFAFA; border:1px solid var(--ge); border-radius:8px; }
+.cal-filter-chip { display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border:1px solid var(--ge); border-radius:16px; background:#fff; font-size:11px; font-weight:600; color:var(--g6); cursor:pointer; user-select:none; transition:all .15s; }
+.cal-filter-chip:hover { border-color:var(--g8); color:var(--g8); }
+.cal-filter-chip input { display:none; }
+.cal-filter-chip.active { color:var(--g9); font-weight:700; }
+.cal-filter-chip.active.red { background:#FEE2E2; border-color:#FCA5A5; color:#991B1B; }
+.cal-filter-chip.active.purple { background:#F3E8FF; border-color:#D8B4FE; color:#6B21A8; }
+.cal-filter-chip.active.blue { background:#DBEAFE; border-color:#93C5FD; color:#1E40AF; }
+.cal-filter-chip.active.amber { background:#FEF3C7; border-color:#FCD34D; color:#92400E; }
+
+.cal-grid { display:grid; grid-template-columns:repeat(7, 1fr); background:var(--ge); border:1px solid var(--ge); border-radius:var(--r); overflow:hidden; gap:1px; }
+.cal-head { background:#FAFAFA; padding:10px; text-align:center; font-size:12px; font-weight:700; color:var(--g7); letter-spacing:0.5px; }
+.cal-head.sun { color:#DC2626; }
+.cal-head.sat { color:#1D4ED8; }
+.cal-cell { background:#fff; min-height:108px; padding:6px 6px 4px; display:flex; flex-direction:column; gap:2px; overflow:hidden; transition:background .12s; }
+.cal-cell:hover { background:#FAFAFA; }
+.cal-cell.other { background:#F9FAFB; }
+.cal-cell.other .cal-date { color:#D1D5DB; }
+.cal-cell.today { background:#FFFBEB; }
+.cal-cell.today:hover { background:#FEF3C7; }
+.cal-cell.today .cal-date { background:var(--t); color:#fff; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; }
+.cal-cell.sun .cal-date { color:#DC2626; }
+.cal-cell.sat .cal-date { color:#1D4ED8; }
+.cal-date { font-size:12px; font-weight:700; color:var(--g8); margin-bottom:2px; }
+.cal-event { font-size:10px; padding:3px 6px; border-radius:4px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.3; font-weight:600; transition:transform .1s; }
+.cal-event:hover { transform:translateX(1px); }
+.cal-event.red { background:#FEE2E2; color:#991B1B; }
+.cal-event.red:hover { background:#FECACA; }
+.cal-event.blue { background:#DBEAFE; color:#1E40AF; }
+.cal-event.blue:hover { background:#BFDBFE; }
+.cal-event.purple { background:#F3E8FF; color:#6B21A8; }
+.cal-event.purple:hover { background:#E9D5FF; }
+.cal-event.green { background:#DCFCE7; color:#166534; }
+.cal-event.green:hover { background:#BBF7D0; }
+.cal-event.gray { background:#F3F4F6; color:var(--g7); }
+.cal-event.gray:hover { background:#E5E7EB; }
+.cal-event.amber { background:#FEF3C7; color:#92400E; }
+.cal-event.amber:hover { background:#FDE68A; }
+.cal-more { font-size:10px; color:var(--g6); padding:1px 5px; font-weight:600; cursor:pointer; }
+.cal-more:hover { color:var(--t); }
+.cal-summary { margin-top:14px; padding:12px 16px; background:#FFFBEB; border:1px solid #FCD34D; border-radius:var(--r); font-size:12px; color:#92400E; }
+.cal-summary strong { color:#78350F; }
 
 /* 서류 폼 화면 */
 .iops-doc-form { max-width:780px; margin:0 auto; }
@@ -4317,7 +4381,10 @@ async function openPurchaseOrderForm(orderId) {
           </div>
 
           <div class="po-section-title">발주 정보</div>
-          <div class="po-field"><label>브랜드/품목 (정확한 품명) *</label><input type="text" id="po_brand" value="${prev.brand || order.brand || order.productName || ''}" placeholder="예: 달바/옐로우미스트"></div>
+          <div style="display:flex;gap:8px">
+            <div class="po-field" style="flex:1"><label>브랜드명 *</label><input type="text" id="po_brandName" value="${prev.brandName || prev.brand?.split('/')[0] || ''}" placeholder="예: 달바"></div>
+            <div class="po-field" style="flex:1"><label>제품명 *</label><input type="text" id="po_productName" value="${prev.productName || prev.brand?.split('/')[1] || ''}" placeholder="예: 옐로우미스트"></div>
+          </div>
           <div style="display:flex;gap:8px">
             <div class="po-field" style="flex:1"><label>용량 *</label>
               <div class="input-with-suffix">
@@ -4464,14 +4531,15 @@ async function submitPurchaseOrder(orderId) {
   const bizNo = document.getElementById('po_bizNo')?.value?.trim();
   const ceo = document.getElementById('po_ceo')?.value?.trim();
   const bizAddr = document.getElementById('po_bizAddr')?.value?.trim();
-  const brand = document.getElementById('po_brand')?.value?.trim();
+  const brandName = document.getElementById('po_brandName')?.value?.trim();
+  const productName = document.getElementById('po_productName')?.value?.trim();
   const volume = document.getElementById('po_volume')?.value?.trim();
   const unitPrice = document.getElementById('po_unitPrice')?.value?.trim();
   const orderQty = document.getElementById('po_orderQty')?.value?.trim();
   const bulkAmount = document.getElementById('po_bulkAmount')?.value?.trim();
   const deliveryAddr = document.getElementById('po_deliveryAddr')?.value?.trim();
 
-  if (!cohort || !studentName || !company || !bizNo || !ceo || !bizAddr || !brand || !volume || !unitPrice || !orderQty || !deliveryAddr) {
+  if (!cohort || !studentName || !company || !bizNo || !ceo || !bizAddr || !brandName || !productName || !volume || !unitPrice || !orderQty || !deliveryAddr) {
     alert('필수 항목(*)을 모두 입력해주세요.');
     return;
   }
@@ -4489,7 +4557,8 @@ async function submitPurchaseOrder(orderId) {
     bizAddr,
     tel: document.getElementById('po_tel')?.value?.trim() || '',
     fax: document.getElementById('po_fax')?.value?.trim() || '',
-    brand,
+    brandName, productName,
+    brand: `${brandName}${productName ? '/' + productName : ''}`,  // 호환성용 통합 필드
     volume, unitPrice, orderQty,
     bulkAmount,
     matDate: document.getElementById('po_matDate')?.value || '',
@@ -6469,7 +6538,7 @@ async function renderInternalOps(view) {
       <aside class="iops-sidebar">
         <div class="iops-side-title">진행 관리</div>
         <div class="iops-side-item ${_iopsCurrentView==='kanban'?'active':''}" onclick="renderInternalOps('kanban')">📊 칸반보드</div>
-        <div class="iops-side-item ${_iopsCurrentView==='calendar'?'active':''}" onclick="renderInternalOps('calendar')">📅 달력 <span style="font-size:9px;color:#9CA3AF;margin-left:auto">예정</span></div>
+        <div class="iops-side-item ${_iopsCurrentView==='calendar'?'active':''}" onclick="renderInternalOps('calendar')">📅 달력</div>
         <div class="iops-side-item ${_iopsCurrentView==='students'?'active':''}" onclick="renderInternalOps('students')">👥 교육생 목록 <span style="font-size:9px;color:#9CA3AF;margin-left:auto">예정</span></div>
         <div class="iops-side-divider"></div>
         <div class="iops-side-title">서류</div>
@@ -6486,7 +6555,7 @@ async function renderInternalOps(view) {
   switch (_iopsCurrentView) {
     case 'kanban':    return renderIopsKanban();
     case 'employees': return renderIopsEmployees();
-    case 'calendar':  return renderIopsPlaceholder('📅 달력', '제조·생산·출고 일정을 월간/주간으로 한눈에 봅니다.');
+    case 'calendar':  return renderIopsCalendar();
     case 'students':  return renderIopsPlaceholder('👥 교육생 목록', '교육생 이름으로 검색하고, 클릭하면 모든 정보가 한 화면에 보입니다.');
     case 'docs':      return renderIopsPlaceholder('📁 서류함', '의뢰서별로 모인 엑셀·PDF 서류를 한 곳에서 관리합니다.');
   }
@@ -6522,9 +6591,7 @@ async function renderIopsKanban() {
         <option value="CS팀">CS팀</option>
       </select>
       <input id="kbSearch" placeholder="🔍 교육생/제품 검색" style="flex:1;min-width:140px">
-      <button class="btn-sm" onclick="iopsCreateDemoOrder()" style="background:#FEF3C7;border-color:#FCD34D;color:#92400E;font-weight:600">+ 데모 (생산중)</button>
-      <button class="btn-sm" onclick="iopsCreateDemoOrderForPO()" style="background:#FEF3C7;border-color:#FCD34D;color:#92400E;font-weight:600">+ 데모 (발주서 작성 대기)</button>
-      <span style="font-size:11px;color:var(--g6)">💡 카드 클릭 = 통합 상세화면</span>
+      <span style="font-size:11px;color:var(--g6)">💡 카드 클릭 = 통합 상세화면 · 카드 드래그/⋯ = 단계 이동</span>
     </div>
     <div id="kanbanBoardArea"></div>
   `;
@@ -6555,11 +6622,17 @@ async function renderKanbanBoardData() {
   }
   const search = (document.getElementById('kbSearch')?.value || '').trim().toLowerCase();
   if (search) {
-    orders = orders.filter(o =>
-      (o.studentName||'').toLowerCase().includes(search) ||
-      (o.productName||'').toLowerCase().includes(search) ||
-      (o.brand||'').toLowerCase().includes(search)
-    );
+    orders = orders.filter(o => {
+      const po = o.purchaseOrder || {};
+      const fields = [
+        o.userName, o.studentName,
+        o.userBrand, o.brand, o.cohort,
+        o.description, o.productName, o.formula,
+        o.userEmail, o.userPhone,
+        po.studentName, po.brand, po.company, po.cohort, po.ceo
+      ];
+      return fields.some(f => (f || '').toString().toLowerCase().includes(search));
+    });
   }
   // ORDER_STAGES 순서 그대로 (교육생 실시간 차트와 동일)
   // 단, 취소 관련 단계는 제외하고 출고완료(shipped)도 별도 처리
@@ -6819,9 +6892,12 @@ async function handleStageMove(orderId, newSubstageId, newParentStage) {
 
 function renderKanbanCard(order, substage, colors, parentStageId) {
   const po = order.purchaseOrder || {};
-  const name = po.studentName || order.studentName || '이름없음';
-  const cohort = po.cohort || order.cohort || (order.brand && /\d/.test(order.brand) ? order.brand : '') || '';
-  const product = po.brand || order.productName || (cohort ? '' : order.brand) || '제품명 미정';
+  // 우선순위: 발주서 입력값 > 의뢰서의 userName(가입 시 이름) > 직접 저장된 studentName
+  const name = po.studentName || order.userName || order.studentName || '이름없음';
+  const cohort = po.cohort || order.cohort || order.userBrand || '';
+  // 제품: 발주서 제품명(우선) > 의뢰서의 formula(제형) > '제품명 미정'
+  const formulaShort = order.formula ? order.formula.split(' (')[0].split(' - ')[0] : '';
+  const product = po.productName || (po.brandName ? `${po.brandName}${po.productName ? '/' + po.productName : ''}` : '') || po.brand || formulaShort || '제품명 미정';
   const statusLabel = substage ? substage.label : (ORDER_STAGES.find(s=>s.id===order.status)?.label || order.status);
   const statusBg = colors.bg;
   const statusText = colors.text;
@@ -6874,6 +6950,7 @@ async function renderIopsEmployees() {
 
 // ─── 서류 종류 정의 (Phase 3에서 실제 화면 구현) ───
 const IOPS_DOCUMENTS = [
+  { id: 'devRequest',   label: '개발의뢰서',      icon: '📑', desc: '원본 의뢰 + 소장님 피드백' },
   { id: 'po',           label: '발주서',          icon: '🧾', desc: '교육생 발주 정보' },
   { id: 'quote',        label: '견적서',          icon: '💰', desc: '단가/수량/총액' },
   { id: 'invoice',      label: '거래명세서',      icon: '📋', desc: '거래 내역' },
@@ -6912,13 +6989,17 @@ function renderOrderDetailHTML(main, order) {
   const parent = ORDER_STAGES.find(s => s.id === order.status);
   const sub = INTERNAL_SUBSTAGES.find(s => s.id === internal.substage);
   const currentLabel = sub ? `${parent?.label || ''} > ${sub.label}` : (parent?.label || order.status);
-  // 양식 데이터 (발주서 데이터 우선, 폴백으로 의뢰서 필드)
-  const cohort = po.cohort || order.cohort || order.brand || '';
-  const studentName = po.studentName || order.studentName || '이름없음';
-  const productName = po.brand || order.productName || '';
-  const brand = po.company || '';  // 발주처(회사) 상호
-  const volume = po.volume ? `${po.volume}ml` : '';
-  const lotNumber = order.lotNumber || internal.lotNumber || '';
+  // 양식 데이터 (발주서가 원본, 발주서 미작성 시 빈 칸)
+  const cohort = po.cohort || order.cohort || order.userBrand || '';
+  const studentName = po.studentName || order.userName || order.studentName || '이름없음';
+  const brandName = po.brandName || (po.brand && po.brand.includes('/') ? po.brand.split('/')[0] : po.brand) || '';
+  const productName = po.productName || (po.brand && po.brand.includes('/') ? po.brand.split('/')[1] : '') || '';
+  const volume = po.volume ? `${po.volume}ml` : (order.volume ? `${order.volume}ml` : '');
+  const quantity = po.orderQty ? `${Number(po.orderQty).toLocaleString()}개` : (order.quantity ? `${Number(order.quantity).toLocaleString()}개` : '');
+  // 사용기한: 제조일자(order.mfgDate 또는 internal.measurements.mfgDate) + 3년 - 1일 자동 계산
+  const mfgDate = order.mfgDate || internal.measurements?.mfgDate || order.documents?.bulkTest?.data?.mfgDate || '';
+  const expiry = calcExpiryDate(mfgDate);
+  const lotNumber = order.lotNumber || internal.lotNumber || order.documents?.bulkTest?.data?.lotNumber || '';
   // 발주일: 발주서 제출일 우선 → 의뢰서 단계 날짜
   const orderDate = po.submittedDate || order.stageDates?.po_submitted || order.stageDates?.ordered || '';
   // 진행 정보
@@ -6934,7 +7015,7 @@ function renderOrderDetailHTML(main, order) {
     <div class="iops-detail-header">
       <div>
         <div class="iops-detail-name">👤 ${studentName}</div>
-        <div class="iops-detail-meta">${cohort || '기수 미정'} · 의뢰번호 ${order.id}</div>
+        <div class="iops-detail-meta">${cohort || '기수 미정'}</div>
       </div>
       <div class="iops-detail-status-badge">${currentLabel}</div>
     </div>
@@ -6943,15 +7024,20 @@ function renderOrderDetailHTML(main, order) {
       <!-- 좌측: 양식 + 진행정보 -->
       <div>
         <div class="iops-card-box" style="margin-bottom:14px">
-          <div class="iops-card-title">📋 양식 (모든 서류의 원천)</div>
+          <div class="iops-card-title">📋 양식 (모든 서류의 원본)</div>
           <table class="iops-form-table">
             <tr><td>기수</td><td>${fmt(cohort)}</td></tr>
             <tr><td>교육생</td><td>${fmt(studentName)}</td></tr>
-            <tr><td>브랜드</td><td>${fmt(brand)}</td></tr>
-            <tr><td>제품명</td><td>${fmt(productName, '미정')}</td></tr>
+            <tr><td>브랜드명</td><td>${fmt(brandName, '발주서 작성 시 입력')}</td></tr>
+            <tr><td>제품명</td><td>${fmt(productName, '발주서 작성 시 입력')}</td></tr>
             <tr><td>용량</td><td>${fmt(volume)}</td></tr>
-            <tr><td>로트번호</td><td>${fmt(lotNumber, '벌크 생성 후 부여')}</td></tr>
+            <tr><td>수량</td><td>${fmt(quantity)}</td></tr>
+            <tr><td>로트번호</td><td>${fmt(lotNumber, '벌크 시험성적서 작성 시 부여')}</td></tr>
+            <tr><td>사용기한</td><td>${fmt(expiry, '제조일자 입력 후 자동 계산')}${expiry && mfgDate ? ` <span style="font-size:11px;color:var(--g6)">(제조일 ${mfgDate} + 3년 − 1일)</span>` : ''}</td></tr>
           </table>
+          <div style="margin-top:10px;font-size:11px;color:#92400E;background:#FEF3C7;padding:8px 10px;border-radius:6px;line-height:1.5">
+            💡 이 양식은 <strong>발주서를 원본</strong>으로 합니다. 발주서 작성/수정 시 이 정보와 모든 서류가 자동 갱신됩니다.
+          </div>
         </div>
 
         <div class="iops-card-box">
@@ -6995,14 +7081,843 @@ function renderOrderDetailHTML(main, order) {
 
 // 서류 클릭 → 해당 서류 화면 (구현된 것만, 미구현은 안내)
 function iopsOpenDocument(orderId, docId) {
+  if (docId === 'devRequest') {
+    return renderDevRequestView(orderId);
+  }
+  if (docId === 'bulkTest') {
+    return renderBulkTestForm(orderId);
+  }
   if (docId === 'microTest') {
     return renderMicrobialTestForm(orderId);
+  }
+  if (docId === 'finalTest') {
+    return renderFinalTestForm(orderId);
   }
   if (docId === 'po') {
     return openPurchaseOrderForm(orderId);
   }
   const doc = IOPS_DOCUMENTS.find(d => d.id === docId);
-  alert(`📄 ${doc?.label} 작성 화면\n\n이 서류는 Phase 3에서 구현 예정입니다.\n\n현재 시연 가능한 서류:\n· 🧾 발주서 (조한나 양식)\n· 🦠 미생물 성적서\n\n[설계 방식]\n· 양식 데이터 자동 채움\n· 직원은 추가 정보만 입력\n· 저장 시 작성완료 표시\n· 엑셀/PDF 자동 생성 (Phase 4)`);
+  alert(`📄 ${doc?.label} 작성 화면\n\n이 서류는 Phase 3에서 구현 예정입니다.\n\n현재 시연 가능한 서류:\n· 📑 개발의뢰서\n· 🧾 발주서\n· 🔬 벌크 시험성적서\n· 🦠 미생물 성적서\n\n[설계 방식]\n· 양식 데이터 자동 채움\n· 직원은 추가 정보만 입력\n· 저장 시 작성완료 표시\n· 엑셀/PDF 자동 생성 (Phase 4)`);
+}
+
+// ─── 📑 개발의뢰서 뷰어 (원본 + 소장님 피드백 이력) ───
+async function renderDevRequestView(orderId) {
+  const main = document.getElementById('iopsMainArea');
+  if (!main) return;
+  main.innerHTML = '<div style="text-align:center;padding:60px;color:var(--g6);font-size:12px">불러오는 중...</div>';
+  let order;
+  try {
+    const doc = await db.collection('orders').doc(orderId).get();
+    if (!doc.exists) { main.innerHTML = '<div style="color:#dc2626">의뢰서 없음</div>'; return; }
+    order = { id: doc.id, ...doc.data() };
+  } catch(e) {
+    main.innerHTML = `<div style="color:#dc2626;padding:20px">로드 실패: ${e.message}</div>`;
+    return;
+  }
+
+  const escape = s => String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const studentName = order.userName || order.studentName || '이름없음';
+  const userBrand = order.userBrand || '';
+  const orderDate = order.createdAt ? new Date(order.createdAt.seconds * 1000).toLocaleString('ko-KR') : '';
+
+  // 의뢰 내용
+  const functions = Array.isArray(order.functions) ? order.functions : [];
+  const extracts = Array.isArray(order.extracts) ? order.extracts : [];
+
+  // 피드백
+  const fb = order.feedback || {};
+  const FB_STATUS_LABEL = { reviewing:'🟡 검토 중', feedback_sent:'🔵 피드백 전송됨', approved:'✅ 승인 완료' };
+  const fbStatus = FB_STATUS_LABEL[fb.subStatus] || '⚪ 피드백 없음';
+  const fbItems = Array.isArray(fb.items) ? fb.items : [];
+  const fbHistory = Array.isArray(fb.history) ? fb.history : [];
+  const finalSpec = fb.finalSpec || {};
+
+  const FB_ACTION_LABEL = {
+    feedback_sent: '📤 피드백 전송 (소장님)',
+    approved: '✅ 피드백 승인 (교육생)',
+    reviewing: '🟡 검토 시작',
+  };
+
+  // 피드백 항목 행
+  const itemsHtml = fbItems.length === 0
+    ? '<div style="color:var(--g6);font-size:12px;padding:14px;text-align:center">아직 피드백 항목이 없습니다.</div>'
+    : `<table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:#FAFAFA;border-bottom:1px solid var(--ge)">
+            <th style="padding:8px;text-align:left;font-weight:700;color:var(--g7);width:80px">유형</th>
+            <th style="padding:8px;text-align:left;font-weight:700;color:var(--g7);width:140px">대상</th>
+            <th style="padding:8px;text-align:left;font-weight:700;color:var(--g7);width:140px">제안</th>
+            <th style="padding:8px;text-align:left;font-weight:700;color:var(--g7)">사유</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${fbItems.map(it => `
+            <tr style="border-bottom:1px solid #F3F4F6">
+              <td style="padding:8px;color:#7C3AED;font-weight:600">${escape(it.type)}</td>
+              <td style="padding:8px;color:var(--g9);font-weight:600">${escape(it.target)}</td>
+              <td style="padding:8px;color:var(--g9)">${escape(it.proposed)}</td>
+              <td style="padding:8px;color:var(--g7);line-height:1.5">${escape(it.reason)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+
+  // 이력
+  const historyHtml = fbHistory.length === 0
+    ? '<div style="color:var(--g6);font-size:12px;padding:14px;text-align:center">이력이 없습니다.</div>'
+    : fbHistory.map(h => {
+        const dt = h.at ? new Date(h.at).toLocaleString('ko-KR') : '-';
+        return `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #F3F4F6;font-size:12px;align-items:center">
+          <span style="color:var(--g6);min-width:140px">${dt}</span>
+          <span style="flex:1;color:var(--g9);font-weight:600">${FB_ACTION_LABEL[h.action] || h.action || '-'}</span>
+          ${h.itemCount ? `<span style="color:var(--g6);font-size:11px">항목 ${h.itemCount}개</span>` : ''}
+        </div>`;
+      }).join('');
+
+  // 최종 배합안 (소장 수정안)
+  const finalSpecKeys = Object.keys(finalSpec).filter(k => !['updatedBy','updatedAt'].includes(k));
+  const finalSpecHtml = finalSpecKeys.length === 0
+    ? ''
+    : `<div class="iops-card-box" style="margin-top:14px;background:#F0FDF4;border-color:#BBF7D0">
+        <div class="iops-card-title" style="color:#166534">⚗️ 최종 배합안 (소장님 수정)</div>
+        ${finalSpecKeys.map(k => {
+          const v = finalSpec[k];
+          if (!v || typeof v !== 'object') return '';
+          if (k === 'extracts') {
+            const arr = v.value || [];
+            return `<div style="margin-bottom:6px"><strong>${k}:</strong> ${escape(arr.join(', '))}</div>`;
+          }
+          return `<div style="margin-bottom:6px"><strong>${k}:</strong> ${escape(String(v.value))} ${v.reason ? `<span style="color:var(--g6);font-size:11px">(${escape(v.reason)})</span>` : ''}</div>`;
+        }).join('')}
+      </div>`;
+
+  main.innerHTML = `
+    <button class="iops-detail-back" onclick="iopsOpenOrderDetail('${orderId}')">← ${escape(studentName)} 상세화면으로</button>
+    <div style="max-width:920px;margin:0 auto">
+      <div class="iops-detail-header">
+        <div>
+          <div class="iops-detail-name">📑 개발의뢰서</div>
+          <div class="iops-detail-meta">${escape(studentName)}${userBrand?' · '+escape(userBrand):''} · 제출일 ${escape(orderDate)} · 의뢰번호 ${escape(orderId.slice(0,12))}...</div>
+        </div>
+        <div class="iops-detail-status-badge" style="background:#F3E8FF;color:#6B21A8">${fbStatus}</div>
+      </div>
+
+      <!-- 원본 의뢰 내용 -->
+      <div class="iops-card-box" style="margin-bottom:14px">
+        <div class="iops-card-title">✏️ 교육생 원본 의뢰 (수정 불가)</div>
+        <table class="iops-form-table">
+          <tr><td>제품 컨셉</td><td style="white-space:pre-wrap;line-height:1.6">${escape(order.description || '-')}</td></tr>
+          <tr><td>기능성</td><td>${functions.length ? escape(functions.join(', ')) : '<span class="empty-val">-</span>'}</td></tr>
+          <tr><td>사용 부위</td><td>${escape(order.bodyPart || '-')}</td></tr>
+          <tr><td>제형</td><td>${escape(order.formula || '-')}</td></tr>
+          <tr><td>향</td><td>${escape(order.scent || '-')}</td></tr>
+          <tr><td>추출물</td><td>${extracts.length ? escape(extracts.join(', ')) : '<span class="empty-val">-</span>'}</td></tr>
+          <tr><td>용량</td><td>${order.volume ? escape(order.volume)+'ml' : '<span class="empty-val">-</span>'}</td></tr>
+          <tr><td>수량</td><td>${order.quantity ? escape(String(order.quantity))+'개' : '<span class="empty-val">-</span>'}</td></tr>
+          <tr><td>예상 단가</td><td>${order.unitCost ? escape(Math.round(order.unitCost).toLocaleString())+'원' : '<span class="empty-val">-</span>'}</td></tr>
+        </table>
+      </div>
+
+      ${finalSpecHtml}
+
+      <!-- 소장님 피드백 -->
+      <div class="iops-card-box" style="margin-bottom:14px">
+        <div class="iops-card-title">🔬 소장님 피드백 항목</div>
+        ${itemsHtml}
+        ${fb.comment ? `
+          <div style="margin-top:14px;padding:12px;background:#F9FAFB;border-radius:6px;font-size:12px;color:var(--g8);line-height:1.6;white-space:pre-wrap">
+            <strong style="display:block;color:var(--g7);font-size:11px;margin-bottom:4px">💬 코멘트</strong>
+            ${escape(fb.comment)}
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- 피드백 이력 -->
+      <div class="iops-card-box">
+        <div class="iops-card-title">📜 피드백 이력</div>
+        ${historyHtml}
+      </div>
+
+      <div style="margin-top:14px;padding:10px 14px;background:#FEF3C7;border:1px solid #FCD34D;border-radius:8px;font-size:11px;color:#92400E;line-height:1.6">
+        💡 이 화면은 <strong>읽기 전용</strong>입니다. 의뢰 내용과 피드백 이력을 통해 향후 오해를 방지할 수 있습니다.
+        피드백 수정은 기존 교육생 관리 화면에서 가능합니다.
+      </div>
+    </div>
+  `;
+}
+
+// ─── 🔬 벌크 시험성적서 폼 (제조일자 입력 → 로트번호·사용기한 자동 양식 반영) ───
+async function renderBulkTestForm(orderId) {
+  const main = document.getElementById('iopsMainArea');
+  if (!main) return;
+  main.innerHTML = '<div style="text-align:center;padding:60px;color:var(--g6);font-size:12px">불러오는 중...</div>';
+  let order;
+  try {
+    const doc = await db.collection('orders').doc(orderId).get();
+    if (!doc.exists) { main.innerHTML = '<div style="color:#dc2626">의뢰서 없음</div>'; return; }
+    order = { id: doc.id, ...doc.data() };
+  } catch(e) {
+    main.innerHTML = `<div style="color:#dc2626;padding:20px">로드 실패: ${e.message}</div>`;
+    return;
+  }
+  const po = order.purchaseOrder || {};
+  const auto = {
+    cohort: po.cohort || order.cohort || order.userBrand || '-',
+    studentName: po.studentName || order.userName || '-',
+    productName: po.productName || (po.brand?.split('/')[1]) || '-',
+    brandName: po.brandName || (po.brand?.split('/')[0]) || '-',
+    volume: po.volume ? `${po.volume}ml` : '-',
+  };
+  const saved = order.documents?.bulkTest?.data || {};
+
+  main.innerHTML = `
+    <button class="iops-detail-back" onclick="iopsOpenOrderDetail('${orderId}')">← ${auto.studentName} 상세화면으로</button>
+    <div class="iops-doc-form">
+      <div class="iops-detail-header">
+        <div>
+          <div class="iops-detail-name">🔬 벌크 시험성적서</div>
+          <div class="iops-detail-meta">${auto.cohort} · ${auto.studentName}</div>
+        </div>
+      </div>
+
+      <!-- 자동 채워진 정보 -->
+      <div class="iops-card-box iops-doc-auto">
+        <div class="iops-card-title">📋 양식에서 자동 채워진 정보 (수정 불가)</div>
+        <div class="iops-doc-auto-row"><span class="label">제품명</span><span class="value">${auto.brandName} / ${auto.productName}</span></div>
+        <div class="iops-doc-auto-row"><span class="label">용량 / 단위</span><span class="value">${auto.volume}</span></div>
+        <div class="iops-doc-auto-row"><span class="label">기수 / 교육생</span><span class="value">${auto.cohort} · ${auto.studentName}</span></div>
+        <div style="margin-top:10px;font-size:11px;color:#92400E;background:#FEF3C7;padding:8px 10px;border-radius:6px">
+          💡 아래 <strong>제조일자</strong>와 <strong>제조번호(로트번호)</strong>를 입력하면 양식과 모든 후속 서류(미생물·완제품)에 자동 반영됩니다.
+        </div>
+      </div>
+
+      <!-- 직원 입력 -->
+      <div class="iops-card-box">
+        <div class="iops-card-title">✏️ 제조·시험 정보 입력</div>
+
+        <div class="iops-doc-section-title">⭐ 핵심 정보 (양식에 자동 반영)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="iops-doc-field">
+            <label>제조일자 *</label>
+            <input type="date" id="bulk_mfgDate" value="${saved.mfgDate || ''}" oninput="iopsBulkUpdateExpiry()">
+          </div>
+          <div class="iops-doc-field">
+            <label>제조번호 (로트번호) *</label>
+            <input type="text" id="bulk_lotNumber" value="${saved.lotNumber || ''}" placeholder="예: BC051" oninput="this.value=this.value.toUpperCase()">
+          </div>
+        </div>
+        <div id="bulk_expiryPreview" style="margin:-4px 0 12px;font-size:12px;color:#166534;background:#F0FDF4;padding:8px 12px;border-radius:6px;display:${saved.mfgDate?'block':'none'}">
+          ✨ 사용기한 자동 계산: <strong id="bulk_expiryVal">${saved.mfgDate ? calcExpiryDate(saved.mfgDate) : ''}</strong> (제조일 + 3년 − 1일)
+        </div>
+
+        <div class="iops-doc-section-title">제조·시험 정보</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="iops-doc-field">
+            <label>제조량</label>
+            <div class="input-with-suffix">
+              <input type="number" id="bulk_mfgAmount" value="${saved.mfgAmount || ''}" placeholder="예: 17">
+              <span class="input-suffix">kg</span>
+            </div>
+          </div>
+          <div class="iops-doc-field">
+            <label>포장량</label>
+            <div class="input-with-suffix">
+              <input type="number" id="bulk_pkgAmount" value="${saved.pkgAmount || ''}" placeholder="예: 15">
+              <span class="input-suffix">kg</span>
+            </div>
+          </div>
+          <div class="iops-doc-field">
+            <label>포장일자</label>
+            <input type="date" id="bulk_pkgDate" value="${saved.pkgDate || ''}">
+          </div>
+          <div class="iops-doc-field">
+            <label>시험의뢰일자</label>
+            <input type="date" id="bulk_reqDate" value="${saved.reqDate || ''}">
+          </div>
+          <div class="iops-doc-field">
+            <label>시험의뢰부서</label>
+            <input type="text" id="bulk_reqDept" value="${saved.reqDept || '제조실'}">
+          </div>
+          <div class="iops-doc-field">
+            <label>시험의뢰자</label>
+            <input type="text" id="bulk_requester" value="${saved.requester || '안 한태'}">
+          </div>
+          <div class="iops-doc-field">
+            <label>검체채취일자</label>
+            <input type="date" id="bulk_sampleDate" value="${saved.sampleDate || ''}">
+          </div>
+          <div class="iops-doc-field">
+            <label>검체채취장소</label>
+            <input type="text" id="bulk_sampleLocation" value="${saved.sampleLocation || '제조실'}">
+          </div>
+          <div class="iops-doc-field">
+            <label>시험자</label>
+            <input type="text" id="bulk_tester" value="${saved.tester || '안 정경'}">
+          </div>
+        </div>
+
+        <div class="iops-doc-section-title">시험 항목 결과 (기준 → 결과)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="iops-doc-field"><label>외관 및 성상</label><input type="text" id="bulk_appearance" value="${saved.appearance || ''}" placeholder="예: 반투명한 겔상"><div style="font-size:10px;color:var(--g6);margin-top:3px">기준: ${saved.std_appearance || '제품별 기준 입력'}</div></div>
+          <div class="iops-doc-field"><label>향취</label><input type="text" id="bulk_scent" value="${saved.scent || '기준과 동일'}"><div style="font-size:10px;color:var(--g6);margin-top:3px">기준: 표준품에 준함</div></div>
+          <div class="iops-doc-field"><label>점도</label><input type="text" id="bulk_viscosity" value="${saved.viscosity || ''}" placeholder="예: 1,632 (No.63, 30rpm)"><div style="font-size:10px;color:var(--g6);margin-top:3px">기준: 제품별 기준 ± 허용오차</div></div>
+          <div class="iops-doc-field"><label>pH (25℃)</label><input type="text" id="bulk_ph" value="${saved.ph || ''}" placeholder="예: 5.56"><div style="font-size:10px;color:var(--g6);margin-top:3px">기준: 제품별 ± 0.5</div></div>
+          <div class="iops-doc-field"><label>비중</label><input type="text" id="bulk_sg" value="${saved.sg || ''}" placeholder="예: 1.0098"><div style="font-size:10px;color:var(--g6);margin-top:3px">기준: 1.00 ± 0.05</div></div>
+          <div class="iops-doc-field"><label>사용감</label><input type="text" id="bulk_feel" value="${saved.feel || '기준과 동일'}"><div style="font-size:10px;color:var(--g6);margin-top:3px">기준: 표준품에 준함</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="iops-doc-field">
+            <label>이물질 <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 발견되어서는 안됨)</span></label>
+            <div class="iops-doc-radio-group">
+              <label><input type="radio" name="bulk_foreign" value="이상 없음" ${(saved.foreign||'이상 없음')==='이상 없음'?'checked':''}> 이상 없음</label>
+              <label><input type="radio" name="bulk_foreign" value="이상 있음" ${saved.foreign==='이상 있음'?'checked':''}> 이상 있음</label>
+            </div>
+          </div>
+          <div class="iops-doc-field">
+            <label>안정성 <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 분리가 없어야 됨)</span></label>
+            <div class="iops-doc-radio-group">
+              <label><input type="radio" name="bulk_stability" value="이상 없음" ${(saved.stability||'이상 없음')==='이상 없음'?'checked':''}> 이상 없음</label>
+              <label><input type="radio" name="bulk_stability" value="분리" ${saved.stability==='분리'?'checked':''}> 분리</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="iops-doc-section-title">미생물</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="iops-doc-field"><label>총호기성세균 (cfu/ml) <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 100 이하)</span></label><input type="text" id="bulk_aerobic" value="${saved.aerobic || '0'}"></div>
+          <div class="iops-doc-field"><label>특정세균 <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 불검출)</span></label><input type="text" id="bulk_specific" value="${saved.specific || '불검출'}"></div>
+        </div>
+
+        <div class="iops-doc-field">
+          <label>특이사항</label>
+          <textarea id="bulk_note" rows="2" placeholder="필요시 입력">${saved.note || ''}</textarea>
+        </div>
+
+        <div class="iops-doc-section-title">판정 및 결재</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="iops-doc-field">
+            <label>판정 일자</label>
+            <input type="date" id="bulk_judgeDate" value="${saved.judgeDate || ''}">
+          </div>
+          <div class="iops-doc-field">
+            <label>종합 판정</label>
+            <select id="bulk_judgment">
+              <option value="">선택</option>
+              <option value="적합" ${saved.judgment==='적합'?'selected':''}>✅ 적합</option>
+              <option value="부적합" ${saved.judgment==='부적합'?'selected':''}>❌ 부적합</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="iops-doc-field"><label>작성</label><input type="text" id="bulk_signWrite" value="${saved.signWrite || '안 정경'}" placeholder="작성자"></div>
+          <div class="iops-doc-field"><label>검토</label><input type="text" id="bulk_signCheck" value="${saved.signCheck || ''}" placeholder="검토자"></div>
+          <div class="iops-doc-field"><label>승인</label><input type="text" id="bulk_signApprove" value="${saved.signApprove || ''}" placeholder="승인자"></div>
+        </div>
+
+        <div class="iops-doc-actions">
+          <button class="iops-doc-btn-cancel" onclick="iopsOpenOrderDetail('${orderId}')">취소</button>
+          <button class="iops-doc-btn-save" onclick="iopsSaveBulkTest('${orderId}', false)">💾 임시저장</button>
+          <button class="iops-doc-btn-complete" onclick="iopsSaveBulkTest('${orderId}', true)">✓ 작성 완료</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button onclick="iopsPrintBulkTest('${orderId}')" style="flex:1;padding:11px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #3B82F6;background:#EFF6FF;color:#1E40AF;font-family:inherit">📄 인쇄 / PDF 저장</button>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--g6);text-align:center">
+          💡 인쇄 버튼 클릭 → 새 탭에 정식 양식 → 브라우저 인쇄 → "PDF로 저장" 가능
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 🖨️ 벌크 시험성적서 인쇄/PDF용 새 탭 열기
+async function iopsPrintBulkTest(orderId) {
+  let order;
+  try {
+    const doc = await db.collection('orders').doc(orderId).get();
+    if (!doc.exists) { alert('의뢰서를 찾을 수 없습니다.'); return; }
+    order = doc.data();
+  } catch(e) { alert('로드 실패: ' + e.message); return; }
+  const po = order.purchaseOrder || {};
+  const bulk = order.documents?.bulkTest?.data || {};
+  const productName = `${po.brandName || ''}${po.productName ? ' ' + po.productName : ''}` || po.brand || '-';
+  const E = s => String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmt = v => v ? E(v) : '';
+  // 시험 항목 데이터
+  const tests = [
+    { name:'외관 및 성상', std:'반투명한 겔상 (제품별)', result: bulk.appearance },
+    { name:'향취', std:'표준품에 준함', result: bulk.scent },
+    { name:'점도', std:'제품별 기준 ± 허용오차', result: bulk.viscosity },
+    { name:'pH (25℃)', std:'제품별 ± 0.5', result: bulk.ph },
+    { name:'비중', std:'1.00 ± 0.05', result: bulk.sg },
+    { name:'사용감', std:'표준품에 준함', result: bulk.feel },
+    { name:'이물질', std:'발견되어서는 안됨', result: bulk.foreign },
+    { name:'안정성', std:'분리가 없어야 됨', result: bulk.stability },
+  ];
+  const tester = fmt(bulk.tester || '안 정경');
+  const testDay = fmt(bulk.reqDate);
+
+  const logoUrl = window.location.origin + '/images/' + encodeURIComponent('레드메디코스 로고') + '.png';
+  const html = `<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>벌크 시험성적서 ${E(bulk.lotNumber||'')}</title>
+<style>
+@page { size: A4; margin: 15mm; }
+body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif; font-size: 11pt; color: #000; margin: 0; padding: 20px; background: #f5f5f5; }
+.sheet { background: #fff; max-width: 210mm; margin: 0 auto; padding: 20mm 15mm; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+@media print { body { background: #fff; padding: 0; } .sheet { box-shadow: none; padding: 0; max-width: none; } .no-print { display: none !important; } -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.header { display: flex; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10mm; margin-bottom: 8mm; }
+.logo-box { flex-shrink: 0; padding-right: 15mm; border-right: 1px solid #000; margin-right: 15mm; display:flex; align-items:center; }
+.logo-img { height: 70px; width: auto; }
+.logo-text { font-size: 20pt; font-weight: 900; letter-spacing: 1px; color: #DC2626; }
+.title { flex: 1; font-size: 24pt; font-weight: 800; letter-spacing: 10px; text-align: center; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 5mm; }
+table th, table td { border: 1px solid #000; padding: 5px 8px; font-size: 10pt; }
+.info-table th { background: #f0f0f0; font-weight: 700; text-align: center; width: 12%; }
+.info-table td { width: 21%; }
+.result-table th { background: #f0f0f0; font-weight: 700; text-align: center; }
+.result-table td { text-align: center; }
+.result-table td.test-name { background: #f8f8f8; font-weight: 600; }
+.result-table td.test-std { text-align: left; }
+.special-box { border: 1px solid #000; padding: 8px 10px; min-height: 50px; margin-bottom: 5mm; }
+.special-title { font-size: 10pt; font-weight: 700; margin-bottom: 4px; }
+.special-content { font-size: 10pt; white-space: pre-wrap; }
+.judge-table th { background: #f0f0f0; font-weight: 700; text-align: center; }
+.judge-table td { text-align: center; height: 50px; vertical-align: middle; }
+.judge-result { font-size: 18pt; font-weight: 800; }
+.print-bar { background: #fffbeb; border: 1px solid #fcd34d; padding: 12px 16px; margin-bottom: 16px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; max-width: 210mm; margin-left:auto; margin-right:auto; }
+.print-bar-btn { padding: 8px 18px; background: #DC2626; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px; }
+.print-bar-btn:hover { background: #B91C1C; }
+</style></head><body>
+<div class="print-bar no-print">
+  <div style="font-size:13px;color:#92400E">💡 <strong>Ctrl+P</strong> (Mac: <strong>⌘+P</strong>) 또는 오른쪽 버튼 클릭 → "대상: <strong>PDF로 저장</strong>"으로 PDF 다운로드</div>
+  <button class="print-bar-btn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
+</div>
+<div class="sheet">
+  <div class="header">
+    <div class="logo-box"><img src="${logoUrl}" alt="RED MEDICOS" class="logo-img" onerror="this.outerHTML='<div class=&quot;logo-text&quot;>RED<br>MEDICOS</div>'"></div>
+    <div class="title">벌 크 시 험 성 적 서</div>
+  </div>
+
+  <table class="info-table">
+    <tr>
+      <th>제 품 명</th><td colspan="5" style="text-align:left">${E(productName)}</td>
+    </tr>
+    <tr>
+      <th>제조일자</th><td>${fmt(bulk.mfgDate)}</td>
+      <th>제 조 량</th><td>${bulk.mfgAmount ? E(bulk.mfgAmount)+'KG' : ''}</td>
+      <th>제조번호</th><td>${E(bulk.lotNumber || '')}</td>
+    </tr>
+    <tr>
+      <th>시험의뢰<br>일자</th><td>${fmt(bulk.reqDate)}</td>
+      <th>시험의뢰<br>부서</th><td>${fmt(bulk.reqDept)}</td>
+      <th>시험의뢰자</th><td>${fmt(bulk.requester)}</td>
+    </tr>
+    <tr>
+      <th>포 장 량</th><td>${bulk.pkgAmount ? E(bulk.pkgAmount)+'KG' : ''}</td>
+      <th>용량/단위</th><td>${po.volume ? E(po.volume)+'ml' : ''}</td>
+      <th>포장일자</th><td>${fmt(bulk.pkgDate)}</td>
+    </tr>
+    <tr>
+      <th>검체채취<br>일자</th><td>${fmt(bulk.sampleDate)}</td>
+      <th>검체채취<br>장소</th><td>${fmt(bulk.sampleLocation)}</td>
+      <th></th><td></td>
+    </tr>
+  </table>
+
+  <table class="result-table">
+    <thead>
+      <tr>
+        <th style="width:22%">시험 항목</th>
+        <th style="width:28%">시험 기준</th>
+        <th style="width:28%">시험 결과</th>
+        <th style="width:10%">시험자</th>
+        <th style="width:12%">시험 일</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${tests.map(t => `
+        <tr>
+          <td class="test-name">${t.name}</td>
+          <td class="test-std">${E(t.std)}</td>
+          <td>${fmt(t.result)}</td>
+          <td>${tester}</td>
+          <td>${testDay}</td>
+        </tr>
+      `).join('')}
+      <tr>
+        <td rowspan="2" class="test-name">미생물</td>
+        <td class="test-std">총호기성세균<br>(100 cfu/㎖ 이하)</td>
+        <td>${fmt(bulk.aerobic)}${bulk.aerobic && !bulk.aerobic.includes('cfu') ? ' cfu/ml' : ''}</td>
+        <td>${tester}</td><td>${testDay}</td>
+      </tr>
+      <tr>
+        <td class="test-std">특정세균 (불검출)</td>
+        <td>${fmt(bulk.specific)}</td>
+        <td>${tester}</td><td>${testDay}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="special-box">
+    <div class="special-title">◈ 특이사항</div>
+    <div class="special-content">${fmt(bulk.note)}</div>
+  </div>
+
+  <table class="judge-table">
+    <thead>
+      <tr>
+        <th style="width:20%">판정 일자</th>
+        <th style="width:20%">종합 판정</th>
+        <th style="width:20%">작 성</th>
+        <th style="width:20%">검 토</th>
+        <th style="width:20%">승 인</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>${fmt(bulk.judgeDate)}</td>
+        <td class="judge-result">${fmt(bulk.judgment)}</td>
+        <td>${fmt(bulk.signWrite)}</td>
+        <td>${fmt(bulk.signCheck)}</td>
+        <td>${fmt(bulk.signApprove)}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body></html>`;
+
+  const w = window.open('', '_blank');
+  if (!w) { alert('팝업이 차단되었습니다. 브라우저 팝업 차단을 해제해주세요.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+}
+
+// 사용기한 미리보기 실시간 갱신
+function iopsBulkUpdateExpiry() {
+  const mfg = document.getElementById('bulk_mfgDate')?.value;
+  const preview = document.getElementById('bulk_expiryPreview');
+  const val = document.getElementById('bulk_expiryVal');
+  if (!preview || !val) return;
+  if (mfg) {
+    val.textContent = calcExpiryDate(mfg);
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+async function iopsSaveBulkTest(orderId, markComplete) {
+  const data = {
+    mfgDate: document.getElementById('bulk_mfgDate')?.value || '',
+    lotNumber: document.getElementById('bulk_lotNumber')?.value?.trim() || '',
+    mfgAmount: document.getElementById('bulk_mfgAmount')?.value || '',
+    pkgAmount: document.getElementById('bulk_pkgAmount')?.value || '',
+    reqDate: document.getElementById('bulk_reqDate')?.value || '',
+    reqDept: document.getElementById('bulk_reqDept')?.value?.trim() || '',
+    requester: document.getElementById('bulk_requester')?.value?.trim() || '',
+    pkgDate: document.getElementById('bulk_pkgDate')?.value || '',
+    sampleDate: document.getElementById('bulk_sampleDate')?.value || '',
+    sampleLocation: document.getElementById('bulk_sampleLocation')?.value?.trim() || '',
+    tester: document.getElementById('bulk_tester')?.value?.trim() || '',
+    appearance: document.getElementById('bulk_appearance')?.value?.trim() || '',
+    scent: document.getElementById('bulk_scent')?.value?.trim() || '',
+    viscosity: document.getElementById('bulk_viscosity')?.value?.trim() || '',
+    ph: document.getElementById('bulk_ph')?.value?.trim() || '',
+    sg: document.getElementById('bulk_sg')?.value?.trim() || '',
+    feel: document.getElementById('bulk_feel')?.value?.trim() || '',
+    foreign: document.querySelector('input[name="bulk_foreign"]:checked')?.value || '',
+    stability: document.querySelector('input[name="bulk_stability"]:checked')?.value || '',
+    aerobic: document.getElementById('bulk_aerobic')?.value?.trim() || '',
+    specific: document.getElementById('bulk_specific')?.value?.trim() || '',
+    note: document.getElementById('bulk_note')?.value?.trim() || '',
+    judgeDate: document.getElementById('bulk_judgeDate')?.value || '',
+    judgment: document.getElementById('bulk_judgment')?.value || '',
+    signWrite: document.getElementById('bulk_signWrite')?.value?.trim() || '',
+    signCheck: document.getElementById('bulk_signCheck')?.value?.trim() || '',
+    signApprove: document.getElementById('bulk_signApprove')?.value?.trim() || '',
+  };
+  if (markComplete) {
+    if (!data.mfgDate || !data.lotNumber || !data.judgment) {
+      alert('작성 완료하려면 제조일자, 제조번호(로트번호), 종합 판정을 모두 입력해주세요.');
+      return;
+    }
+  }
+  const movedBy = currentUserData?.name || currentUser?.email || 'unknown';
+  try {
+    // 양식 원본(루트)에도 lotNumber·mfgDate 반영 → 모든 서류에 자동 공유
+    const updates = {
+      'documents.bulkTest': {
+        data,
+        completed: !!markComplete,
+        completedAt: markComplete ? firebase.firestore.FieldValue.serverTimestamp() : null,
+        savedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        savedBy: movedBy,
+      }
+    };
+    if (data.lotNumber) updates.lotNumber = data.lotNumber;
+    if (data.mfgDate) updates.mfgDate = data.mfgDate;
+    await db.collection('orders').doc(orderId).update(updates);
+    alert(markComplete
+      ? `✓ 벌크 시험성적서 작성 완료!\n\n로트번호 ${data.lotNumber}, 사용기한 ${calcExpiryDate(data.mfgDate)}이 양식과 모든 서류에 자동 반영됩니다.`
+      : '💾 임시 저장 완료');
+    if (markComplete) iopsOpenOrderDetail(orderId);
+  } catch(e) {
+    alert('저장 실패: ' + e.message);
+  }
+}
+
+// ─── ✅ 완제품 시험성적서 폼 (벌크·미생물 자동 복사 + 4개 추가 항목) ───
+async function renderFinalTestForm(orderId) {
+  const main = document.getElementById('iopsMainArea');
+  if (!main) return;
+  main.innerHTML = '<div style="text-align:center;padding:60px;color:var(--g6);font-size:12px">불러오는 중...</div>';
+  let order;
+  try {
+    const doc = await db.collection('orders').doc(orderId).get();
+    if (!doc.exists) { main.innerHTML = '<div style="color:#dc2626">의뢰서 없음</div>'; return; }
+    order = { id: doc.id, ...doc.data() };
+  } catch(e) {
+    main.innerHTML = `<div style="color:#dc2626;padding:20px">로드 실패: ${e.message}</div>`;
+    return;
+  }
+  const po = order.purchaseOrder || {};
+  const bulk = order.documents?.bulkTest?.data || {};
+  const micro = order.documents?.microTest?.data || {};
+  const saved = order.documents?.finalTest?.data || {};
+  const auto = {
+    cohort: po.cohort || order.cohort || order.userBrand || '-',
+    studentName: po.studentName || order.userName || '-',
+    productName: po.productName || (po.brand?.split('/')[1]) || '-',
+    brandName: po.brandName || (po.brand?.split('/')[0]) || '-',
+    volume: po.volume ? `${po.volume}ml` : '-',
+    lotNumber: order.lotNumber || bulk.lotNumber || '(벌크 시험성적서 작성 후)',
+    mfgDate: order.mfgDate || bulk.mfgDate || '',
+    mfgAmount: bulk.mfgAmount || '',
+    pkgAmount: bulk.pkgAmount || '',
+    pkgDate: bulk.pkgDate || '',
+  };
+  const bulkAuto = {
+    appearance: bulk.appearance || '',
+    scent: bulk.scent || '',
+    viscosity: bulk.viscosity || '',
+    ph: bulk.ph || '',
+    sg: bulk.sg || '',
+    feel: bulk.feel || '',
+    foreign: bulk.foreign || '',
+    stability: bulk.stability || '',
+    aerobic: bulk.aerobic || '',
+    specific: bulk.specific || '',
+  };
+  const hasBulk = !!bulk.lotNumber;
+  const hasMicro = !!micro.judgment;
+  const expiry = calcExpiryDate(auto.mfgDate);
+
+  main.innerHTML = `
+    <button class="iops-detail-back" onclick="iopsOpenOrderDetail('${orderId}')">← ${auto.studentName} 상세화면으로</button>
+    <div class="iops-doc-form">
+      <div class="iops-detail-header">
+        <div>
+          <div class="iops-detail-name">✅ 완제품 시험성적서</div>
+          <div class="iops-detail-meta">${auto.cohort} · ${auto.studentName} · 최종 출고 전 시험</div>
+        </div>
+      </div>
+
+      <!-- 자동 채워진 정보 -->
+      <div class="iops-card-box iops-doc-auto">
+        <div class="iops-card-title">📋 양식·벌크 시험성적서에서 자동 채워진 정보</div>
+        <div class="iops-doc-auto-row"><span class="label">제품명</span><span class="value">${auto.brandName} / ${auto.productName}</span></div>
+        <div class="iops-doc-auto-row"><span class="label">제조일자</span><span class="value">${auto.mfgDate || '-'}</span></div>
+        <div class="iops-doc-auto-row"><span class="label">제조량 / 포장량</span><span class="value">${auto.mfgAmount || '-'}kg / ${auto.pkgAmount || '-'}kg</span></div>
+        <div class="iops-doc-auto-row"><span class="label">용량 / 단위</span><span class="value">${auto.volume}</span></div>
+        <div class="iops-doc-auto-row"><span class="label">제조번호 (로트번호)</span><span class="value" style="color:#DC2626;font-weight:700">${auto.lotNumber}</span></div>
+        <div class="iops-doc-auto-row"><span class="label">사용기한</span><span class="value">${expiry || '제조일 입력 후 자동 계산'}</span></div>
+        <div class="iops-doc-auto-row"><span class="label">포장일자</span><span class="value">${auto.pkgDate || '-'}</span></div>
+        ${!hasBulk ? `<div style="margin-top:10px;padding:8px 10px;background:#FEE2E2;border-radius:6px;font-size:11px;color:#991B1B">⚠️ 벌크 시험성적서가 먼저 작성되어야 합니다. 시험 결과 9개 항목이 자동 복사됩니다.</div>` : ''}
+        ${!hasMicro ? `<div style="margin-top:8px;padding:8px 10px;background:#FEF3C7;border-radius:6px;font-size:11px;color:#92400E">💡 미생물 성적서 결과도 자동 반영됩니다.</div>` : ''}
+      </div>
+
+      <!-- 직원 입력 -->
+      <div class="iops-card-box">
+        <div class="iops-card-title">✏️ 완제품 시험 정보 입력</div>
+
+        <div class="iops-doc-section-title">시험·검체 정보</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="iops-doc-field">
+            <label>시험의뢰일자</label>
+            <input type="date" id="final_reqDate" value="${saved.reqDate || ''}">
+          </div>
+          <div class="iops-doc-field">
+            <label>시험의뢰부서</label>
+            <input type="text" id="final_reqDept" value="${saved.reqDept || '포장실'}">
+          </div>
+          <div class="iops-doc-field">
+            <label>시험의뢰자</label>
+            <input type="text" id="final_requester" value="${saved.requester || '조 재훈'}">
+          </div>
+          <div class="iops-doc-field">
+            <label>검체채취일자</label>
+            <input type="date" id="final_sampleDate" value="${saved.sampleDate || ''}">
+          </div>
+          <div class="iops-doc-field">
+            <label>검체채취장소</label>
+            <input type="text" id="final_sampleLocation" value="${saved.sampleLocation || '포장실'}">
+          </div>
+          <div class="iops-doc-field">
+            <label>시험자</label>
+            <input type="text" id="final_tester" value="${saved.tester || '안 정경'}">
+          </div>
+        </div>
+
+        <div class="iops-doc-section-title">⚡ 벌크에서 자동 복사 (수정 가능)</div>
+        <div style="margin-bottom:8px;padding:8px 10px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:6px;font-size:11px;color:#166534">
+          💡 벌크 시험성적서의 결과를 자동으로 가져왔습니다. 완제품 상태가 달라졌다면 수정하세요.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="iops-doc-field"><label>외관 및 성상</label><input type="text" id="final_appearance" value="${saved.appearance || bulkAuto.appearance}"></div>
+          <div class="iops-doc-field"><label>향취</label><input type="text" id="final_scent" value="${saved.scent || bulkAuto.scent || '기준과 동일'}"></div>
+          <div class="iops-doc-field"><label>점도</label><input type="text" id="final_viscosity" value="${saved.viscosity || bulkAuto.viscosity}"></div>
+          <div class="iops-doc-field"><label>pH (25℃)</label><input type="text" id="final_ph" value="${saved.ph || bulkAuto.ph}"></div>
+          <div class="iops-doc-field"><label>비중</label><input type="text" id="final_sg" value="${saved.sg || bulkAuto.sg}"></div>
+          <div class="iops-doc-field"><label>사용감</label><input type="text" id="final_feel" value="${saved.feel || bulkAuto.feel || '기준과 동일'}"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="iops-doc-field">
+            <label>이물질 <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 발견되어서는 안됨)</span></label>
+            <div class="iops-doc-radio-group">
+              <label><input type="radio" name="final_foreign" value="이상 없음" ${(saved.foreign || bulkAuto.foreign || '이상 없음')==='이상 없음'?'checked':''}> 이상 없음</label>
+              <label><input type="radio" name="final_foreign" value="이상 있음" ${(saved.foreign || bulkAuto.foreign)==='이상 있음'?'checked':''}> 이상 있음</label>
+            </div>
+          </div>
+          <div class="iops-doc-field">
+            <label>안정성 <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 분리가 없어야 됨)</span></label>
+            <div class="iops-doc-radio-group">
+              <label><input type="radio" name="final_stability" value="이상 없음" ${(saved.stability || bulkAuto.stability || '이상 없음')==='이상 없음'?'checked':''}> 이상 없음</label>
+              <label><input type="radio" name="final_stability" value="분리" ${(saved.stability || bulkAuto.stability)==='분리'?'checked':''}> 분리</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="iops-doc-section-title">⭐ 완제품 추가 시험 (직원 입력)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="iops-doc-field">
+            <label>내용량 <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 97% 이상)</span></label>
+            <input type="text" id="final_contentAmount" value="${saved.contentAmount || '기준과 동일'}">
+          </div>
+          <div class="iops-doc-field">
+            <label>표기사항 <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 표준품에 준함)</span></label>
+            <div class="iops-doc-radio-group">
+              <label><input type="radio" name="final_marking" value="이상 없음" ${(saved.marking||'이상 없음')==='이상 없음'?'checked':''}> 이상 없음</label>
+              <label><input type="radio" name="final_marking" value="이상 있음" ${saved.marking==='이상 있음'?'checked':''}> 이상 있음</label>
+            </div>
+          </div>
+          <div class="iops-doc-field">
+            <label>용기상태 <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 표준품에 준함)</span></label>
+            <div class="iops-doc-radio-group">
+              <label><input type="radio" name="final_container" value="이상 없음" ${(saved.container||'이상 없음')==='이상 없음'?'checked':''}> 이상 없음</label>
+              <label><input type="radio" name="final_container" value="이상 있음" ${saved.container==='이상 있음'?'checked':''}> 이상 있음</label>
+            </div>
+          </div>
+          <div class="iops-doc-field">
+            <label>내용물 유출검사 <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 유출이 없어야 함)</span></label>
+            <div class="iops-doc-radio-group">
+              <label><input type="radio" name="final_leak" value="이상 없음" ${(saved.leak||'이상 없음')==='이상 없음'?'checked':''}> 이상 없음</label>
+              <label><input type="radio" name="final_leak" value="이상 있음" ${saved.leak==='이상 있음'?'checked':''}> 이상 있음</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="iops-doc-section-title">미생물 (벌크/미생물 성적서에서 자동)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="iops-doc-field"><label>총호기성세균 (cfu/ml) <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 100 이하)</span></label><input type="text" id="final_aerobic" value="${saved.aerobic || bulkAuto.aerobic || '0'}"></div>
+          <div class="iops-doc-field"><label>특정세균 <span style="font-size:10px;color:var(--g6);font-weight:400">(기준: 불검출)</span></label><input type="text" id="final_specific" value="${saved.specific || bulkAuto.specific || '불검출'}"></div>
+        </div>
+
+        <div class="iops-doc-field">
+          <label>특이사항</label>
+          <textarea id="final_note" rows="2" placeholder="필요시 입력">${saved.note || ''}</textarea>
+        </div>
+
+        <div class="iops-doc-section-title">판정 및 결재</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="iops-doc-field">
+            <label>판정 일자</label>
+            <input type="date" id="final_judgeDate" value="${saved.judgeDate || micro.judgeDate || ''}">
+          </div>
+          <div class="iops-doc-field">
+            <label>종합 판정</label>
+            <select id="final_judgment">
+              <option value="">선택</option>
+              <option value="적합" ${saved.judgment==='적합'?'selected':''}>✅ 적합</option>
+              <option value="부적합" ${saved.judgment==='부적합'?'selected':''}>❌ 부적합</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="iops-doc-field"><label>작성</label><input type="text" id="final_signWrite" value="${saved.signWrite || '안 정경'}" placeholder="작성자"></div>
+          <div class="iops-doc-field"><label>검토</label><input type="text" id="final_signCheck" value="${saved.signCheck || ''}" placeholder="검토자"></div>
+          <div class="iops-doc-field"><label>승인</label><input type="text" id="final_signApprove" value="${saved.signApprove || ''}" placeholder="승인자"></div>
+        </div>
+
+        <div class="iops-doc-actions">
+          <button class="iops-doc-btn-cancel" onclick="iopsOpenOrderDetail('${orderId}')">취소</button>
+          <button class="iops-doc-btn-save" onclick="iopsSaveFinalTest('${orderId}', false)">💾 임시저장</button>
+          <button class="iops-doc-btn-complete" onclick="iopsSaveFinalTest('${orderId}', true)">✓ 작성 완료</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function iopsSaveFinalTest(orderId, markComplete) {
+  const data = {
+    reqDate: document.getElementById('final_reqDate')?.value || '',
+    reqDept: document.getElementById('final_reqDept')?.value?.trim() || '',
+    requester: document.getElementById('final_requester')?.value?.trim() || '',
+    sampleDate: document.getElementById('final_sampleDate')?.value || '',
+    sampleLocation: document.getElementById('final_sampleLocation')?.value?.trim() || '',
+    tester: document.getElementById('final_tester')?.value?.trim() || '',
+    appearance: document.getElementById('final_appearance')?.value?.trim() || '',
+    scent: document.getElementById('final_scent')?.value?.trim() || '',
+    viscosity: document.getElementById('final_viscosity')?.value?.trim() || '',
+    ph: document.getElementById('final_ph')?.value?.trim() || '',
+    sg: document.getElementById('final_sg')?.value?.trim() || '',
+    feel: document.getElementById('final_feel')?.value?.trim() || '',
+    foreign: document.querySelector('input[name="final_foreign"]:checked')?.value || '',
+    stability: document.querySelector('input[name="final_stability"]:checked')?.value || '',
+    contentAmount: document.getElementById('final_contentAmount')?.value?.trim() || '',
+    marking: document.querySelector('input[name="final_marking"]:checked')?.value || '',
+    container: document.querySelector('input[name="final_container"]:checked')?.value || '',
+    leak: document.querySelector('input[name="final_leak"]:checked')?.value || '',
+    aerobic: document.getElementById('final_aerobic')?.value?.trim() || '',
+    specific: document.getElementById('final_specific')?.value?.trim() || '',
+    note: document.getElementById('final_note')?.value?.trim() || '',
+    judgeDate: document.getElementById('final_judgeDate')?.value || '',
+    judgment: document.getElementById('final_judgment')?.value || '',
+    signWrite: document.getElementById('final_signWrite')?.value?.trim() || '',
+    signCheck: document.getElementById('final_signCheck')?.value?.trim() || '',
+    signApprove: document.getElementById('final_signApprove')?.value?.trim() || '',
+  };
+  if (markComplete) {
+    if (!data.contentAmount || !data.marking || !data.container || !data.leak || !data.judgment) {
+      alert('작성 완료하려면 내용량, 표기사항, 용기상태, 내용물 유출검사, 종합 판정을 모두 입력해주세요.');
+      return;
+    }
+  }
+  const movedBy = currentUserData?.name || currentUser?.email || 'unknown';
+  try {
+    await db.collection('orders').doc(orderId).update({
+      'documents.finalTest': {
+        data,
+        completed: !!markComplete,
+        completedAt: markComplete ? firebase.firestore.FieldValue.serverTimestamp() : null,
+        savedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        savedBy: movedBy,
+      }
+    });
+    alert(markComplete ? '✓ 완제품 시험성적서 작성 완료!' : '💾 임시 저장 완료');
+    if (markComplete) iopsOpenOrderDetail(orderId);
+  } catch(e) {
+    alert('저장 실패: ' + e.message);
+  }
 }
 
 // ─── 🦠 미생물 성적서 폼 (하이브리드 방식 시연) ───
@@ -7019,13 +7934,15 @@ async function renderMicrobialTestForm(orderId) {
     main.innerHTML = `<div style="color:#dc2626;padding:20px">로드 실패: ${e.message}</div>`;
     return;
   }
-  // 자동 채움: 양식 데이터
+  // 자동 채움: 양식 데이터 (발주서 + 벌크 시험성적서에서 가져옴)
+  const po = order.purchaseOrder || {};
+  const bulk = order.documents?.bulkTest?.data || {};
   const auto = {
-    cohort: order.cohort || '-',
-    studentName: order.studentName || '-',
-    productName: order.productName || '-',
-    lotNumber: order.lotNumber || '(벌크 생성 후 부여)',
-    mfgDate: order.internal?.schedule?.mfgStarted || order.internal?.schedule?.mfgDone || '',
+    cohort: po.cohort || order.cohort || order.userBrand || '-',
+    studentName: po.studentName || order.userName || order.studentName || '-',
+    productName: po.productName || (po.brand?.split('/')[1]) || po.brand || order.productName || '-',
+    lotNumber: order.lotNumber || bulk.lotNumber || '(벌크 시험성적서 작성 후 부여)',
+    mfgDate: order.mfgDate || bulk.mfgDate || '',
   };
   // 기존 저장값 (있으면)
   const saved = order.documents?.microTest?.data || {};
@@ -7098,7 +8015,12 @@ async function renderMicrobialTestForm(orderId) {
           </div>
         </div>
 
-        <div class="iops-doc-section-title">판정</div>
+        <div class="iops-doc-field">
+          <label>특이사항</label>
+          <textarea id="micro_note" rows="2" placeholder="필요시 입력">${saved.note || ''}</textarea>
+        </div>
+
+        <div class="iops-doc-section-title">판정 및 결재</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div class="iops-doc-field">
             <label>판정 일자</label>
@@ -7113,10 +8035,9 @@ async function renderMicrobialTestForm(orderId) {
             </select>
           </div>
         </div>
-
-        <div class="iops-doc-field">
-          <label>특이사항</label>
-          <textarea id="micro_note" rows="2" placeholder="필요시 입력">${saved.note || ''}</textarea>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="iops-doc-field"><label>작성</label><input type="text" id="micro_signWrite" value="${saved.signWrite || '안 정경'}" placeholder="작성자"></div>
+          <div class="iops-doc-field"><label>승인</label><input type="text" id="micro_signApprove" value="${saved.signApprove || ''}" placeholder="승인자"></div>
         </div>
 
         <div class="iops-doc-actions">
@@ -7143,6 +8064,8 @@ async function iopsSaveMicrobialTest(orderId, markComplete) {
     judgeDate: document.getElementById('micro_judgeDate')?.value || '',
     judgment: document.getElementById('micro_judgment')?.value || '',
     note: document.getElementById('micro_note')?.value?.trim() || '',
+    signWrite: document.getElementById('micro_signWrite')?.value?.trim() || '',
+    signApprove: document.getElementById('micro_signApprove')?.value?.trim() || '',
   };
   if (markComplete) {
     if (!data.testStart || !data.testEnd || !data.generalBact || !data.fungi || !data.judgment) {
@@ -7165,6 +8088,255 @@ async function iopsSaveMicrobialTest(orderId, markComplete) {
     if (markComplete) iopsOpenOrderDetail(orderId);
   } catch(e) {
     alert('저장 실패: ' + e.message);
+  }
+}
+
+// ─── 📅 달력 (월간 뷰) ───
+let _iopsCalendarMonth = new Date();
+
+// 달력 필터 상태 (기본: 4종 모두 ON)
+const _iopsCalFilters = { po: true, mfg: true, pkg: true, sample: true };
+let _iopsCalSearch = '';
+
+async function renderIopsCalendar() {
+  const main = document.getElementById('iopsMainArea');
+  if (!main) return;
+  const ym = `${_iopsCalendarMonth.getFullYear()}년 ${_iopsCalendarMonth.getMonth() + 1}월`;
+  const f = _iopsCalFilters;
+  main.innerHTML = `
+    <div class="iops-page-title">📅 달력</div>
+    <div class="iops-page-desc">발주·제조·생산·샘플 일정을 월간으로 한눈에 봅니다. 일정 클릭 시 해당 의뢰서 상세화면으로 이동합니다.</div>
+    <div class="cal-toolbar">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="iopsCalPrev()" title="이전 달">‹</button>
+        <span id="calMonthLabel">${ym}</span>
+        <button class="cal-nav-btn" onclick="iopsCalNext()" title="다음 달">›</button>
+      </div>
+      <button onclick="iopsCalToday()">오늘</button>
+      <input id="calSearch" placeholder="🔍 교육생/제품 검색" value="${_iopsCalSearch.replace(/"/g,'&quot;')}" style="flex:1;min-width:160px;padding:7px 12px;border:1px solid var(--ge);border-radius:var(--rsm);font-size:13px;font-family:inherit">
+    </div>
+    <div class="cal-filter-row">
+      <span style="font-size:11px;color:var(--g6);font-weight:600">필터:</span>
+      <label class="cal-filter-chip ${f.po?'active red':''}"><input type="checkbox" id="calF_po" ${f.po?'checked':''} onchange="iopsCalToggleFilter('po',this.checked)"><span class="cal-dot red"></span>발주 접수</label>
+      <label class="cal-filter-chip ${f.mfg?'active purple':''}"><input type="checkbox" id="calF_mfg" ${f.mfg?'checked':''} onchange="iopsCalToggleFilter('mfg',this.checked)"><span class="cal-dot purple"></span>제조 일정</label>
+      <label class="cal-filter-chip ${f.pkg?'active blue':''}"><input type="checkbox" id="calF_pkg" ${f.pkg?'checked':''} onchange="iopsCalToggleFilter('pkg',this.checked)"><span class="cal-dot blue"></span>생산 일정</label>
+      <label class="cal-filter-chip ${f.sample?'active amber':''}"><input type="checkbox" id="calF_sample" ${f.sample?'checked':''} onchange="iopsCalToggleFilter('sample',this.checked)"><span class="cal-dot amber"></span>샘플 출고</label>
+    </div>
+    <div id="iopsCalArea"><div style="text-align:center;padding:40px;color:var(--g6);font-size:12px">불러오는 중...</div></div>
+    <div class="cal-summary" id="iopsCalSummary"></div>
+  `;
+  // 검색 입력 이벤트
+  const sInput = document.getElementById('calSearch');
+  if (sInput) {
+    sInput.addEventListener('input', (e) => {
+      _iopsCalSearch = e.target.value;
+      renderIopsCalendarData();
+    });
+  }
+  await renderIopsCalendarData();
+}
+
+function iopsCalToggleFilter(key, checked) {
+  _iopsCalFilters[key] = checked;
+  renderIopsCalendar();
+}
+
+async function renderIopsCalendarData() {
+  const area = document.getElementById('iopsCalArea');
+  if (!area) return;
+  let orders = [];
+  try {
+    const snap = await db.collection('orders').limit(500).get();
+    snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
+  } catch(e) {
+    area.innerHTML = `<div style="color:#dc2626;padding:20px">로드 실패: ${e.message}</div>`;
+    return;
+  }
+
+  // 검색어 적용
+  const search = _iopsCalSearch.trim().toLowerCase();
+  if (search) {
+    orders = orders.filter(o => {
+      const po = o.purchaseOrder || {};
+      const fields = [
+        o.userName, o.studentName, o.userBrand, o.brand, o.cohort,
+        o.description, o.productName, o.formula, o.userEmail,
+        po.studentName, po.brand, po.company, po.cohort, po.ceo
+      ];
+      return fields.some(f => (f || '').toString().toLowerCase().includes(search));
+    });
+  }
+
+  // 일정 추출 (4종) — label은 짧게(종류+이름), title은 전체 정보
+  const events = {};
+  let countPO = 0, countMfg = 0, countPkg = 0, countSample = 0;
+  const f = _iopsCalFilters;
+  for (const o of orders) {
+    const po = o.purchaseOrder || {};
+    const name = po.studentName || o.userName || o.studentName || '이름없음';
+    const formulaShort = o.formula ? o.formula.split(' (')[0].split(' - ')[0] : '';
+    const product = po.brand || o.description || o.productName || formulaShort || '제품명 미정';
+    const fullInfo = `${name} · ${product}`;
+
+    const add = (key, ev) => pushCalEvent(events, key, ev);
+
+    // 1. 발주 접수
+    if (f.po && po.submittedAt) {
+      const k = formatCalKey(new Date(po.submittedAt));
+      add(k, { icon:'📝', color:'red', label:`발주: ${name}`, title:`발주 접수: ${fullInfo}`, orderId:o.id });
+      countPO++;
+    }
+    // 2. 제조 일정
+    const sch = o.internal?.schedule || {};
+    if (f.mfg && sch.mfgPlanned) {
+      add(sch.mfgPlanned, { icon:'🧪', color:'purple', label:`제조 예정: ${name}`, title:`제조 예정: ${fullInfo}`, orderId:o.id });
+      countMfg++;
+    }
+    if (f.mfg && sch.mfgStarted && sch.mfgStarted !== sch.mfgPlanned) {
+      add(sch.mfgStarted, { icon:'🧪', color:'purple', label:`제조 시작: ${name}`, title:`제조 시작: ${fullInfo}`, orderId:o.id });
+      countMfg++;
+    }
+    // 3. 생산 일정
+    if (f.pkg) {
+      if (sch.pkgPlanned) {
+        add(sch.pkgPlanned, { icon:'📦', color:'blue', label:`생산: ${name}`, title:`생산 일정: ${fullInfo}`, orderId:o.id });
+        countPkg++;
+      } else if (o.stageDates?.production) {
+        const k = parseKoreanDateKey(o.stageDates.production);
+        if (k) {
+          add(k, { icon:'📦', color:'blue', label:`생산: ${name}`, title:`생산 일정: ${fullInfo}`, orderId:o.id });
+          countPkg++;
+        }
+      }
+    }
+    // 4. 샘플 출고
+    if (f.sample && o.stageDates?.sample_sent) {
+      const k = parseKoreanDateKey(o.stageDates.sample_sent);
+      if (k) {
+        add(k, { icon:'🎁', color:'amber', label:`샘플 출고: ${name}`, title:`샘플 출고: ${fullInfo}`, orderId:o.id });
+        countSample++;
+      }
+    }
+  }
+
+  // 6주 × 7일 그리드
+  const year = _iopsCalendarMonth.getFullYear();
+  const month = _iopsCalendarMonth.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startDay = firstDay.getDay();
+  const daysInMonth = lastDay.getDate();
+  const prevLastDay = new Date(year, month, 0).getDate();
+
+  const cells = [];
+  for (let i = startDay - 1; i >= 0; i--) cells.push({ date: prevLastDay - i, dt: new Date(year, month - 1, prevLastDay - i), isOther: true });
+  for (let i = 1; i <= daysInMonth; i++) cells.push({ date: i, dt: new Date(year, month, i), isOther: false });
+  let nd = 1;
+  while (cells.length < 42) { cells.push({ date: nd, dt: new Date(year, month + 1, nd), isOther: true }); nd++; }
+
+  const todayKey = formatCalKey(new Date());
+  const escape = s => String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  let html = `<div class="cal-grid">
+    <div class="cal-head sun">일</div><div class="cal-head">월</div><div class="cal-head">화</div>
+    <div class="cal-head">수</div><div class="cal-head">목</div><div class="cal-head">금</div>
+    <div class="cal-head sat">토</div>`;
+
+  for (const c of cells) {
+    const key = formatCalKey(c.dt);
+    const dow = c.dt.getDay();
+    const isToday = key === todayKey;
+    const evs = events[key] || [];
+    const classes = ['cal-cell'];
+    if (c.isOther) classes.push('other');
+    if (isToday) classes.push('today');
+    if (!c.isOther && dow === 0) classes.push('sun');
+    if (!c.isOther && dow === 6) classes.push('sat');
+
+    let evsHtml = evs.slice(0, 3).map(e =>
+      `<div class="cal-event ${e.color}" onclick="event.stopPropagation();iopsOpenOrderDetail('${e.orderId}')">${e.icon} ${escape(e.label)}</div>`
+    ).join('');
+    if (evs.length > 3) {
+      evsHtml += `<div class="cal-more" title="${evs.length}건">+${evs.length - 3}건 더</div>`;
+    }
+
+    html += `<div class="${classes.join(' ')}">
+      <div class="cal-date">${c.date}</div>
+      ${evsHtml}
+    </div>`;
+  }
+  html += '</div>';
+  area.innerHTML = html;
+
+  const sum = document.getElementById('iopsCalSummary');
+  if (sum) {
+    sum.innerHTML = `💡 <strong>이번 달 요약:</strong>
+      📝 발주 ${countPO}건 · 🧪 제조 ${countMfg}건 · 📦 생산 ${countPkg}건 · 🎁 샘플 ${countSample}건<br>
+      <span style="font-size:11px">발주는 제출 시 자동 기록 / 제조·생산 일정은 내부 단계 이동 시 자동 기록 / 샘플은 단계 진입일 기준.</span>`;
+  }
+}
+
+function pushCalEvent(events, key, ev) {
+  if (!events[key]) events[key] = [];
+  events[key].push(ev);
+}
+function formatCalKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+// 사용기한 자동 계산: 제조일자 + 3년 - 1일
+// 예) 2026-05-05 → 2029-05-04
+function calcExpiryDate(mfgDateStr) {
+  if (!mfgDateStr) return '';
+  const m = String(mfgDateStr).match(/(\d{4})[-./]\s*(\d{1,2})[-./]\s*(\d{1,2})/);
+  if (!m) return '';
+  const d = new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
+  if (isNaN(d.getTime())) return '';
+  d.setFullYear(d.getFullYear() + 3);
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function parseKoreanDateKey(str) {
+  const m = String(str).match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})/);
+  if (!m) return null;
+  return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+}
+function iopsCalPrev() { _iopsCalendarMonth = new Date(_iopsCalendarMonth.getFullYear(), _iopsCalendarMonth.getMonth() - 1, 1); renderIopsCalendar(); }
+function iopsCalNext() { _iopsCalendarMonth = new Date(_iopsCalendarMonth.getFullYear(), _iopsCalendarMonth.getMonth() + 1, 1); renderIopsCalendar(); }
+function iopsCalToday() { _iopsCalendarMonth = new Date(); renderIopsCalendar(); }
+
+// 데모 일괄 삭제 (studentName 또는 userName에 "(데모)" 포함된 의뢰서)
+async function iopsDeleteAllDemos() {
+  try {
+    const snap = await db.collection('orders').get();
+    const demos = [];
+    snap.forEach(d => {
+      const data = d.data();
+      const name = (data.studentName || data.userName || '');
+      const studentN = data.purchaseOrder?.studentName || '';
+      if (name.includes('(데모)') || studentN.includes('(데모)')) {
+        demos.push({ id: d.id, name: name || studentN });
+      }
+    });
+    if (demos.length === 0) {
+      alert('삭제할 데모 의뢰서가 없습니다.');
+      return;
+    }
+    if (!confirm(`${demos.length}건의 데모 의뢰서를 삭제하시겠습니까?\n\n` + demos.map(d => `· ${d.name} (${d.id.slice(0,8)}...)`).join('\n') + '\n\n⚠️ 이 작업은 되돌릴 수 없습니다.')) return;
+    let success = 0, failed = 0;
+    for (const d of demos) {
+      try {
+        await db.collection('orders').doc(d.id).delete();
+        success++;
+      } catch(e) {
+        console.error('삭제 실패', d.id, e);
+        failed++;
+      }
+    }
+    alert(`완료\n삭제: ${success}건${failed ? ' · 실패: ' + failed + '건' : ''}`);
+    renderKanbanBoardData();
+  } catch(e) {
+    alert('데모 삭제 실패: ' + e.message);
   }
 }
 
