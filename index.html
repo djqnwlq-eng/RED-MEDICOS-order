@@ -1154,20 +1154,7 @@ body.iops-mode #chatbotToggle, body.iops-mode #chatbotPanel { display:none !impo
     <button class="biz-close" onclick="closeOrderTypeModal()">✕</button>
     <h3>의뢰서 유형 선택</h3>
     <div class="ot-sub">어떤 방식으로 제품을 개발하시겠습니까?</div>
-    <div class="order-type-cards">
-      <div class="order-type-card" onclick="closeOrderTypeModal();startCustomOrder()">
-        <div class="otc-icon">🧴</div>
-        <div class="otc-title">맞춤형 의뢰서</div>
-        <div class="otc-desc">단계별로 제형·성분·용기·향을<br>직접 선택하여 의뢰합니다</div>
-        <div class="otc-badge" style="background:var(--tl);color:var(--t)">셀프 구성</div>
-      </div>
-      <div class="order-type-card" onclick="closeOrderTypeModal();startDevRequest()">
-        <div class="otc-icon">📋</div>
-        <div class="otc-title">독점개발 의뢰</div>
-        <div class="otc-desc">개발 의뢰서를 작성하면<br>연구팀이 처음부터 개발합니다</div>
-        <div class="otc-badge" style="background:#F3E8FF;color:#6B21A8">연구팀 전담</div>
-      </div>
-    </div>
+    <div class="order-type-cards" id="orderTypeCards"></div>
   </div>
 </div>
 
@@ -3049,9 +3036,20 @@ async function doPasswordReset() {
   btn.disabled = false;
 }
 
+// type: 'current' = 맞춤형 의뢰서 가능 / 'past' = 발주서·독점개발만 가능 (지난 기수)
 const INVITE_CODES = {
-  'KKANG20261': '맞춤형1기',
-  'CORA20261': '코라1기'
+  'KKANG20261': { brand: '맞춤형1기', type: 'current' },
+  'CORA20261':  { brand: '코라1기',   type: 'current' },
+  // 지난 기수 (오프라인 1~4기)
+  'KKANG-OFF1': { brand: '오프라인1기', type: 'past' },
+  'KKANG-OFF2': { brand: '오프라인2기', type: 'past' },
+  'KKANG-OFF3': { brand: '오프라인3기', type: 'past' },
+  'KKANG-OFF4': { brand: '오프라인4기', type: 'past' },
+  // 지난 기수 (온라인 1~4기)
+  'KKANG-ON1':  { brand: '온라인1기',   type: 'past' },
+  'KKANG-ON2':  { brand: '온라인2기',   type: 'past' },
+  'KKANG-ON3':  { brand: '온라인3기',   type: 'past' },
+  'KKANG-ON4':  { brand: '온라인4기',   type: 'past' },
 };
 
 let _isSigningUp = false;
@@ -3066,14 +3064,17 @@ async function doSignup() {
   errEl.style.color = '#dc2626';
   if (!email||!pw||!name||!inviteCode||!phone) { errEl.textContent='모든 항목을 입력하세요'; errEl.style.display='block'; return; }
   if (pw.length < 6) { errEl.textContent='비밀번호는 6자 이상이어야 합니다'; errEl.style.display='block'; return; }
-  const brand = INVITE_CODES[inviteCode];
-  if (!brand) { errEl.textContent='유효하지 않은 초대 코드입니다. 강사님께 다시 문의해주세요.'; errEl.style.display='block'; return; }
+  const inviteInfo = INVITE_CODES[inviteCode];
+  if (!inviteInfo) { errEl.textContent='유효하지 않은 초대 코드입니다. 강사님께 다시 문의해주세요.'; errEl.style.display='block'; return; }
+  const brand = inviteInfo.brand;
+  const cohortType = inviteInfo.type || 'current';
   document.getElementById('signupBtn').disabled = true;
   _isSigningUp = true;
   try {
     const cred = await auth.createUserWithEmailAndPassword(email, pw);
     await db.collection('users').doc(cred.user.uid).set({
       email, name, brand, phone, address:'', role: 'student', approved: false,
+      cohortType,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     await auth.signOut();
@@ -3094,6 +3095,7 @@ async function doSignup() {
           // Firestore 삭제된 상태 → 재가입 처리
           await db.collection('users').doc(cred.user.uid).set({
             email, name, brand, phone, address:'', role:'student', approved:false,
+            cohortType,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           await auth.signOut();
@@ -3225,7 +3227,7 @@ function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') 
           <div class="round-header">
             <span class="rh-round">${round}차</span><span class="rh-date">${date}</span><span class="rh-qty">${qty}</span>${statusBadge}<span style="font-size:10px;color:var(--g8);margin-left:auto">▼ 펼치기</span>
           </div>
-          <div class="round-expand" style="display:none;margin-top:10px">${renderStatusTimeline(o.status, o.stageDates, o.createdAt, o.feedback)}${renderRoundDetails(o, editable, uid, uname, ubrand)}</div>
+          <div class="round-expand" style="display:none;margin-top:10px">${renderStatusTimeline(o.status, o.stageDates, o.createdAt, o.feedback, o.isDirectPO)}${renderRoundDetails(o, editable, uid, uname, ubrand)}</div>
         </div>`;
       } else {
         // 최신 차수: 펼친 상태
@@ -3290,7 +3292,7 @@ function renderOrderGroups(orders, editable=false, uid='', uname='', ubrand='') 
         }
         roundsHtml += `<div class="order-round">
           <div class="round-header"><span class="rh-round">${round}차</span><span class="rh-date">${date}</span><span class="rh-qty">${qty}</span>${statusBadge}${feedbackBadge}${chatGuideBtn}</div>
-          <div style="margin-top:10px">${renderStatusTimeline(o.status, o.stageDates, o.createdAt, o.feedback)}${renderRoundDetails(o, editable, uid, uname, ubrand)}${cancelBtn}</div>
+          <div style="margin-top:10px">${renderStatusTimeline(o.status, o.stageDates, o.createdAt, o.feedback, o.isDirectPO)}${renderRoundDetails(o, editable, uid, uname, ubrand)}${cancelBtn}</div>
         </div>`;
       }
     });
@@ -3386,7 +3388,7 @@ function renderRoundDetails(o, editable, uid, uname, ubrand) {
   return `${matSection}${prodDate}${addrChanged}${studentConfirmed}${containerSentByStudent}${containerResult}${materialsConfirmed}${note}`;
 }
 
-function renderStatusTimeline(currentStatus, stageDates, createdAt, feedback) {
+function renderStatusTimeline(currentStatus, stageDates, createdAt, feedback, isDirectPO = false) {
   currentStatus = normalizeStatus(currentStatus);
   const sd = stageDates || {};
   const baseDate = createdAt?.seconds ? new Date(createdAt.seconds*1000).toLocaleDateString('ko-KR') : '';
@@ -3395,10 +3397,16 @@ function renderStatusTimeline(currentStatus, stageDates, createdAt, feedback) {
     const color = currentStatus === 'cancelled' ? '#9CA3AF' : '#92400E';
     return `<div style="text-align:center;padding:10px;font-size:12px;font-weight:600;color:${color}">${label}</div>`;
   }
-  const mainStages = ORDER_STAGES.filter(s => s.id !== 'cancel_requested' && s.id !== 'cancelled');
+  let mainStages = ORDER_STAGES.filter(s => s.id !== 'cancel_requested' && s.id !== 'cancelled');
+  // 지난 기수 직접 발주: 의뢰서 관련 단계 스킵, 발주 접수부터 시작
+  if (isDirectPO) {
+    const poIdx = mainStages.findIndex(s => s.id === 'po_submitted');
+    if (poIdx > 0) mainStages = mainStages.slice(poIdx);
+  }
   const currentIdx = mainStages.findIndex(s => s.id === currentStatus);
-  const row1 = mainStages.slice(0, 8);
-  const row2 = mainStages.slice(8);
+  const splitAt = mainStages.length > 8 ? 8 : Math.ceil(mainStages.length / 2);
+  const row1 = mainStages.slice(0, splitAt);
+  const row2 = mainStages.slice(splitAt);
   // 피드백이 승인되기 전(reviewing/feedback_sent/awaiting_reply)이면 접수 완료는 아직 완료 아님
   const fbInProgress = feedback && feedback.enabled && feedback.subStatus && feedback.subStatus !== 'approved';
   function renderRow(stages, offset) {
@@ -3421,7 +3429,7 @@ function renderStatusTimeline(currentStatus, stageDates, createdAt, feedback) {
       return `<div class="st-step ${stepClass}"><div class="st-dot ${dotClass}">${done?'✓':(gi+1)}</div><div class="st-label ${labelClass}">${stage.label}</div>${dateStr}${subBadge}</div>`;
     }).join('');
   }
-  return `<div class="status-timeline">${renderRow(row1, 0)}</div><div class="status-timeline" style="margin-top:4px">${renderRow(row2, 8)}</div>`;
+  return `<div class="status-timeline">${renderRow(row1, 0)}</div><div class="status-timeline" style="margin-top:4px">${renderRow(row2, splitAt)}</div>`;
 }
 
 // 부자재 체크리스트 렌더 (교육생: 읽기전용, 관리자: 클릭 가능)
@@ -3528,15 +3536,20 @@ function renderPOTopBanner(orders) {
   const el = document.getElementById('poTopBanner');
   if (!el) return;
   const escape = s => String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const isPast = currentUserData?.cohortType === 'past';
 
   // 의뢰서 0건: 안내만
   if (orders.length === 0) {
+    const desc = isPast
+      ? `상단의 <strong>[+ 새 발주]</strong> 버튼으로 <strong>발주서</strong>를 바로 작성하실 수 있습니다.`
+      : `상단의 <strong>[+ 새 발주]</strong> 버튼으로 의뢰서를 작성하시면, 그 의뢰서에 대한 발주서를 작성하실 수 있습니다.`;
+    const title = isPast ? '발주서를 작성해주세요' : '먼저 의뢰서를 작성해주세요';
     el.innerHTML = `
       <div class="po-banner waiting">
         <div class="po-banner-icon">📦</div>
         <div class="po-banner-content">
-          <div class="po-banner-title waiting">먼저 의뢰서를 작성해주세요</div>
-          <div class="po-banner-desc">상단의 <strong>[+ 새 발주]</strong> 버튼으로 의뢰서를 작성하시면, 그 의뢰서에 대한 발주서를 작성하실 수 있습니다.</div>
+          <div class="po-banner-title waiting">${title}</div>
+          <div class="po-banner-desc">${desc}</div>
         </div>
       </div>
     `;
@@ -5150,10 +5163,61 @@ function openOrderTypeModal() {
   // 발주 작성 시 챗봇 닫기
   const panel = document.getElementById('chatbotPanel');
   if (panel && chatbotVisible) { chatbotVisible = false; panel.classList.remove('open'); }
+
+  // 사용자 코호트 유형에 따라 카드 동적 렌더링
+  const isPast = currentUserData?.cohortType === 'past';
+  const cards = document.getElementById('orderTypeCards');
+  if (cards) {
+    const customCard = `
+      <div class="order-type-card" onclick="closeOrderTypeModal();startCustomOrder()">
+        <div class="otc-icon">🧴</div>
+        <div class="otc-title">맞춤형 의뢰서</div>
+        <div class="otc-desc">단계별로 제형·성분·용기·향을<br>직접 선택하여 의뢰합니다</div>
+        <div class="otc-badge" style="background:var(--tl);color:var(--t)">셀프 구성</div>
+      </div>`;
+    const directPOCard = `
+      <div class="order-type-card" onclick="closeOrderTypeModal();startDirectPO()">
+        <div class="otc-icon">📝</div>
+        <div class="otc-title">발주서 작성</div>
+        <div class="otc-desc">기존 제품을 그대로 다시 발주<br>(의뢰서 단계 없이 곧바로 발주)</div>
+        <div class="otc-badge" style="background:#FEE2E2;color:#DC2626">바로 발주</div>
+      </div>`;
+    const devCard = `
+      <div class="order-type-card" onclick="closeOrderTypeModal();startDevRequest()">
+        <div class="otc-icon">📋</div>
+        <div class="otc-title">독점개발 의뢰</div>
+        <div class="otc-desc">개발 의뢰서를 작성하면<br>연구팀이 처음부터 개발합니다</div>
+        <div class="otc-badge" style="background:#F3E8FF;color:#6B21A8">연구팀 전담</div>
+      </div>`;
+    cards.innerHTML = isPast ? (directPOCard + devCard) : (customCard + devCard);
+  }
+
   document.getElementById('orderTypeModal').classList.add('open');
 }
 function closeOrderTypeModal() {
   document.getElementById('orderTypeModal').classList.remove('open');
+}
+
+// 지난 기수 전용: 의뢰서 단계 없이 곧바로 발주서 작성
+async function startDirectPO() {
+  if (!currentUser || !currentUserData) { alert('로그인 정보를 확인해주세요.'); return; }
+  try {
+    const ref = await db.collection('orders').add({
+      userId: currentUser.uid,
+      userName: currentUserData.name,
+      userBrand: currentUserData.brand,
+      userPhone: currentUserData.phone || '',
+      userAddress: currentUserData.address || '',
+      cohort: currentUserData.brand,
+      description: `${currentUserData.brand} 직접 발주`,
+      status: 'po_draft',
+      isDirectPO: true,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    openPurchaseOrderForm(ref.id);
+  } catch(e) {
+    alert('발주 시작 실패: ' + e.message);
+  }
 }
 
 function startCustomOrder() {
@@ -7120,6 +7184,9 @@ function iopsOpenDocument(orderId, docId) {
   if (docId === 'bulkTest') {
     return renderBulkTestForm(orderId);
   }
+  if (docId === 'pkgRecord') {
+    return renderPkgRecordForm(orderId);
+  }
   if (docId === 'microTest') {
     return renderMicrobialTestForm(orderId);
   }
@@ -7636,6 +7703,571 @@ function iopsBulkUpdateExpiry() {
   } else {
     preview.style.display = 'none';
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 🏷️ 충포장 지시 및 기록서 (유셀리브 조한나 대표님 양식 기반)
+// ═══════════════════════════════════════════════════════════════
+const PKG_MATERIAL_DEFAULTS = [
+  { id: 'container',        label: '용기' },
+  { id: 'label',            label: '라벨지' },
+  { id: 'printedContainer', label: '인쇄용기' },
+  { id: 'nozzle',           label: '뾰족한 노즐' },
+  { id: 'lid',              label: '리드' },
+  { id: 'spatula',          label: '스파출러' },
+  { id: 'cap',              label: '캡' },
+  { id: 'box',              label: '단상자' },
+  { id: 'sticker',          label: '마감스티커 상/하단' },
+];
+const PKG_CHECK_SECTIONS = [
+  { key:'prep', name:'준비', items:[
+    '표준품을 비치하였는가?',
+    '벌크의 적합여부를 확인하였는가?',
+    '사용하려는 기계 및 기구는 모두 청결하며, 설비작동유무를 확인 한 후 조정되었는가?',
+  ]},
+  { key:'mat',  name:'자재', items:[
+    '표준사양과 일치하고 계획량에 맞게 투입되었는가?',
+  ]},
+  { key:'fill', name:'충전', items:[
+    '용기세병 및 검사상태의 양호여부',
+    '충전시 이물 및 세균 오염에 주의',
+    '충전량 확인',
+  ]},
+  { key:'mark', name:'착인', items:[
+    '착인기에 제조번호, 포장일자 setting 상태 확인.',
+    '실제 제품 표시상태 확인.',
+    '외관상태확인, 착인상태확인',
+  ]},
+  { key:'pack', name:'포장', items:[
+    '캡핑상태, 단상자, 방충제, 설명서등의 확인.',
+    'BOX 투입 수량 및 표기사항의 확인.',
+    'QC 담당자의 완제품 라인검사 수행.',
+  ]},
+];
+
+async function renderPkgRecordForm(orderId) {
+  const main = document.getElementById('iopsMainArea');
+  if (!main) return;
+  main.innerHTML = '<div style="text-align:center;padding:60px;color:var(--g6);font-size:12px">불러오는 중...</div>';
+  let order;
+  try {
+    const doc = await db.collection('orders').doc(orderId).get();
+    if (!doc.exists) { main.innerHTML = '<div style="color:#dc2626">의뢰서 없음</div>'; return; }
+    order = { id: doc.id, ...doc.data() };
+  } catch(e) {
+    main.innerHTML = `<div style="color:#dc2626;padding:20px">로드 실패: ${e.message}</div>`;
+    return;
+  }
+  const po = order.purchaseOrder || {};
+  const bulk = order.documents?.bulkTest?.data || {};
+  const auto = {
+    cohort: po.cohort || order.cohort || order.userBrand || '-',
+    studentName: po.studentName || order.userName || '-',
+    productName: (po.brandName && po.productName) ? `${po.brandName} ${po.productName}` : (po.brand || '-'),
+    poDate: po.submittedDate || order.stageDates?.po_submitted || '-',
+    lotNumber: order.lotNumber || bulk.lotNumber || '',
+    mfgDate: order.mfgDate || bulk.mfgDate || '',
+    expiry: calcExpiryDate(order.mfgDate || bulk.mfgDate || ''),
+  };
+  const saved = order.documents?.pkgRecord?.data || {};
+  const checks = saved.checks || {};
+  const mats   = saved.materials || {};
+
+  const matRowsHtml = PKG_MATERIAL_DEFAULTS.map((m, i) => `
+    <tr>
+      <td style="text-align:center">${i+1}</td>
+      <td><input type="text" id="pkg_matname_${m.id}" value="${(mats[m.id]?.name) || m.label}" style="width:100%"></td>
+      <td style="text-align:center"><input type="checkbox" id="pkg_matchk_${m.id}" ${mats[m.id]?.checked ? 'checked' : ''}></td>
+    </tr>
+  `).join('');
+
+  const checkRowsHtml = PKG_CHECK_SECTIONS.map(sec => `
+    <tr style="background:#F9FAFB"><td colspan="2" style="font-weight:700;padding:6px 8px">${sec.name}</td></tr>
+    ${sec.items.map((it, i) => `
+      <tr>
+        <td style="padding:4px 8px;font-size:12px">${i+1}. ${it}</td>
+        <td style="text-align:center;width:50px"><input type="checkbox" id="pkg_chk_${sec.key}_${i}" ${checks[`${sec.key}_${i}`] ? 'checked' : ''}></td>
+      </tr>
+    `).join('')}
+  `).join('');
+
+  main.innerHTML = `
+    <button class="iops-detail-back" onclick="iopsOpenOrderDetail('${orderId}')">← ${auto.studentName} 상세화면으로</button>
+    <div class="iops-doc-form">
+      <div class="iops-detail-header">
+        <div>
+          <div class="iops-detail-name">🏷️ 충포장 지시 및 기록서</div>
+          <div class="iops-detail-meta">${auto.cohort} · ${auto.studentName}</div>
+        </div>
+      </div>
+
+      <!-- 기본 정보 (제품명/발주일은 자동, 제조번호·사용기한은 직접 입력 가능) -->
+      <div class="iops-card-box iops-doc-auto">
+        <div class="iops-card-title">📋 기본 정보</div>
+        <div class="iops-doc-auto-row"><span class="label">제품명</span><span class="value">${auto.productName}</span></div>
+        <div class="iops-doc-auto-row"><span class="label">발주일</span><span class="value">${auto.poDate}</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--ge)">
+          <div class="iops-doc-field" style="margin:0">
+            <label>제조번호 (로트번호) <span style="font-size:10px;color:var(--g6);font-weight:400">— 직접 입력 가능</span></label>
+            <input type="text" id="pkg_lotNumber" value="${saved.lotNumber || auto.lotNumber || ''}" placeholder="${auto.lotNumber ? '자동: ' + auto.lotNumber : '예: BD211'}" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <div class="iops-doc-field" style="margin:0">
+            <label>사용기한 <span style="font-size:10px;color:var(--g6);font-weight:400">— 직접 입력 가능</span></label>
+            <input type="date" id="pkg_expiry" value="${saved.expiry || auto.expiry || ''}">
+          </div>
+        </div>
+      </div>
+
+      <!-- 부자재 + 공정 점검 2단 -->
+      <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:14px">
+        <!-- 좌: 부자재 -->
+        <div class="iops-card-box">
+          <div class="iops-card-title">📦 부자재 사용 체크</div>
+          <table class="pkg-table" style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead><tr style="background:#F3F4F6"><th style="width:40px;padding:6px;border:1px solid #E5E7EB">No.</th><th style="padding:6px;border:1px solid #E5E7EB">부자재명</th><th style="width:50px;padding:6px;border:1px solid #E5E7EB">✓</th></tr></thead>
+            <tbody>${matRowsHtml}</tbody>
+          </table>
+        </div>
+        <!-- 우: 공정별 점검 -->
+        <div class="iops-card-box">
+          <div class="iops-card-title" style="display:flex;justify-content:space-between;align-items:center">
+            <span>✅ 공정별 점검사항</span>
+            <button type="button" onclick="iopsPkgToggleAllChecks()" id="pkg_toggleAllBtn" style="padding:5px 12px;border-radius:14px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #DC2626;background:#FEF2F2;color:#DC2626;font-family:inherit">☑ 모두 체크</button>
+          </div>
+          <table class="pkg-table" style="width:100%;border-collapse:collapse;font-size:12px">
+            <tbody>${checkRowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 충전·착인·포장 정보 -->
+      <div class="iops-card-box" style="margin-top:14px">
+        <div class="iops-card-title">⚗️ 충전 / 착인 / 포장 정보</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="iops-doc-field"><label>충전일자</label><input type="date" id="pkg_fillDate" value="${saved.fillDate || ''}" oninput="iopsPkgSyncPackDate()"></div>
+          <div class="iops-doc-field"><label>표시량 (ml)</label><input type="number" step="0.01" id="pkg_displayVol" value="${saved.displayVol || po.volume || ''}" oninput="iopsPkgRecalc()"></div>
+          <div class="iops-doc-field"><label>비중</label><input type="number" step="0.0001" id="pkg_sg" value="${saved.sg || bulk.sg || ''}" oninput="iopsPkgRecalc()"></div>
+          <div class="iops-doc-field"><label>충전지시량 (g)</label><input type="number" step="0.01" id="pkg_fillTarget" value="${saved.fillTarget || ''}" readonly style="background:#F9FAFB"></div>
+          <div class="iops-doc-field"><label>최소 충전량 (g) — 표시량×비중×0.97</label><input type="number" step="0.001" id="pkg_fillMin" value="${saved.fillMin || ''}" readonly style="background:#F9FAFB"></div>
+          <div class="iops-doc-field"><label>최대 충전량 (g) — 표시량×비중×1.02</label><input type="number" step="0.001" id="pkg_fillMax" value="${saved.fillMax || ''}" readonly style="background:#F9FAFB"></div>
+          <div class="iops-doc-field"><label>포장일자</label><input type="date" id="pkg_packDate" value="${saved.packDate || ''}" readonly style="background:#F9FAFB"></div>
+          <div class="iops-doc-field"><label>충진기 호기</label><input type="text" id="pkg_machine" value="${saved.machine || ''}" placeholder="예: 1호기"></div>
+          <div class="iops-doc-field"><label>노즐 / 세팅값</label><input type="text" id="pkg_nozzleSet" value="${saved.nozzleSet || ''}" placeholder="예: 1번 / 267"></div>
+        </div>
+      </div>
+
+      <!-- 충전 수율 -->
+      <div class="iops-card-box" style="margin-top:14px">
+        <div class="iops-card-title">📊 충전 수율 기록</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="iops-doc-field"><label>① 벌크투입량 (kg)</label><input type="number" step="0.01" id="pkg_bulkIn" value="${saved.bulkIn || ''}" oninput="iopsPkgRecalc()"></div>
+          <div class="iops-doc-field"><label>② 충진수량 (개) — 총수량+샘플</label><input type="number" id="pkg_fillCount" value="${saved.fillCount || ''}" readonly style="background:#F9FAFB"></div>
+          <div class="iops-doc-field"><label>④ 평균중량 (g) — 충전지시량</label><input type="number" step="0.01" id="pkg_avgWeight" value="${saved.avgWeight || ''}" readonly style="background:#F9FAFB"></div>
+          <div class="iops-doc-field"><label>③ 사용량 (kg) — (②×④)/1000</label><input type="text" id="pkg_usedAmount" value="${saved.usedAmount || ''}" readonly style="background:#F9FAFB"></div>
+          <div class="iops-doc-field"><label>⑤ 재입고 (kg)</label><input type="number" step="0.01" id="pkg_returned" value="${saved.returned || '0'}" oninput="iopsPkgRecalc()"></div>
+          <div class="iops-doc-field"><label>⑥ loss량 (kg) — ①−③</label><input type="text" id="pkg_lossAmount" value="${saved.lossAmount || ''}" readonly style="background:#F9FAFB"></div>
+          <div class="iops-doc-field" style="grid-column:span 3"><label>⑦ 수율 (%) — (③+⑤)/① × 100</label><input type="text" id="pkg_yield" value="${saved.yield || ''}" readonly style="background:#F0FDF4;color:#166534;font-weight:700"></div>
+        </div>
+      </div>
+
+      <!-- 포장 기록 (박스) -->
+      <div class="iops-card-box" style="margin-top:14px">
+        <div class="iops-card-title">📦 포장 기록 (박스별)</div>
+        <div id="pkg_boxes" style="display:flex;flex-direction:column;gap:6px">
+          ${(saved.boxes && saved.boxes.length ? saved.boxes : [{no:1,perBox:'',count:'',subtotal:''}, {no:2,perBox:'',count:'',subtotal:''}]).map((b, i) => `
+            <div class="pkg-box-row" style="display:grid;grid-template-columns:60px 1fr 1fr 1fr 40px;gap:6px;align-items:center">
+              <input type="text" placeholder="박스호수" value="${b.no || (i+1)}" style="padding:8px;border:1px solid var(--ge);border-radius:6px;text-align:center;font-size:12px">
+              <input type="number" placeholder="개입" value="${b.perBox || ''}" style="padding:8px;border:1px solid var(--ge);border-radius:6px;font-size:12px" oninput="iopsPkgBoxRecalc(this)">
+              <input type="number" placeholder="박스수" value="${b.count || ''}" style="padding:8px;border:1px solid var(--ge);border-radius:6px;font-size:12px" oninput="iopsPkgBoxRecalc(this)">
+              <input type="text" placeholder="소계" value="${b.subtotal || ''}" readonly style="padding:8px;border:1px solid var(--ge);border-radius:6px;background:#F9FAFB;font-size:12px">
+              <button type="button" onclick="this.parentElement.remove();iopsPkgBoxTotal()" style="padding:6px;border:none;background:transparent;color:#DC2626;cursor:pointer;font-size:16px">✕</button>
+            </div>
+          `).join('')}
+        </div>
+        <button type="button" onclick="iopsPkgAddBox()" style="margin-top:8px;padding:8px 14px;border:1px dashed #DC2626;background:#FEF2F2;color:#DC2626;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">+ 박스 행 추가</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-top:12px">
+          <div class="iops-doc-field"><label>총수량 (EA) — 자동</label><input type="text" id="pkg_boxTotal" value="${saved.boxTotal || ''}" readonly style="background:#F0FDF4;color:#166534;font-weight:700"></div>
+          <div class="iops-doc-field"><label>작업시간</label><input type="text" id="pkg_workTime" value="${saved.workTime || ''}" placeholder="예: 2시간20분"></div>
+          <div class="iops-doc-field"><label>작업인원</label><input type="text" id="pkg_workers" value="${saved.workers || ''}" placeholder="예: 7명"></div>
+          <div class="iops-doc-field"><label>샘플 (생산수량 포함)</label><input type="number" id="pkg_sample" value="${saved.sample || '3'}" oninput="iopsPkgRecalc()"></div>
+        </div>
+      </div>
+
+      <!-- 생산 정보 -->
+      <div class="iops-card-box" style="margin-top:14px">
+        <div class="iops-card-title">🏭 생산 수율</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="iops-doc-field"><label>계획수량 (개)</label><input type="number" id="pkg_planQty" value="${saved.planQty || po.orderQty || ''}" oninput="iopsPkgRecalc()"></div>
+          <div class="iops-doc-field"><label>생산수량 (개) — ②와 동일</label><input type="text" id="pkg_prodQty" value="${saved.prodQty || ''}" readonly style="background:#F9FAFB"></div>
+          <div class="iops-doc-field"><label>생산수율 (%) — 자동</label><input type="text" id="pkg_prodYield" value="${saved.prodYield || ''}" readonly style="background:#F0FDF4;color:#166534;font-weight:700"></div>
+        </div>
+      </div>
+
+      <!-- 비고 + 결재 -->
+      <div class="iops-card-box" style="margin-top:14px">
+        <div class="iops-card-title">📝 비고 / 결재</div>
+        <div class="iops-doc-field"><label>비고</label><textarea id="pkg_note" rows="3" placeholder="공정 중 특이사항">${saved.note || ''}</textarea></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="iops-doc-field"><label>생산 담당</label><input type="text" id="pkg_signProd" value="${saved.signProd || ''}"></div>
+          <div class="iops-doc-field"><label>생산 책임</label><input type="text" id="pkg_signProdLead" value="${saved.signProdLead || ''}"></div>
+          <div class="iops-doc-field"><label>QC 책임</label><input type="text" id="pkg_signQC" value="${saved.signQC || ''}"></div>
+        </div>
+      </div>
+
+      <div class="iops-doc-actions">
+        <button class="iops-doc-btn-cancel" onclick="iopsOpenOrderDetail('${orderId}')">취소</button>
+        <button class="iops-doc-btn-save" onclick="iopsSavePkgRecord('${orderId}', false)">💾 임시저장</button>
+        <button class="iops-doc-btn-complete" onclick="iopsSavePkgRecord('${orderId}', true)">✓ 작성 완료</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button onclick="iopsPrintPkgRecord('${orderId}')" style="flex:1;padding:11px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #3B82F6;background:#EFF6FF;color:#1E40AF;font-family:inherit">📄 인쇄 / PDF 저장</button>
+      </div>
+    </div>
+  `;
+  iopsPkgRecalc();
+  iopsPkgBoxTotal();
+}
+
+// 자동 계산: 사용량/loss/수율/생산수율 + 충전지시량 최소·최대
+function iopsPkgRecalc() {
+  const num = id => parseFloat(document.getElementById(id)?.value) || 0;
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+
+  // 충전지시량 = 표시량(미리수) (비중 무관, 동일 값 사용)
+  // 최소 충전량 = 표시량 × 비중 × 0.97
+  // 최대 충전량 = 표시량 × 비중 × 1.02
+  const displayVol = num('pkg_displayVol');
+  const sg = num('pkg_sg');
+  setVal('pkg_fillTarget', displayVol ? displayVol.toFixed(2) : '');
+  if (displayVol && sg) {
+    setVal('pkg_fillMin', (displayVol * sg * 0.97).toFixed(3));
+    setVal('pkg_fillMax', (displayVol * sg * 1.02).toFixed(3));
+  } else {
+    setVal('pkg_fillMin', '');
+    setVal('pkg_fillMax', '');
+  }
+
+  // 충전 수율 (엑셀 양식 표시 형식 — 소수점 2자리)
+  // ② 충진수량 = 박스 총수량 + 샘플 (자동)
+  // ④ 평균중량 = 충전지시량 (자동)
+  // ③ 사용량 = (②×④) / 1000 [kg]
+  // ⑥ loss량 = ① − ③ [kg]
+  // ⑦ 수율 = (③+⑤) / ① × 100 [%]
+  const fillTarget = num('pkg_fillTarget');
+  const sample = num('pkg_sample');
+  const boxTotal = iopsPkgGetBoxTotal();
+  const fillCount = boxTotal + sample;
+  const avgWeight = fillTarget;
+  setVal('pkg_fillCount', fillCount || '');
+  setVal('pkg_avgWeight', avgWeight ? avgWeight.toFixed(2) : '');
+
+  const bulkIn = num('pkg_bulkIn');
+  const returned = num('pkg_returned');
+  const used = (fillCount * avgWeight) / 1000;
+  setVal('pkg_usedAmount', (fillCount && avgWeight) ? used.toFixed(2) : '');
+  const loss = bulkIn - used;
+  setVal('pkg_lossAmount', bulkIn ? loss.toFixed(2) : '');
+  const yieldPct = bulkIn ? ((used + returned) / bulkIn * 100) : 0;
+  setVal('pkg_yield', bulkIn ? yieldPct.toFixed(2) : '');
+
+  // 생산 수율
+  const planQty = num('pkg_planQty');
+  setVal('pkg_prodQty', fillCount || '');
+  const prodYield = planQty ? (fillCount / planQty * 100) : 0;
+  setVal('pkg_prodYield', planQty ? prodYield.toFixed(2) : '');
+}
+
+// 박스 행에서 총수량 합계만 반환 (재계산용)
+function iopsPkgGetBoxTotal() {
+  let total = 0;
+  document.querySelectorAll('#pkg_boxes .pkg-box-row').forEach(r => {
+    const inputs = r.querySelectorAll('input');
+    total += parseFloat(inputs[3].value) || 0;
+  });
+  return total;
+}
+
+// 충전일자 → 포장일자 자동 동기화
+function iopsPkgSyncPackDate() {
+  const fill = document.getElementById('pkg_fillDate')?.value || '';
+  const pack = document.getElementById('pkg_packDate');
+  if (pack) pack.value = fill;
+}
+
+// 공정별 점검사항 모두 체크/해제 토글
+function iopsPkgToggleAllChecks() {
+  const btn = document.getElementById('pkg_toggleAllBtn');
+  const checkboxes = [];
+  PKG_CHECK_SECTIONS.forEach(sec => {
+    sec.items.forEach((_, i) => {
+      const el = document.getElementById(`pkg_chk_${sec.key}_${i}`);
+      if (el) checkboxes.push(el);
+    });
+  });
+  const allChecked = checkboxes.every(cb => cb.checked);
+  checkboxes.forEach(cb => { cb.checked = !allChecked; });
+  if (btn) btn.innerHTML = allChecked ? '☑ 모두 체크' : '☐ 모두 해제';
+}
+
+// 박스 행 소계 계산 + 총수량
+function iopsPkgBoxRecalc(input) {
+  const row = input.closest('.pkg-box-row');
+  if (!row) return;
+  const inputs = row.querySelectorAll('input');
+  // inputs[1]=개입, inputs[2]=박스수, inputs[3]=소계
+  const per = parseFloat(inputs[1].value) || 0;
+  const cnt = parseFloat(inputs[2].value) || 0;
+  inputs[3].value = per && cnt ? per * cnt : '';
+  iopsPkgBoxTotal();
+}
+function iopsPkgBoxTotal() {
+  const total = iopsPkgGetBoxTotal();
+  const el = document.getElementById('pkg_boxTotal');
+  if (el) el.value = total ? total.toLocaleString() + ' EA' : '';
+  // 박스 변경 시 충진수량/평균중량/수율도 즉시 재계산
+  iopsPkgRecalc();
+}
+function iopsPkgAddBox() {
+  const wrap = document.getElementById('pkg_boxes');
+  if (!wrap) return;
+  const nextNo = wrap.querySelectorAll('.pkg-box-row').length + 1;
+  const div = document.createElement('div');
+  div.className = 'pkg-box-row';
+  div.style.cssText = 'display:grid;grid-template-columns:60px 1fr 1fr 1fr 40px;gap:6px;align-items:center';
+  div.innerHTML = `
+    <input type="text" placeholder="박스호수" value="${nextNo}" style="padding:8px;border:1px solid var(--ge);border-radius:6px;text-align:center;font-size:12px">
+    <input type="number" placeholder="개입" style="padding:8px;border:1px solid var(--ge);border-radius:6px;font-size:12px" oninput="iopsPkgBoxRecalc(this)">
+    <input type="number" placeholder="박스수" style="padding:8px;border:1px solid var(--ge);border-radius:6px;font-size:12px" oninput="iopsPkgBoxRecalc(this)">
+    <input type="text" placeholder="소계" readonly style="padding:8px;border:1px solid var(--ge);border-radius:6px;background:#F9FAFB;font-size:12px">
+    <button type="button" onclick="this.parentElement.remove();iopsPkgBoxTotal()" style="padding:6px;border:none;background:transparent;color:#DC2626;cursor:pointer;font-size:16px">✕</button>
+  `;
+  wrap.appendChild(div);
+}
+
+async function iopsSavePkgRecord(orderId, markComplete) {
+  const v = id => document.getElementById(id)?.value?.trim() || '';
+  // 부자재 + 점검 체크 수집
+  const materials = {};
+  PKG_MATERIAL_DEFAULTS.forEach(m => {
+    materials[m.id] = {
+      name: v(`pkg_matname_${m.id}`),
+      checked: document.getElementById(`pkg_matchk_${m.id}`)?.checked || false,
+    };
+  });
+  const checks = {};
+  PKG_CHECK_SECTIONS.forEach(sec => {
+    sec.items.forEach((_, i) => {
+      checks[`${sec.key}_${i}`] = document.getElementById(`pkg_chk_${sec.key}_${i}`)?.checked || false;
+    });
+  });
+  // 박스 행 수집
+  const boxes = Array.from(document.querySelectorAll('#pkg_boxes .pkg-box-row')).map(r => {
+    const inputs = r.querySelectorAll('input');
+    return { no: inputs[0].value, perBox: inputs[1].value, count: inputs[2].value, subtotal: inputs[3].value };
+  });
+
+  const data = {
+    lotNumber: v('pkg_lotNumber'), expiry: v('pkg_expiry'),
+    fillDate: v('pkg_fillDate'), displayVol: v('pkg_displayVol'), sg: v('pkg_sg'),
+    fillTarget: v('pkg_fillTarget'), fillMin: v('pkg_fillMin'), fillMax: v('pkg_fillMax'),
+    packDate: v('pkg_packDate'), machine: v('pkg_machine'), nozzleSet: v('pkg_nozzleSet'),
+    bulkIn: v('pkg_bulkIn'), fillCount: v('pkg_fillCount'), avgWeight: v('pkg_avgWeight'),
+    usedAmount: v('pkg_usedAmount'), returned: v('pkg_returned'),
+    lossAmount: v('pkg_lossAmount'), yield: v('pkg_yield'),
+    planQty: v('pkg_planQty'), prodQty: v('pkg_prodQty'), prodYield: v('pkg_prodYield'),
+    workTime: v('pkg_workTime'), workers: v('pkg_workers'), sample: v('pkg_sample'),
+    boxTotal: v('pkg_boxTotal'), note: v('pkg_note'),
+    signProd: v('pkg_signProd'), signProdLead: v('pkg_signProdLead'), signQC: v('pkg_signQC'),
+    materials, checks, boxes,
+  };
+
+  if (markComplete) {
+    if (!data.fillDate || !data.fillCount || !data.bulkIn) {
+      alert('작성 완료하려면 충전일자·벌크투입량·충진수량을 입력해주세요.');
+      return;
+    }
+  }
+  const movedBy = currentUserData?.name || currentUser?.email || 'unknown';
+  try {
+    await db.collection('orders').doc(orderId).update({
+      'documents.pkgRecord': {
+        data,
+        completed: !!markComplete,
+        completedAt: markComplete ? firebase.firestore.FieldValue.serverTimestamp() : null,
+        savedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        savedBy: movedBy,
+      }
+    });
+    alert(markComplete ? '✓ 충포장 지시 및 기록서 작성 완료!' : '💾 임시 저장 완료');
+    if (markComplete) iopsOpenOrderDetail(orderId);
+  } catch(e) {
+    alert('저장 실패: ' + e.message);
+  }
+}
+
+// 🖨️ 충포장 기록서 인쇄/PDF
+async function iopsPrintPkgRecord(orderId) {
+  let order;
+  try {
+    const doc = await db.collection('orders').doc(orderId).get();
+    if (!doc.exists) { alert('의뢰서를 찾을 수 없습니다.'); return; }
+    order = doc.data();
+  } catch(e) { alert('로드 실패: ' + e.message); return; }
+  const po = order.purchaseOrder || {};
+  const bulk = order.documents?.bulkTest?.data || {};
+  const pkg = order.documents?.pkgRecord?.data || {};
+  const E = s => String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmt = v => v ? E(v) : '';
+  const productName = (po.brandName && po.productName) ? `${po.brandName} ${po.productName}` : (po.brand || '-');
+  const studentName = po.studentName || order.userName || order.studentName || '-';
+  const poDate = po.submittedDate || order.stageDates?.po_submitted || '';
+  const lotNumber = pkg.lotNumber || order.lotNumber || bulk.lotNumber || '';
+  const expiry = pkg.expiry || calcExpiryDate(order.mfgDate || bulk.mfgDate || '');
+  const mats = pkg.materials || {};
+  const checks = pkg.checks || {};
+  const boxes = pkg.boxes || [];
+  const logoUrl = window.location.origin + '/images/' + encodeURIComponent('레드메디코스 로고') + '.png';
+
+  const matRows = PKG_MATERIAL_DEFAULTS.map((m, i) => `
+    <tr>
+      <td style="text-align:center;width:30px">${i+1}</td>
+      <td>${E(mats[m.id]?.name || m.label)}</td>
+      <td style="text-align:center;width:30px">${mats[m.id]?.checked ? '✓' : ''}</td>
+    </tr>`).join('');
+
+  const checkRows = PKG_CHECK_SECTIONS.map(sec => `
+    <tr><td colspan="2" style="background:#f0f0f0;font-weight:700;padding:4px 8px">${sec.name}</td></tr>
+    ${sec.items.map((it, i) => `
+      <tr>
+        <td style="padding:3px 8px;font-size:9pt">${i+1}. ${E(it)}</td>
+        <td style="text-align:center;width:30px">${checks[`${sec.key}_${i}`] ? '✓' : ''}</td>
+      </tr>
+    `).join('')}
+  `).join('');
+
+  const boxRows = boxes.length ? boxes.map(b => `
+    <tr>
+      <td>${E(b.no||'')}</td><td>${E(b.perBox||'')}</td><td>${E(b.count||'')}</td><td>${E(b.subtotal||'')}</td><td>EA</td>
+    </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:#999">박스 기록 없음</td></tr>';
+
+  const html = `<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>충포장 지시 및 기록서 ${E(lotNumber)}</title>
+<style>
+@page { size: A4; margin: 12mm; }
+body { font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif; font-size: 10pt; color: #000; margin: 0; padding: 16px; background: #f5f5f5; }
+.sheet { background: #fff; max-width: 210mm; margin: 0 auto; padding: 14mm 12mm; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+@media print { body { background: #fff; padding: 0; } .sheet { box-shadow: none; padding: 0; max-width: none; } .no-print { display: none !important; } -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.header { display: flex; align-items: center; border-bottom: 2px solid #000; padding-bottom: 8mm; margin-bottom: 6mm; }
+.logo-box { padding-right: 12mm; border-right: 1px solid #000; margin-right: 12mm; display:flex; align-items:center; }
+.logo-img { height: 56px; width: auto; }
+.title { flex: 1; font-size: 20pt; font-weight: 800; letter-spacing: 8px; text-align: center; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 3mm; }
+table th, table td { border: 1px solid #000; padding: 4px 6px; font-size: 9pt; }
+.info-table th { background: #f0f0f0; font-weight: 700; text-align: center; width: 14%; }
+.cols { display:grid; grid-template-columns: 1fr 1.3fr; gap: 4mm; margin-bottom: 3mm; }
+.special-box { border: 1px solid #000; padding: 6px 8px; min-height: 40px; margin-bottom: 3mm; }
+.special-title { font-size: 9pt; font-weight: 700; margin-bottom: 3px; }
+.special-content { font-size: 9pt; white-space: pre-wrap; }
+.print-bar { background: #fffbeb; border: 1px solid #fcd34d; padding: 10px 14px; margin-bottom: 14px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; max-width: 210mm; margin-left:auto; margin-right:auto; }
+.print-bar-btn { padding: 8px 18px; background: #DC2626; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px; }
+</style></head><body>
+<div class="print-bar no-print">
+  <div style="font-size:13px;color:#92400E">💡 <strong>Ctrl+P</strong> (Mac: <strong>⌘+P</strong>) → "PDF로 저장"</div>
+  <button class="print-bar-btn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
+</div>
+<div class="sheet">
+  <div class="header">
+    <div class="logo-box"><img src="${logoUrl}" alt="RED MEDICOS" class="logo-img" onerror="this.outerHTML='<div style=\\'font-size:16pt;font-weight:900;color:#DC2626\\'>RED<br>MEDICOS</div>'"></div>
+    <div class="title">충 포 장 지 시 및 기 록 서</div>
+  </div>
+
+  <table class="info-table">
+    <tr>
+      <th>제품명</th><td colspan="3" style="text-align:left">${E(productName)}</td>
+      <th style="width:10%">의뢰자</th><td style="width:15%;text-align:left">${E(studentName)}</td>
+    </tr>
+    <tr>
+      <th>제조번호</th><td>${E(lotNumber)}</td>
+      <th>사용기한</th><td>${fmt(expiry)}</td>
+      <th>발주일</th><td>${fmt(poDate)}</td>
+    </tr>
+    <tr>
+      <th>충전일자</th><td colspan="5" style="text-align:left">${fmt(pkg.fillDate)}</td>
+    </tr>
+  </table>
+
+  <div class="cols">
+    <table>
+      <thead><tr style="background:#f0f0f0"><th colspan="3">부자재</th></tr><tr style="background:#fafafa"><th>No.</th><th>부자재명</th><th>✓</th></tr></thead>
+      <tbody>${matRows}</tbody>
+    </table>
+    <table>
+      <thead><tr style="background:#f0f0f0"><th colspan="2">공정별 점검사항</th></tr></thead>
+      <tbody>${checkRows}</tbody>
+    </table>
+  </div>
+
+  <table>
+    <thead><tr style="background:#f0f0f0"><th colspan="6">충전 사양</th></tr></thead>
+    <tbody>
+      <tr>
+        <th style="width:14%">표시량</th><td style="width:19%">${fmt(pkg.displayVol)} ml</td>
+        <th style="width:14%">비중</th><td style="width:19%">${fmt(pkg.sg)}</td>
+        <th style="width:14%">충전지시량</th><td style="width:20%">${fmt(pkg.fillTarget)} g</td>
+      </tr>
+      <tr>
+        <th>최소~최대</th><td colspan="5" style="text-align:center">${fmt(pkg.fillMin)} ~ ${fmt(pkg.fillMax)} g</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead><tr style="background:#f0f0f0"><th colspan="6">충전 수율 기록</th></tr></thead>
+    <tbody>
+      <tr><th>① 벌크투입량</th><td>${fmt(pkg.bulkIn)} kg</td><th>② 충진수량</th><td>${fmt(pkg.fillCount)} 개</td><th>④ 평균중량</th><td>${fmt(pkg.avgWeight)} g</td></tr>
+      <tr><th>③ 사용량</th><td>${fmt(pkg.usedAmount)} kg</td><th>⑤ 재입고</th><td>${fmt(pkg.returned)} kg</td><th>⑥ loss량</th><td>${fmt(pkg.lossAmount)} kg</td></tr>
+      <tr><th>⑦ 수율</th><td colspan="5" style="font-weight:700;color:#166534">${fmt(pkg.yield)}</td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead><tr style="background:#f0f0f0"><th>박스호수</th><th>개입</th><th>박스수</th><th>소계</th><th>단위</th></tr></thead>
+    <tbody>${boxRows}</tbody>
+    <tfoot><tr><th colspan="3" style="text-align:right">총수량</th><td colspan="2" style="font-weight:700;color:#166534">${fmt(pkg.boxTotal)}</td></tr></tfoot>
+  </table>
+
+  <table>
+    <tr>
+      <th>계획수량</th><td>${fmt(pkg.planQty)} 개</td>
+      <th>생산수량</th><td>${fmt(pkg.prodQty)} 개</td>
+      <th>생산수율</th><td style="font-weight:700;color:#166534">${fmt(pkg.prodYield)}</td>
+    </tr>
+    <tr>
+      <th>작업시간</th><td>${fmt(pkg.workTime)}</td>
+      <th>작업인원</th><td>${fmt(pkg.workers)}</td>
+      <th>샘플</th><td>${fmt(pkg.sample)} (생산수량 포함)</td>
+    </tr>
+    <tr>
+      <th>포장일자</th><td>${fmt(pkg.packDate)}</td>
+      <th>충진기 호기</th><td>${fmt(pkg.machine)}</td>
+      <th>노즐 / 세팅값</th><td>${fmt(pkg.nozzleSet)}</td>
+    </tr>
+  </table>
+
+  <div class="special-box">
+    <div class="special-title">◈ 비고</div>
+    <div class="special-content">${fmt(pkg.note)}</div>
+  </div>
+
+  <table>
+    <thead><tr style="background:#f0f0f0"><th>생산 담당</th><th>생산 책임</th><th>QC 책임</th></tr></thead>
+    <tbody><tr><td style="height:40px">${fmt(pkg.signProd)}</td><td>${fmt(pkg.signProdLead)}</td><td>${fmt(pkg.signQC)}</td></tr></tbody>
+  </table>
+</div>
+</body></html>`;
+  const w = window.open('', '_blank');
+  if (!w) { alert('팝업이 차단되었습니다.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
 }
 
 async function iopsSaveBulkTest(orderId, markComplete) {
@@ -8667,6 +9299,11 @@ auth.onAuthStateChanged(async (user) => {
       const doc = await db.collection('users').doc(user.uid).get();
       if (doc.exists) {
         currentUserData = doc.data();
+        // 백워드 호환: cohortType이 없는 기존 사용자는 brand로 추론
+        if (!currentUserData.cohortType && currentUserData.brand) {
+          const PAST_BRANDS = ['오프라인1기','오프라인2기','오프라인3기','오프라인4기','온라인1기','온라인2기','온라인3기','온라인4기'];
+          currentUserData.cohortType = PAST_BRANDS.includes(currentUserData.brand) ? 'past' : 'current';
+        }
       } else {
         // Firestore 문서가 없으면 삭제된 사용자이므로 로그인 차단
         await auth.signOut();
